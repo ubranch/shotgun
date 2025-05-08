@@ -1,3 +1,5 @@
+![](https://github.com/user-attachments/assets/ec9c0d87-fc7c-4800-a52e-a34356ef09c3)
+
 # Shotgun App
 
 *One‑click codebase "blast" for Large‑Language‑Model workflows.*
