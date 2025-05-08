@@ -48,7 +48,8 @@ const steps = ref([
 const logMessages = ref([]);
 const centralPanelRef = ref(null); 
 const bottomConsoleRef = ref(null);
-const consoleHeight = ref(150); // Initial height in pixels
+const MIN_CONSOLE_HEIGHT = 50;
+const consoleHeight = ref(MIN_CONSOLE_HEIGHT); // Initial height in pixels
 
 function addLog(message, type = 'info', targetConsole = 'bottom') {
   const logEntry = {
@@ -296,7 +297,7 @@ function doResize(event) {
   // event.clientY is the mouse Y position relative to the viewport
   const newHeight = window.innerHeight - event.clientY;
   // Apply constraints (e.g., min/max height)
-  const minHeight = 50; // Min console height
+  const minHeight = MIN_CONSOLE_HEIGHT; // Min console height
   const maxHeight = window.innerHeight * 0.7; // Max 70% of viewport height
   consoleHeight.value = Math.max(minHeight, Math.min(newHeight, maxHeight));
 }

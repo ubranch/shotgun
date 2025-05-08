@@ -6,6 +6,7 @@
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
+  "icon": "appicon.png",
   "author": {
     "name": "Your Name",
     "email": "you@example.com"

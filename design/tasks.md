@@ -21,3 +21,15 @@
         *   Updated `design/architecture.md` to reflect the new behavior of `ListFiles` and the resulting tree structure.
         *   Added this entry to `design/tasks.md` (and updated with this improvement).
 *   **Status:** Backend changes implemented and documented. Frontend behavior confirmed by analysis to be compatible. Root node now expands by default.
+
+# Project Tasks
+
+## Phase 1: Initial ignore.glob Implementation (Completed)
+
+- [x] Create `ignore.glob` with default media file patterns.
+- [x] Modify `app.go` (`ListFiles`, `buildTree`) to parse `ignore.glob` and combine its rules with `.gitignore`.
+
+## Phase 2: Configurable Ignore Patterns
+
+- [ ] Вынести шаблоны из `ignore.glob` в настройки приложения, чтобы пользователь мог их редактировать через интерфейс приложения.
+- [ ] Обеспечить сохранение пользовательских шаблонов между сессиями приложения.

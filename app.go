@@ -42,21 +42,38 @@ func (a *App) SelectDirectory() (string, error) {
 
 // ListFiles lists files and folders in a directory, parsing .gitignore if present
 func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
-	var ign *gitignore.GitIgnore
+	var gitIgn *gitignore.GitIgnore
 	gitignorePath := filepath.Join(dirPath, ".gitignore")
 	fmt.Printf("Attempting to find .gitignore at: %s\n", gitignorePath)
 	if _, err := os.Stat(gitignorePath); err == nil {
 		fmt.Printf(".gitignore found at: %s\n", gitignorePath)
-		ign, err = gitignore.CompileIgnoreFile(gitignorePath)
+		gitIgn, err = gitignore.CompileIgnoreFile(gitignorePath)
 		if err != nil {
 			fmt.Printf("Error compiling .gitignore file at %s: %v\n", gitignorePath, err)
-			ign = nil // Ensure ign is nil if compilation fails
+			gitIgn = nil // Ensure ign is nil if compilation fails
 		} else {
 			fmt.Printf(".gitignore compiled successfully.\n")
 		}
 	} else {
 		fmt.Printf(".gitignore not found at %s (os.Stat error: %v)\n", gitignorePath, err)
-		ign = nil
+		gitIgn = nil
+	}
+
+	var globIgn *gitignore.GitIgnore
+	globIgnorePath := filepath.Join(dirPath, "ignore.glob")
+	fmt.Printf("Attempting to find ignore.glob at: %s\n", globIgnorePath)
+	if _, err := os.Stat(globIgnorePath); err == nil {
+		fmt.Printf("ignore.glob found at: %s\n", globIgnorePath)
+		globIgn, err = gitignore.CompileIgnoreFile(globIgnorePath)
+		if err != nil {
+			fmt.Printf("Error compiling ignore.glob file at %s: %v\n", globIgnorePath, err)
+			globIgn = nil
+		} else {
+			fmt.Printf("ignore.glob compiled successfully.\n")
+		}
+	} else {
+		fmt.Printf("ignore.glob not found at %s (os.Stat error: %v)\n", globIgnorePath, err)
+		globIgn = nil
 	}
 
 	// Create the root node representing the selected directory
@@ -71,7 +88,7 @@ func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 	}
 
 	// Get children for the root node using the existing buildTree logic
-	children, err := buildTree(dirPath, dirPath, ign, 0)
+	children, err := buildTree(dirPath, dirPath, gitIgn, globIgn, 0)
 	if err != nil {
 		// If there's an error building the children tree (e.g., permission issues),
 		// return the root node with no children, but also return the error.
@@ -85,7 +102,7 @@ func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 	return []*FileNode{rootNode}, nil
 }
 
-func buildTree(currentPath, rootPath string, ign *gitignore.GitIgnore, depth int) ([]*FileNode, error) { // Added depth
+func buildTree(currentPath, rootPath string, gitIgn *gitignore.GitIgnore, globIgn *gitignore.GitIgnore, depth int) ([]*FileNode, error) { // Added depth and globIgn
 	entries, err := os.ReadDir(currentPath)
 	if err != nil {
 		return nil, err
@@ -98,36 +115,42 @@ func buildTree(currentPath, rootPath string, ign *gitignore.GitIgnore, depth int
 		// For gitignore matching, paths should generally be relative to the .gitignore file (rootPath)
 		// and use OS-specific separators. go-gitignore handles this.
 
-		isIgnoredByGit := false
-		if ign != nil {
-			pathToMatch := relPath
-			if entry.IsDir() {
-				// For directories, some gitignore implementations are stricter if the rule ends with '/'
-				// and the path doesn't. Let's ensure our path to check also ends with '/' if it's a dir.
-				// Note: go-gitignore should ideally handle this, but this is a test.
-				if !strings.HasSuffix(pathToMatch, string(os.PathSeparator)) {
-					pathToMatch += string(os.PathSeparator)
-				}
-			}
-			isIgnoredByGit = ign.MatchesPath(pathToMatch)
-
-			// Log only for top-level items or specific known items for brevity
-			if depth < 2 || strings.Contains(relPath, "node_modules") || strings.HasSuffix(relPath, ".log") {
-				fmt.Printf("Checking path: '%s' (original relPath: '%s'), IsDir: %v, Ignored: %v\n", pathToMatch, relPath, entry.IsDir(), isIgnoredByGit)
+		isIgnored := false
+		pathToMatch := relPath
+		if entry.IsDir() {
+			// For directories, some gitignore implementations are stricter if the rule ends with '/'
+			// and the path doesn't. Let's ensure our path to check also ends with '/' if it's a dir.
+			// Note: go-gitignore should ideally handle this.
+			if !strings.HasSuffix(pathToMatch, string(os.PathSeparator)) {
+				pathToMatch += string(os.PathSeparator)
 			}
 		}
 
+		if gitIgn != nil && gitIgn.MatchesPath(pathToMatch) {
+			isIgnored = true
+		}
+		// Check globIgn only if not already ignored by .gitignore
+		if !isIgnored && globIgn != nil && globIgn.MatchesPath(pathToMatch) {
+			isIgnored = true
+		}
+
+		// Log only for top-level items or specific known items for brevity
+		if depth < 2 || strings.Contains(relPath, "node_modules") || strings.HasSuffix(relPath, ".log") {
+			fmt.Printf("Checking path: '%s' (original relPath: '%s'), IsDir: %v, Ignored: %v\n", pathToMatch, relPath, entry.IsDir(), isIgnored)
+		}
+
 		node := &FileNode{
-			Name:         entry.Name(),
-			Path:         nodePath,
-			RelPath:      relPath,
-			IsDir:        entry.IsDir(),
-			IsGitignored: isIgnoredByGit,
+			Name:    entry.Name(),
+			Path:    nodePath,
+			RelPath: relPath,
+			IsDir:   entry.IsDir(),
+			// IsGitignored now reflects combined ignore status
+			IsGitignored: isIgnored,
 		}
 
 		if entry.IsDir() {
 			// Children inherit gitignore rules through their own path matching
-			children, err := buildTree(nodePath, rootPath, ign, depth+1) // Increment depth
+			children, err := buildTree(nodePath, rootPath, gitIgn, globIgn, depth+1) // Increment depth, pass globIgn
 			if err != nil {
 				fmt.Printf("Error reading dir %s: %v\n", nodePath, err)
 				continue
