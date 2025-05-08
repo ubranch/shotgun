@@ -99,9 +99,10 @@ function calculateNodeExcludedState(node, parent) {
 function mapDataToTree(nodes, parent) {
   if (!nodes) return [];
   return nodes.map(node => {
+    const isRootNode = parent === null; // Check if current node is the root
     const reactiveNode = reactive({
       ...node, // Includes isGitignored from backend
-      expanded: node.isDir ? false : undefined,
+      expanded: node.isDir ? (isRootNode ? true : false) : undefined, // Root expanded, others not
       // `excluded` state is now calculated based on gitignore and manual toggles
       // This will be set by calculateNodeExcludedState or by the watcher
       parent: parent,

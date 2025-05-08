@@ -26,11 +26,15 @@ The Go backend is structured into a `main` package.
     -   **`FileNode` struct**: Represents a file or folder in the tree. Includes `Name`, `Path`, `RelPath`, `IsDir`, `Children`, and `Excluded` (for UI state).
     -   **`ListFiles(dirPath string) ([]*FileNode, error)`**:
         -   Takes a directory path as input.
-        -   Recursively scans the directory.
-        -   Builds a tree structure of `FileNode` objects.
+        -   Creates a single root `FileNode` representing `dirPath` itself.
+        -   The `Name` of this root node is the base name of `dirPath`.
+        -   The `RelPath` of this root node is `"."`.
+        -   `IsDir` for this root node is `true`.
+        -   Its `Children` are populated by recursively scanning the `dirPath`.
+        -   This recursive scan builds a tree structure of `FileNode` objects for the contents of `dirPath`.
         -   Uses `os.ReadDir` and `path/filepath` for file system interaction.
         -   Sorts entries (directories first, then by name).
-        -   Returns the tree structure to the frontend.
+        -   Returns a slice containing only the single root `FileNode` to the frontend.
     -   **`GenerateShotgunOutput(rootDir string, excludedPaths []string) (string, error)`**:
         -   Takes the root directory path and a list of relative paths to exclude.
         -   **Tree Generation**:
@@ -99,9 +103,9 @@ The frontend is a Single Page Application (SPA) built with Vue 3 (Composition AP
     -   Go backend uses `runtime.OpenDirectoryDialog` to show dialog. Path is returned to Frontend.
     -   Frontend updates `projectRoot` state and calls Go's `App.ListFiles(selectedPath)`.
 2.  **File Tree Display**:
-    -   Go's `App.ListFiles` reads the directory structure, creates `FileNode` objects, and returns them to Frontend.
-    -   Frontend (`App.vue`) receives the tree data, makes it reactive, and passes it to `FileTree.vue`.
-    -   `FileTree.vue` renders the tree. Users can expand/collapse directories.
+    -   Go's `App.ListFiles` reads the directory structure, creates a root `FileNode` for the selected directory and `FileNode` objects for its contents, and returns a slice containing just the root node to Frontend.
+    -   Frontend (`App.vue`) receives the tree data (an array with one root node), makes it reactive, and passes it to `FileTree.vue`.
+    -   `FileTree.vue` renders the tree starting from this single root node. Users can expand/collapse directories.
 3.  **Exclusion Marking**:
     -   User clicks a checkbox next to a file/folder in `FileTree.vue`.
     -   `FileTree.vue` emits `toggle-exclude` event with the node.

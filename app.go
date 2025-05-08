@@ -58,7 +58,31 @@ func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 		fmt.Printf(".gitignore not found at %s (os.Stat error: %v)\n", gitignorePath, err)
 		ign = nil
 	}
-	return buildTree(dirPath, dirPath, ign, 0) // Added depth for limited logging
+
+	// Create the root node representing the selected directory
+	rootNode := &FileNode{
+		Name:    filepath.Base(dirPath),
+		Path:    dirPath,
+		RelPath: ".", // Relative path for the root itself is "."
+		IsDir:   true,
+		// IsGitignored for the root itself is typically false, unless a specific rule targets it.
+		// For simplicity, we'll assume it's not ignored. If needed, this could be checked.
+		IsGitignored: false,
+	}
+
+	// Get children for the root node using the existing buildTree logic
+	children, err := buildTree(dirPath, dirPath, ign, 0)
+	if err != nil {
+		// If there's an error building the children tree (e.g., permission issues),
+		// return the root node with no children, but also return the error.
+		// Or, decide if this scenario means ListFiles should fail entirely.
+		// For now, let's return the root and the error. The frontend might need to handle this.
+		return []*FileNode{rootNode}, fmt.Errorf("error building children tree for %s: %w", dirPath, err)
+	}
+	rootNode.Children = children
+
+	// ListFiles now returns a slice containing only the root node
+	return []*FileNode{rootNode}, nil
 }
 
 func buildTree(currentPath, rootPath string, ign *gitignore.GitIgnore, depth int) ([]*FileNode, error) { // Added depth

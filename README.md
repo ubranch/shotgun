@@ -176,10 +176,19 @@ package main
 ---
 
 ## 10. Roadmap
+
+🗂️ **File & Folder Structure Copy**  
+ Basic ability to copy the entire file and folder structure.
+💬 **Prompt-Driven Diff Generation**  
+ Add user prompt + system prompt to generate diffs via AI.
+⚡ **In-App Execution**  
+ Allow running the AI diff process directly from the UI (not just from AI Studio).
+4️⃣ 🔀 **One-Click Patch Application**  
+ Enable applying patches inside Shotgun, without jumping to the cursor or external tools.
+*   🧠 Direct API bridge to send output to OpenAI / Gemini without copy-paste.
 *   🗂️ Preset exclude templates (Go, Node, Rust, …).
-*   🧠 Direct API bridge to send output to OpenAI / Gemini without copy‑paste.
-*   🔀 Patch importer – apply AI‑generated diffs from inside Shotgun.
 *   📦 CLI version for headless pipelines.
+*   **Watch token limits** – even million-token models have practical caps. Use Shotgun scopes (root folder vs subfolder) to stay under budget.
 
 ---
 
@@ -190,7 +199,7 @@ Please format Go code with `go fmt` and follow Vue 3 style guidelines.
 ---
 
 ## 12. License
-MIT – see `LICENSE` file.
+Custom MIT-like – see `LICENSE.md` file.
 
 ---
 
