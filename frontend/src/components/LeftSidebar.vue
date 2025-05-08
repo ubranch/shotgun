@@ -1,0 +1,87 @@
+<template>
+  <aside class="w-64 md:w-72 lg:w-80 bg-gray-50 p-4 border-r border-gray-200 overflow-y-auto flex flex-col flex-shrink-0">
+    <!-- Project Selection and File Tree -->
+    <div class="mb-6">
+      <button 
+        @click="$emit('select-folder')"
+        class="w-full px-4 py-2 mb-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+      >
+        Select Project Folder
+      </button>
+      <div v-if="projectRoot" class="text-xs text-gray-600 mb-2 break-all">Selected: {{ projectRoot }}</div>
+      
+      <div v-if="projectRoot" class="mb-2">
+        <label class="flex items-center text-sm text-gray-700">
+          <input 
+            type="checkbox" 
+            :checked="useGitignore"
+            @change="$emit('toggle-gitignore', $event.target.checked)"
+            class="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 mr-2"
+          />
+          Use .gitignore rules
+        </label>
+      </div>
+
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">Project Files</h2>
+      <div class="border border-gray-300 rounded min-h-[200px] bg-white text-sm overflow-auto max-h-[50vh]">
+        <FileTree 
+            v-if="fileTreeNodes && fileTreeNodes.length" 
+            :nodes="fileTreeNodes" 
+            :project-root="projectRoot"
+            @toggle-exclude="(node) => $emit('toggle-exclude', node)"
+        />
+        <p v-else-if="projectRoot && !loadingError" class="p-2 text-xs text-gray-500">Loading tree...</p>
+        <p v-else-if="!projectRoot" class="p-2 text-xs text-gray-500">Select a project folder to see files.</p>
+        <p v-if="loadingError" class="p-2 text-xs text-red-500">{{ loadingError }}</p>
+      </div>
+    </div>
+
+    <!-- Stepper Navigation (can remain if needed for overall app flow) -->
+    <div v-if="steps && steps.length > 0">
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">Steps</h2>
+      <div class="space-y-1">
+        <div v-for="step in steps" :key="step.id">
+          <button
+            @click="canNavigateToStep(step.id) ? $emit('navigate', step.id) : null"
+            :title="step.description"
+            :class="[
+              'w-full text-left px-3 py-2 rounded-md text-sm font-medium flex justify-between items-center',
+              currentStep === step.id ? 'bg-blue-100 text-blue-700' : (step.completed ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'text-gray-600 hover:bg-gray-100'),
+              canNavigateToStep(step.id) ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
+            ]"
+            :disabled="!canNavigateToStep(step.id)"
+          >
+            <span>{{ step.id }}. {{ step.title }}</span>
+            <span v-if="currentStep === step.id" class="text-blue-500 text-xl">•</span> <!-- Current step indicator -->
+            <svg v-else-if="step.completed" class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+</template>
+
+<script setup>
+import { defineProps, defineEmits } from 'vue';
+import FileTree from './FileTree.vue'; // Import the existing FileTree
+
+const props = defineProps({
+  currentStep: { type: Number, required: true },
+  steps: { type: Array, required: true }, // Array of { id: Number, title: String, completed: Boolean }
+  projectRoot: { type: String, default: '' },
+  fileTreeNodes: { type: Array, default: () => [] },
+  useGitignore: { type: Boolean, default: true },
+  loadingError: { type: String, default: '' },
+});
+
+defineEmits(['navigate', 'select-folder', 'toggle-gitignore', 'toggle-exclude']);
+
+function canNavigateToStep(stepId) {
+  if (stepId === props.currentStep) return true;
+  const targetStep = props.steps.find(s => s.id === stepId);
+  if (targetStep && targetStep.completed) return true;
+  const firstUncompletedStep = props.steps.find(s => !s.completed);
+  const firstUncompletedStepId = firstUncompletedStep ? firstUncompletedStep.id : undefined;
+  return stepId === firstUncompletedStepId || (firstUncompletedStepId === undefined && targetStep); // Allow any if all completed
+}
+</script> 

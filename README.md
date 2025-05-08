@@ -48,34 +48,32 @@ hence the name.
 
 ## 4. How It Works
 
-1.  **Select project root**
-    Shotgun uses Wails' native file‑picker to choose a directory.
-2.  **Build an in‑memory tree** (`ListFiles` in `app.go`).
-    Directories are listed first, then files, both sorted alphabetically.
-3.  **Mark exclusions** in the tree component (Vue 3).
-    Check a node → all children grey out.
-4.  **Click "Shotgun!"**
-    `GenerateShotgunOutput` walks the tree, skipping excluded paths, and
-    concatenates:
-    ```text
-    project‑tree.txt
+(This describes the UI flow. The core `GenerateShotgunOutput` Go function remains the primary backend logic for creating the text payload based on the selected root and exclusions.)
 
-    ##src/main.go##begin##*
-    // file contents …
-    ##end##
-
-    ##web/index.html##begin##*
-
-    <!-- file contents … -->
-    ##end##
-    ```
-5.  **Paste into an LLM prompt**, for example:
-
-    > I have a race condition (details…).
-    > Here is the entire codebase from Shotgun. Please fix it and return diffs
-    > in the following format …
-
-6.  **Apply the diff** the model returns.
+1.  **Step 1: Prepare Context**
+    -   User selects a project folder.
+    -   The file tree is displayed in the `LeftSidebar` (`FileTree.vue`).
+    -   User can mark files/folders for exclusion.
+    -   User clicks "Prepare Project Context & Proceed" in `Step1CopyStructure.vue` (which should be renamed/repurposed, or this button is part of `MainLayout`'s direct responsibility for Step 1 trigger).
+    -   `MainLayout.vue` triggers `GenerateShotgunOutput` in Go, passing the selected root and exclusion list.
+    -   The resulting context (tree + file contents) is stored in `shotgunPromptContext` and passed to `CentralPanel.vue`, which in turn makes it available to `Step2GenerateDiff.vue`.
+2.  **Step 2: Compose Prompt**
+    -   `Step2GenerateDiff.vue` is shown.
+    -   It displays the `shotgunPromptContext` (likely in a read-only textarea).
+    -   User types their instructions for the LLM into another textarea (the prompt).
+    -   User clicks "Compose Prompt" (was "Generate Diff").
+    -   `MainLayout.vue` (simulates) sending the `shotgunPromptContext` and the user's prompt to an LLM.
+    -   (Simulated) LLM returns a diff, which is then displayed in the "Diff Viewer" section of `Step2GenerateDiff.vue`.
+3.  **Step 3: Execute Prompt**
+    -   `Step3ExecuteDiff.vue` is shown.
+    -   User clicks "Execute Prompt" (was "Execute Diff").
+    -   `MainLayout.vue` (simulates) the "execution" of this prompt/diff. This step is more conceptual in the current stubbed implementation but would represent running or applying the changes indicated by the LLM.
+    -   Logs appear in the step-specific console within `Step3ExecuteDiff.vue` and/or the `BottomConsole.vue`.
+4.  **Step 4: Apply Patch**
+    -   `Step4ApplyPatch.vue` is shown.
+    -   User interacts with a (currently stubbed) patch editor.
+    -   User clicks "Apply Selected" or "Apply All & Finish".
+    -   `MainLayout.vue` (simulates) applying these patches.
 
 ---
 
@@ -112,20 +110,26 @@ wails build           # binaries land in build/bin/
 ## 6. Quick‑Start Workflow
 
 1.  Run `wails dev`. The app window will open.
-2.  Click "Select Project Folder" and choose your repository root.
-3.  In the left pane, expand folders and un-tick any items you wish to exclude.
-4.  Hit the "Shotgun" button. The right pane will now show the formatted dump.
-5.  Use the "Copy to Clipboard" button (or select all with Ctrl/Cmd + A, then copy with Ctrl/Cmd + C).
-6.  Paste the copied content into your AI assistant along with your instructions. For example:
-    ```text
-    ### Prompt
-    I need to migrate this project from Go 1.20 to 1.22.
-    - Update go.mod, replace deprecated APIs.
-    - Return patches in the exact diff block format below.
-
-    [paste Shotgun output here]
-    ```
-7.  Apply the diffs provided by the assistant using `git apply` or a merge tool.
+2.  **Step 1: Prepare Context**
+    - Click "Select Project Folder" and choose your repository root.
+    - In the left pane (`LeftSidebar`), expand folders and un-tick any items you wish to exclude from the context.
+    - Click the "Prepare Project Context & Proceed" button (typically in `Step1CopyStructure.vue` or a similar area for Step 1).
+    - The generated context (project tree and file contents) will be prepared internally.
+3.  **Step 2: Compose Prompt**
+    - The view will switch to Step 2 (`Step2GenerateDiff.vue`).
+    - The generated project context from Step 1 will be displayed (usually read-only).
+    - Enter your instructions for the LLM in the "Prompt Editor" textarea.
+    - Click "Compose Prompt".
+    - A (mock) diff will be generated and shown in the "Diff Viewer".
+4.  **Step 3: Execute Prompt**
+    - The view will switch to Step 3 (`Step3ExecuteDiff.vue`).
+    - Click "Execute Prompt".
+    - (Mock) execution logs will appear in the console areas.
+5.  **Step 4: Apply Patch**
+    - The view will switch to Step 4 (`Step4ApplyPatch.vue`).
+    - Interact with the (stubbed) patch editor.
+    - Click "Apply Selected" or "Apply All & Finish" to (simulate) completing the process.
+6.  You can navigate between completed steps using the top `HorizontalStepper` or the `LeftSidebar` step list.
 
 ---
 
@@ -177,17 +181,17 @@ package main
 
 ## 10. Roadmap
 
-🗂️ **File & Folder Structure Copy**  
- Basic ability to copy the entire file and folder structure.
-💬 **Prompt-Driven Diff Generation**  
- Add user prompt + system prompt to generate diffs via AI.
-⚡ **In-App Execution**  
- Allow running the AI diff process directly from the UI (not just from AI Studio).
-4️⃣ 🔀 **One-Click Patch Application**  
- Enable applying patches inside Shotgun, without jumping to the cursor or external tools.
-*   🧠 Direct API bridge to send output to OpenAI / Gemini without copy-paste.
-*   🗂️ Preset exclude templates (Go, Node, Rust, …).
-*   📦 CLI version for headless pipelines.
+✅ **Step 1: Prepare Context** (Was: File & Folder Structure Copy)
+ Basic ability to select a project, exclude items, and generate a structured text context.
+☐ **Step 2: Compose Prompt** (Was: Prompt-Driven Diff Generation)
+ Allow user to input a prompt, (simulate) sending it with context to an LLM, and display a (mock) diff.
+☐ **Step 3: Execute Prompt** (Was: In-App Execution)
+ (Simulate) "executing" the prompt/diff and show logs.
+☐ **Step 4: Apply Patch** (Remains the same conceptually)
+ Enable applying patches inside Shotgun (currently stubbed).
+*   ☐ Direct API bridge to send output to OpenAI / Gemini without copy-paste.
+*   ☐ Preset exclude templates (Go, Node, Rust, …).
+*   ☐ CLI version for headless pipelines.
 *   **Watch token limits** – even million-token models have practical caps. Use Shotgun scopes (root folder vs subfolder) to stay under budget.
 
 ---
