@@ -1,6 +1,6 @@
 <template>
-  <main class="flex-1 p-0 overflow-y-auto bg-white">
-    <Step1CopyStructure v-if="currentStep === 1" @action="handleAction" :generated-context="shotgunPromptContext" :step1-context-generation-attempted="props.step1ContextGenerationAttempted" :project-root="props.projectRoot" />
+  <main class="flex-1 p-0 overflow-y-auto bg-white relative">
+    <Step1CopyStructure v-if="currentStep === 1" @action="handleAction" :generated-context="shotgunPromptContext" :is-loading-context="props.isGeneratingContext" :project-root="props.projectRoot" />
     <Step2GenerateDiff v-if="currentStep === 2" @action="handleAction" ref="step2Ref" />
     <Step3ExecuteDiff v-if="currentStep === 3" @action="handleAction" ref="step3Ref" />
     <Step4ApplyPatch v-if="currentStep === 4" @action="handleAction" />
@@ -17,7 +17,7 @@ import Step4ApplyPatch from './steps/Step4ApplyPatch.vue';
 const props = defineProps({
   currentStep: { type: Number, required: true },
   shotgunPromptContext: { type: String, default: '' },
-  step1ContextGenerationAttempted: { type: Boolean, default: false },
+  isGeneratingContext: { type: Boolean, default: false },
   projectRoot: { type: String, default: '' }
 });
 

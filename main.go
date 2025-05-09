@@ -11,7 +11,6 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
-
 	// Alias for Wails runtime package
 )
 
@@ -37,7 +36,6 @@ func (a *App) SelectDirectory() (string, error) {
 
 func main() {
 	app := NewApp() // Creates an instance of App from app.go
-
 	// Load icons
 
 	iconPNG, errPNG := os.ReadFile("appicon.png") // Changed from ioutil.ReadFile
@@ -55,7 +53,7 @@ func main() {
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
 		Bind: []interface{}{
-			app, // This binds all public methods of app, including SelectDirectory if added there
+			app, // This binds all public methods of app
 		},
 
 		Linux: &linux.Options{

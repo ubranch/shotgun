@@ -182,7 +182,19 @@ The application operates based on a sequence of steps, managed by `MainLayout.vu
 -   The `completed` status of each step in `MainLayout.vue`'s `steps` ref controls navigability and visual state.
 -   The `FileTree.vue` component in the `LeftSidebar.vue` is intended to display the project's file structure. Its interaction with the steps (e.g., updating after a patch is applied in Step 4) will be a key part of future development.
 
-(The old Data Flow section needs to be largely replaced or heavily revised by the above description. The core Go functions for file listing and potentially text generation are still relevant but are now invoked within this new multi-step UI flow.)
+## Asynchronous Project Context Generation
+
+The project context, which is the text output displayed in the "Prepare Context" step (Step 1), is now generated asynchronously to improve user experience and UI responsiveness. The key aspects of this implementation are:
+
+1.  **Automatic Regeneration**: Whenever there are relevant changes in the selected project's file and folder tree (e.g., toggling exclusions, changing ignore rules, or selecting a new project directory), the project context is automatically regenerated in a background goroutine on the Go side. This ensures that the UI does not freeze during potentially long operations.
+
+2.  **Loading Indication**: While the context is being generated, the frontend displays a visual loading indicator (e.g., a spinner) in the area where the context text will appear. This informs the user that an operation is in progress.
+
+3.  **Job Cancellation and Debouncing**: If multiple changes occur in quick succession, the system employs a debouncing mechanism. This means that a new generation job is not started for every single change. Instead, it waits for a short period of inactivity before triggering the generation. If new changes occur while a generation job is already running, the ongoing job is cancelled, and a new one is started with the latest state of the file tree and exclusion rules. This prevents unnecessary computation and ensures the final output reflects the most recent user selections.
+
+4.  **Elimination of Manual Trigger**: Due to the automatic and reactive nature of context generation, the manual "Prepare Project Context & Proceed" button has been removed from Step 1. The context is always kept up-to-date or is in the process of being updated.
+
+This asynchronous approach ensures that the application remains interactive and provides a smoother experience, especially when working with large project structures.
 
 ## 5. Cross-Platform Considerations
 

@@ -2,19 +2,22 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 
 	gitignore "github.com/sabhiram/go-gitignore" // Import the gitignore library
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type App struct {
-	ctx context.Context
+	ctx               context.Context
+	contextGenerator *ContextGenerator // Added
 }
 
 func NewApp() *App {
@@ -23,6 +26,7 @@ func NewApp() *App {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	a.contextGenerator = NewContextGenerator(a) // Initialize here
 }
 
 type FileNode struct {
@@ -88,7 +92,7 @@ func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 	}
 
 	// Get children for the root node using the existing buildTree logic
-	children, err := buildTree(dirPath, dirPath, gitIgn, globIgn, 0)
+	children, err := buildTreeRecursive(context.TODO(), dirPath, dirPath, gitIgn, globIgn, 0) // Using context.TODO() for non-cancellable initial scan
 	if err != nil {
 		// If there's an error building the children tree (e.g., permission issues),
 		// return the root node with no children, but also return the error.
@@ -102,7 +106,13 @@ func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 	return []*FileNode{rootNode}, nil
 }
 
-func buildTree(currentPath, rootPath string, gitIgn *gitignore.GitIgnore, globIgn *gitignore.GitIgnore, depth int) ([]*FileNode, error) { // Added depth and globIgn
+func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIgn *gitignore.GitIgnore, globIgn *gitignore.GitIgnore, depth int) ([]*FileNode, error) {
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+	}
+
 	entries, err := os.ReadDir(currentPath)
 	if err != nil {
 		return nil, err
@@ -146,7 +156,7 @@ func buildTree(currentPath, rootPath string, gitIgn *gitignore.GitIgnore, globIg
 
 		if entry.IsDir() {
 			// Children inherit gitignore rules through their own path matching
-			children, err := buildTree(nodePath, rootPath, gitIgn, globIgn, depth+1) // Increment depth, pass globIgn
+			children, err := buildTreeRecursive(ctx, nodePath, rootPath, gitIgn, globIgn, depth+1) // Pass ctx
 			if err != nil {
 				fmt.Printf("Error reading dir %s: %v\n", nodePath, err)
 				continue
@@ -168,8 +178,92 @@ func buildTree(currentPath, rootPath string, gitIgn *gitignore.GitIgnore, globIg
 	return nodes, nil
 }
 
+// ContextGenerator manages the asynchronous generation of shotgun context
+type ContextGenerator struct {
+	app                 *App // To access Wails runtime context for emitting events
+	mu                  sync.Mutex
+	currentCancelFunc   context.CancelFunc
+	currentCancelToken  interface{} // Token to identify the current cancel func
+}
+
+func NewContextGenerator(app *App) *ContextGenerator {
+	return &ContextGenerator{app: app}
+}
+
+// RequestShotgunContextGeneration is called by the frontend to start/restart generation.
+// This method itself is not bound to Wails directly if it's part of App.
+// Instead, a wrapper method in App struct will be bound.
+func (cg *ContextGenerator) requestShotgunContextGenerationInternal(rootDir string, excludedPaths []string) {
+	cg.mu.Lock()
+	if cg.currentCancelFunc != nil {
+		runtime.LogDebug(cg.app.ctx, "Cancelling previous context generation job.")
+		cg.currentCancelFunc()
+	}
+
+	genCtx, cancel := context.WithCancel(cg.app.ctx)
+	myToken := new(struct{}) // Create a unique token for this generation job
+	cg.currentCancelFunc = cancel
+	cg.currentCancelToken = myToken
+	cg.mu.Unlock()
+
+	runtime.LogInfof(cg.app.ctx, "Starting new shotgun context generation for: %s", rootDir)
+
+	go func(tokenForThisJob interface{}) {
+		defer func() {
+			cg.mu.Lock()
+			if cg.currentCancelToken == tokenForThisJob { // Only clear if it's still this job's token
+				cg.currentCancelFunc = nil
+				cg.currentCancelToken = nil
+				runtime.LogDebug(cg.app.ctx, "Cleared currentCancelFunc for completed/cancelled job (token match).")
+			} else {
+				runtime.LogDebug(cg.app.ctx, "currentCancelFunc was replaced by a newer job (token mismatch); not clearing.")
+			}
+			cg.mu.Unlock()
+		}()
+
+		if genCtx.Err() != nil { // Check for immediate cancellation
+			runtime.LogInfo(cg.app.ctx, fmt.Sprintf("Context generation for %s cancelled before starting: %v", rootDir, genCtx.Err()))
+			return
+		}
+
+		output, err := cg.app.generateShotgunOutputInternal(genCtx, rootDir, excludedPaths)
+
+		select {
+		case <-genCtx.Done():
+			errMsg := fmt.Sprintf("Shotgun context generation cancelled for %s: %v", rootDir, genCtx.Err())
+			runtime.LogInfo(cg.app.ctx, errMsg) // Changed from LogWarn
+			runtime.EventsEmit(cg.app.ctx, "shotgunContextError", errMsg)
+		default:
+			if err != nil {
+				errMsg := fmt.Sprintf("Error generating shotgun output for %s: %v", rootDir, err)
+				runtime.LogError(cg.app.ctx, errMsg)
+				runtime.EventsEmit(cg.app.ctx, "shotgunContextError", errMsg)
+			} else {
+				successMsg := fmt.Sprintf("Shotgun context generated successfully for %s.", rootDir)
+				runtime.LogInfo(cg.app.ctx, successMsg)
+				runtime.EventsEmit(cg.app.ctx, "shotgunContextGenerated", output)
+			}
+		}
+	}(myToken) // Pass the token to the goroutine
+}
+
+// RequestShotgunContextGeneration is the method bound to Wails.
+func (a *App) RequestShotgunContextGeneration(rootDir string, excludedPaths []string) {
+	if a.contextGenerator == nil {
+		// This should not happen if startup initializes it correctly
+		runtime.LogError(a.ctx, "ContextGenerator not initialized")
+		runtime.EventsEmit(a.ctx, "shotgunContextError", "Internal error: ContextGenerator not initialized")
+		return
+	}
+	a.contextGenerator.requestShotgunContextGenerationInternal(rootDir, excludedPaths)
+}
+
 // GenerateShotgunOutput generates the TXT output
-func (a *App) GenerateShotgunOutput(rootDir string, excludedPaths []string) (string, error) {
+func (a *App) generateShotgunOutputInternal(ctx context.Context, rootDir string, excludedPaths []string) (string, error) {
+	if err := ctx.Err(); err != nil { // Check for cancellation at the beginning
+		return "", err
+	}
+
 	var output strings.Builder
 	var fileContents strings.Builder
 
@@ -178,8 +272,15 @@ func (a *App) GenerateShotgunOutput(rootDir string, excludedPaths []string) (str
 		excludedMap[p] = true
 	}
 
-	var buildShotgunTree func(string, string, string) error
-	buildShotgunTree = func(currentPath, prefix, rootDirRel string) error {
+	// buildShotgunTreeHelper is a recursive helper for generating the tree string and file contents
+	var buildShotgunTreeHelper func(pCtx context.Context, currentPath, prefix, rootDirRel string) error
+	buildShotgunTreeHelper = func(pCtx context.Context, currentPath, prefix, rootDirRel string) error {
+		select {
+		case <-pCtx.Done():
+			return pCtx.Err()
+		default:
+		}
+
 		entries, err := os.ReadDir(currentPath)
 		if err != nil {
 			return err
@@ -211,6 +312,12 @@ func (a *App) GenerateShotgunOutput(rootDir string, excludedPaths []string) (str
 		}
 
 		for i, entry := range visibleEntries {
+			select {
+			case <-pCtx.Done():
+				return pCtx.Err()
+			default:
+			}
+
 			path := filepath.Join(currentPath, entry.Name())
 			// relPath is already computed above and checked against excludedMap
 			relPath, _ := filepath.Rel(rootDir, path)
@@ -226,11 +333,19 @@ func (a *App) GenerateShotgunOutput(rootDir string, excludedPaths []string) (str
 			output.WriteString(prefix + branch + entry.Name() + "\n")
 
 			if entry.IsDir() {
-				err := buildShotgunTree(path, nextPrefix, rootDirRel)
+				err := buildShotgunTreeHelper(pCtx, path, nextPrefix, rootDirRel)
 				if err != nil {
+					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+						return err
+					}
 					fmt.Printf("Error processing subdirectory %s: %v\n", path, err)
 				}
 			} else {
+				select { // Check before heavy I/O
+				case <-pCtx.Done():
+					return pCtx.Err()
+				default:
+				}
 				content, err := os.ReadFile(path)
 				if err != nil {
 					fmt.Printf("Error reading file %s: %v\n", path, err)
@@ -257,9 +372,13 @@ func (a *App) GenerateShotgunOutput(rootDir string, excludedPaths []string) (str
 
 	output.WriteString(filepath.Base(rootDir) + string(os.PathSeparator) + "\n")
 
-	err := buildShotgunTree(rootDir, "", rootDir)
+	err := buildShotgunTreeHelper(ctx, rootDir, "", rootDir) // Pass ctx
 	if err != nil {
 		return "", fmt.Errorf("failed to build tree for shotgun: %w", err)
+	}
+
+	if err := ctx.Err(); err != nil { // Check for cancellation before final string operations
+		return "", err
 	}
 
 	output.WriteString("\n")

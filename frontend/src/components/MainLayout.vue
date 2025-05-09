@@ -16,8 +16,8 @@
         @toggle-custom-ignore="toggleCustomIgnoreHandler"
         @toggle-exclude="toggleExcludeNode" />
       <CentralPanel :current-step="currentStep" 
-                    :shotgun-prompt-context="shotgunPromptContext" 
-                    :step1-context-generation-attempted="step1ContextGenerationAttempted" 
+                    :shotgun-prompt-context="shotgunPromptContext"
+                    :is-generating-context="isGeneratingContext"
                     :project-root="projectRoot" 
                     @step-action="handleStepAction" 
                     ref="centralPanelRef" />
@@ -33,11 +33,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, reactive, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import HorizontalStepper from './HorizontalStepper.vue';
 import LeftSidebar from './LeftSidebar.vue';
 import CentralPanel from './CentralPanel.vue';
 import BottomConsole from './BottomConsole.vue';
+import { ListFiles, RequestShotgunContextGeneration, SelectDirectory as SelectDirectoryGo } from '../../wailsjs/go/main/App';
+import { EventsOn } from '../../wailsjs/runtime/runtime';
 
 const currentStep = ref(1);
 const steps = ref([
@@ -70,8 +72,6 @@ function addLog(message, type = 'info', targetConsole = 'bottom') {
   }
 }
 
-import { ListFiles, GenerateShotgunOutput, SelectDirectory as SelectDirectoryGo } from '../../wailsjs/go/main/App';
-
 const projectRoot = ref('');
 const fileTree = ref([]);
 const shotgunPromptContext = ref('');
@@ -79,33 +79,45 @@ const loadingError = ref('');
 const useGitignore = ref(true);
 const useCustomIgnore = ref(true);
 const manuallyToggledNodes = reactive(new Map());
-const copyStatusText = ref('');
-const step1ContextGenerationAttempted = ref(false);
+const isGeneratingContext = ref(false);
+const isFileTreeLoading = ref(false);
+let debounceTimer = null;
 
 async function selectProjectFolderHandler() {
+  isFileTreeLoading.value = true;
   try {
+    shotgunPromptContext.value = '';
+    isGeneratingContext.value = false;
     const selectedDir = await SelectDirectoryGo(); 
     if (selectedDir) {
       projectRoot.value = selectedDir;
       loadingError.value = '';
       manuallyToggledNodes.clear();
-      shotgunPromptContext.value = '';
       fileTree.value = [];
+      
       await loadFileTree(selectedDir);
-      step1ContextGenerationAttempted.value = false;
+
+      if (!isFileTreeLoading.value && projectRoot.value) {
+         debouncedTriggerShotgunContextGeneration();
+      }
+
       steps.value.forEach(s => s.completed = false);
       currentStep.value = 1;
       addLog(`Project folder selected: ${selectedDir}`, 'info', 'bottom');
+    } else {
+      isFileTreeLoading.value = false;
     }
   } catch (err) {
     console.error("Error selecting directory:", err);
     const errorMsg = "Failed to select directory: " + (err.message || err);
     loadingError.value = errorMsg;
     addLog(errorMsg, 'error', 'bottom');
+    isFileTreeLoading.value = false;
   }
 }
 
 async function loadFileTree(dirPath) {
+  isFileTreeLoading.value = true;
   loadingError.value = '';
   addLog(`Loading file tree for: ${dirPath}`, 'info', 'bottom');
   try {
@@ -118,6 +130,8 @@ async function loadFileTree(dirPath) {
     loadingError.value = errorMsg;
     addLog(errorMsg, 'error', 'bottom');
     fileTree.value = [];
+  } finally {
+    isFileTreeLoading.value = false;
   }
 }
 
@@ -151,12 +165,11 @@ function mapDataToTreeRecursive(nodes, parent) {
 function toggleExcludeNode(node) {
   node.excluded = !node.excluded;
   manuallyToggledNodes.set(node.relPath, node.excluded);
-  fileTree.value = [...fileTree.value];
   addLog(`Toggled exclusion for ${node.name} to ${node.excluded}`, 'info', 'bottom');
 }
 
 function updateAllNodesExcludedState(nodesToUpdate) {
-  if (!nodesToUpdate) return;
+  if (!nodesToUpdate || nodesToUpdate.length === 0) return;
   nodesToUpdate.forEach(node => {
     node.excluded = calculateNodeExcludedState(node);
     if (node.children && node.children.length > 0) {
@@ -165,56 +178,66 @@ function updateAllNodesExcludedState(nodesToUpdate) {
   });
 }
 
-watch(useGitignore, (newValue) => {
-  addLog(`.gitignore usage changed to: ${newValue}. Updating tree...`, 'info', 'bottom');
-  updateAllNodesExcludedState(fileTree.value);
-});
-
-watch(useCustomIgnore, (newValue) => {
-  addLog(`Custom ignore rules usage changed to: ${newValue}. Updating tree...`, 'info', 'bottom');
-  updateAllNodesExcludedState(fileTree.value);
-});
-
 function toggleGitignoreHandler(value) {
   useGitignore.value = value;
+  addLog(`.gitignore usage changed to: ${value}. Updating tree...`, 'info', 'bottom');
 }
 
 function toggleCustomIgnoreHandler(value) {
   useCustomIgnore.value = value;
+  addLog(`Custom ignore rules usage changed to: ${value}. Updating tree...`, 'info', 'bottom');
 }
 
-async function generateShotgunPromptContext() {
+function debouncedTriggerShotgunContextGeneration() {
   if (!projectRoot.value) {
-    addLog("Cannot generate context: No project root selected.", 'warn', 'bottom');
-    return "";
+    isGeneratingContext.value = false;
+    return;
   }
-  addLog("Generating Shotgun prompt context...", 'info', 'both');
-  copyStatusText.value = ''; 
 
-  const excludedPathsArray = [];
-  function collectExcluded(nodes) {
-    if (!nodes) return;
-    nodes.forEach(node => {
-      if (node.excluded) excludedPathsArray.push(node.relPath);
-      if (node.children) collectExcluded(node.children);
-    });
+  if (isFileTreeLoading.value) {
+    addLog("Debounced trigger skipped: file tree is loading.", 'debug', 'bottom');
+    isGeneratingContext.value = false;
+    return;
   }
-  collectExcluded(fileTree.value);
 
-  try {
-    const result = await GenerateShotgunOutput(projectRoot.value, excludedPathsArray);
-    shotgunPromptContext.value = result;
-    addLog(`Shotgun prompt context generated (${result.length} characters).`, 'info', 'both');
-    step1ContextGenerationAttempted.value = true;
-    return result;
-  } catch (err) {
-    console.error("Error generating shotgun output:", err);
-    const errorMsg = "Error generating context: " + (err.message || err);
-    shotgunPromptContext.value = errorMsg;
-    addLog(errorMsg, 'error', 'both');
-    step1ContextGenerationAttempted.value = true;
-    return errorMsg;
-  }
+  if (!isGeneratingContext.value) nextTick(() => isGeneratingContext.value = true);
+
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    if (!projectRoot.value) { 
+        isGeneratingContext.value = false;
+        return;
+    }
+    if (isFileTreeLoading.value) {
+        addLog("Debounced execution skipped: file tree became loading.", 'debug', 'bottom');
+        isGeneratingContext.value = false;
+        return;
+    }
+
+    addLog("Debounced trigger: Requesting shotgun context generation...", 'info');
+    
+    updateAllNodesExcludedState(fileTree.value);
+
+    const excludedPathsArray = [];
+    function collectExcluded(nodes) {
+      if (!nodes) return;
+      nodes.forEach(node => {
+        if (node.excluded) excludedPathsArray.push(node.relPath);
+        if (node.children && node.children.length > 0) collectExcluded(node.children);
+      });
+    }
+    collectExcluded(fileTree.value);
+
+    RequestShotgunContextGeneration(projectRoot.value, excludedPathsArray)
+      .catch(err => {
+        const errorMsg = "Error calling RequestShotgunContextGeneration: " + (err.message || err);
+        addLog(errorMsg, 'error');
+        shotgunPromptContext.value = "Error: " + errorMsg; 
+      })
+      .finally(() => {
+         // isGeneratingContext.value = false;
+      });
+  }, 750); 
 }
 
 function navigateToStep(stepId) {
@@ -238,32 +261,18 @@ async function handleStepAction(actionName, payload) {
   addLog(`Action: ${actionName} triggered from step ${currentStep.value}.`, 'info', 'bottom');
   if (payload && actionName === 'composePrompt') {
     addLog(`Prompt for diff: "${payload.prompt}"`, 'info', 'bottom');
-  } else if (payload) {
-    addLog(`Payload received for ${actionName}.`, 'info', 'bottom');
   }
 
   const currentStepObj = steps.value.find(s => s.id === currentStep.value);
 
   switch (actionName) {
-    case 'prepareContext':
-      if (!projectRoot.value) {
-        addLog("Please select a project folder first.", 'warn', 'bottom');
+    case 'composePrompt':
+      if (!shotgunPromptContext.value || shotgunPromptContext.value.startsWith('Error:')) {
+        addLog("Project context not generated or has errors. Please ensure Step 1 is complete and context is valid.", 'warn', 'both');
         return;
       }
-      addLog('Preparing project context...', 'info', 'bottom');
-      await generateShotgunPromptContext();
-      
-      if (currentStepObj) currentStepObj.completed = true;
-      step1ContextGenerationAttempted.value = true;
       if (centralPanelRef.value?.updateStep2ShotgunContext && shotgunPromptContext.value) {
          centralPanelRef.value.updateStep2ShotgunContext(shotgunPromptContext.value);
-      }
-      // navigateToStep(2); // Removed to prevent auto-navigation
-      break;
-    case 'composePrompt':
-      if (!shotgunPromptContext.value) {
-        addLog("Project context not generated. Please complete Step 1.", 'warn', 'both');
-        return;
       }
       addLog(`Simulating backend: Generating diff...`, 'info', 'both');
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -271,14 +280,14 @@ async function handleStepAction(actionName, payload) {
       if (centralPanelRef.value?.updateStep2DiffOutput) centralPanelRef.value.updateStep2DiffOutput(mockDiff);
       addLog(`Backend: Diff generated (${mockDiff.length} characters).`, 'info', 'both');
       if (currentStepObj) currentStepObj.completed = true;
-      navigateToStep(3);
+      navigateToStep(2);
       break;
     case 'executePrompt':
       addLog('Simulating backend: Executing diff... (mocked prompt execution)', 'info', 'step');
       await new Promise(resolve => setTimeout(resolve, 1000));
       addLog('Backend: Diff execution simulated (mocked prompt execution complete).', 'info', 'step');
       if (currentStepObj) currentStepObj.completed = true;
-      navigateToStep(4);
+      navigateToStep(3);
       break;
     case 'applySelectedPatches':
     case 'applyAllPatches':
@@ -292,26 +301,20 @@ async function handleStepAction(actionName, payload) {
   }
 }
 
-// Resize logic
 const isResizing = ref(false);
 
 function startResize(event) {
   isResizing.value = true;
   document.addEventListener('mousemove', doResize);
   document.addEventListener('mouseup', stopResize);
-  // Prevent text selection during resize
   event.preventDefault(); 
 }
 
 function doResize(event) {
   if (!isResizing.value) return;
-  // Calculate new height based on mouse position
-  // window.innerHeight is the total viewport height
-  // event.clientY is the mouse Y position relative to the viewport
   const newHeight = window.innerHeight - event.clientY;
-  // Apply constraints (e.g., min/max height)
-  const minHeight = MIN_CONSOLE_HEIGHT; // Min console height
-  const maxHeight = window.innerHeight * 0.7; // Max 70% of viewport height
+  const minHeight = MIN_CONSOLE_HEIGHT;
+  const maxHeight = window.innerHeight * 0.7;
   consoleHeight.value = Math.max(minHeight, Math.min(newHeight, maxHeight));
 }
 
@@ -322,20 +325,49 @@ function stopResize() {
 }
 
 onMounted(() => {
-  // You might want to load a saved height from localStorage here
+  EventsOn("shotgunContextGenerated", (output) => {
+    addLog("Wails event: shotgunContextGenerated RECEIVED", 'debug', 'bottom');
+    shotgunPromptContext.value = output;
+    isGeneratingContext.value = false;
+    addLog(`Shotgun context updated (${output.length} chars).`, 'success');
+    const step1 = steps.value.find(s => s.id === 1);
+    if (step1 && !step1.completed) {
+        step1.completed = true;
+    }
+    if (currentStep.value === 1 && centralPanelRef.value?.updateStep2ShotgunContext) {
+        centralPanelRef.value.updateStep2ShotgunContext(output);
+    }
+  });
+
+  EventsOn("shotgunContextError", (errorMsg) => {
+    addLog(`Wails event: shotgunContextError RECEIVED: ${errorMsg}`, 'debug', 'bottom');
+    shotgunPromptContext.value = "Error: " + errorMsg;
+    isGeneratingContext.value = false;
+    addLog(`Error generating context: ${errorMsg}`, 'error');
+  });
 });
 
 onBeforeUnmount(() => {
-  // Clean up global event listeners if any were left (though stopResize should handle it)
   document.removeEventListener('mousemove', doResize);
   document.removeEventListener('mouseup', stopResize);
+  clearTimeout(debounceTimer);
 });
+
+watch([fileTree, useGitignore, useCustomIgnore], ([newFileTree, newUseGitignore, newUseCustomIgnore], [oldFileTree, oldUseGitignore, oldUseCustomIgnore]) => {
+  if (isFileTreeLoading.value) {
+    addLog("Watcher triggered during file tree load, generation deferred.", 'debug', 'bottom');
+    return;
+  }
+  
+  addLog("Watcher detected changes in fileTree, useGitignore, or useCustomIgnore. Re-evaluating context.", 'debug', 'bottom');
+  updateAllNodesExcludedState(fileTree.value);
+  debouncedTriggerShotgunContextGeneration();
+}, { deep: true });
+
 </script>
 
 <style scoped>
-/* Add any additional styles if needed */
 .flex-1 {
-  /* This ensures CentralPanel takes up remaining space */
-  min-height: 0; /* Important for flex children to shrink properly */
+  min-height: 0;
 }
 </style> 
