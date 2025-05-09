@@ -31,7 +31,7 @@
         </div>
 
         <div>
-          <label for="file-list-context" class="block text-sm font-medium text-gray-700 mb-1">File list to include:</label>
+          <label for="file-list-context" class="block text-sm font-medium text-gray-700 mb-1">Files to include:</label>
           <textarea
             id="file-list-context"
             :value="props.fileListContext"

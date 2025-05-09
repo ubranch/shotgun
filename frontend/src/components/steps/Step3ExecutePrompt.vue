@@ -2,10 +2,10 @@
   <div class="p-6 flex flex-col h-full">
     <h2 class="text-xl font-semibold text-gray-800 mb-4">Step 3: Execute Prompt</h2>
     <p class="text-gray-600 mb-4">
-      Review the generated diff (from Step 2). If it looks correct, proceed to "execute" it.
-      Monitor the execution process in the console below.
+      For now just go to Google AI studio, copy the prompt and paste it there with 2.5 pro model. It will give you the diff you may apply directly to Cursor or Windsurf.
     </p>
     
+    <!--
     <button
       @click="$emit('action', 'executePrompt')"
       class="px-6 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 self-start mb-4"
@@ -20,6 +20,7 @@
       </div>
       <p v-if="!localLogs.length" class="text-gray-400">Step-specific execution logs will appear here...</p>
     </div>
+    -->
   </div>
 </template>
 

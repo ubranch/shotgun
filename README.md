@@ -1,4 +1,4 @@
-![](https://github.com/user-attachments/assets/ec9c0d87-fc7c-4800-a52e-a34356ef09c3)
+![](https://github.com/user-attachments/assets/058bf4a2-9f81-406c-96ea-795cd4eaf118)
 
 **Tired of Cursor cutting off context, missing your files and folders, and spitting out empty responses?**
 
