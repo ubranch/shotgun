@@ -195,13 +195,13 @@ package main
 
 ## 10. Roadmap
 
-✅ **Step 1: Prepare Context** (Was: File & Folder Structure Copy)
+✅ **Step 1: Prepare Context** 
  Basic ability to select a project, exclude items, and generate a structured text context.
-☐ **Step 2: Compose Prompt** (Was: Prompt-Driven Diff Generation)
+
+✅ **Step 2: Compose Prompt**
  Allow user to input a prompt, (simulate) sending it with context to an LLM, and display a (mock) diff.
-☐ **Step 3: Execute Prompt** (Was: In-App Execution)
- (Simulate) "executing" the prompt/diff and show logs.
-☐ **Step 4: Apply Patch** (Remains the same conceptually)
+☐ **Step 3: Execute Prompt** "executing" the prompt/diff and show logs.
+☐ **Step 4: Apply Patch** 
  Enable applying patches inside Shotgun (currently stubbed).
 *   ☐ Direct API bridge to send output to OpenAI / Gemini without copy-paste.
 *   ☐ Preset exclude templates (Go, Node, Rust, …).
