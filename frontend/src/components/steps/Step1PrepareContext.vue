@@ -1,13 +1,17 @@
 <template>
   <div class="p-4 h-full flex flex-col">
-    <!-- Spinner -->
+    <!-- Loading State: Always Progress Bar -->
     <div v-if="isLoadingContext" class="flex-grow flex justify-center items-center">
       <div class="text-center">
-        <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <p class="text-gray-600">Generating project context...</p>
+        <div class="w-64 mx-auto">
+          <p class="text-gray-600 mb-1 text-sm">Generating project context...</p>
+          <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+            <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: progressBarWidth }"></div>
+          </div>
+          <p class="text-gray-500 mt-1 text-xs">
+            {{ generationProgress.current }} / {{ generationProgress.total > 0 ? generationProgress.total : 'calculating...' }} items
+          </p>
+        </div>
       </div>
     </div>
 
@@ -48,7 +52,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from 'vue';
+import { defineProps, ref, computed } from 'vue';
 
 const props = defineProps({
   generatedContext: {
@@ -63,8 +67,19 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  generationProgress: { // New prop for progress data
+    type: Object,
+    default: () => ({ current: 0, total: 0 })
+  },
 });
 
+const progressBarWidth = computed(() => {
+  if (props.generationProgress && props.generationProgress.total > 0) {
+    const percentage = (props.generationProgress.current / props.generationProgress.total) * 100;
+    return `${Math.min(100, Math.max(0, percentage))}%`;
+  }
+  return '0%';
+});
 const copyButtonText = ref('Copy All');
 
 async function copyGeneratedContextToClipboard() {

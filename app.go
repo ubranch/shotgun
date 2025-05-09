@@ -10,13 +10,17 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	gitignore "github.com/sabhiram/go-gitignore" // Import the gitignore library
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
+const maxOutputSizeBytes = 10_000_000 // 10MB
+var ErrContextTooLong = errors.New("context is too long")
+
 type App struct {
-	ctx               context.Context
+	ctx              context.Context
 	contextGenerator *ContextGenerator // Added
 }
 
@@ -180,10 +184,10 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 
 // ContextGenerator manages the asynchronous generation of shotgun context
 type ContextGenerator struct {
-	app                 *App // To access Wails runtime context for emitting events
-	mu                  sync.Mutex
-	currentCancelFunc   context.CancelFunc
-	currentCancelToken  interface{} // Token to identify the current cancel func
+	app                *App // To access Wails runtime context for emitting events
+	mu                 sync.Mutex
+	currentCancelFunc  context.CancelFunc
+	currentCancelToken interface{} // Token to identify the current cancel func
 }
 
 func NewContextGenerator(app *App) *ContextGenerator {
@@ -204,11 +208,11 @@ func (cg *ContextGenerator) requestShotgunContextGenerationInternal(rootDir stri
 	myToken := new(struct{}) // Create a unique token for this generation job
 	cg.currentCancelFunc = cancel
 	cg.currentCancelToken = myToken
+	runtime.LogInfof(cg.app.ctx, "Starting new shotgun context generation for: %s. Max size: %d bytes.", rootDir, maxOutputSizeBytes)
 	cg.mu.Unlock()
 
-	runtime.LogInfof(cg.app.ctx, "Starting new shotgun context generation for: %s", rootDir)
-
 	go func(tokenForThisJob interface{}) {
+		jobStartTime := time.Now()
 		defer func() {
 			cg.mu.Lock()
 			if cg.currentCancelToken == tokenForThisJob { // Only clear if it's still this job's token
@@ -219,6 +223,7 @@ func (cg *ContextGenerator) requestShotgunContextGenerationInternal(rootDir stri
 				runtime.LogDebug(cg.app.ctx, "currentCancelFunc was replaced by a newer job (token mismatch); not clearing.")
 			}
 			cg.mu.Unlock()
+			runtime.LogInfof(cg.app.ctx, "Shotgun context generation goroutine finished in %s", time.Since(jobStartTime))
 		}()
 
 		if genCtx.Err() != nil { // Check for immediate cancellation
@@ -226,7 +231,7 @@ func (cg *ContextGenerator) requestShotgunContextGenerationInternal(rootDir stri
 			return
 		}
 
-		output, err := cg.app.generateShotgunOutputInternal(genCtx, rootDir, excludedPaths)
+		output, err := cg.app.generateShotgunOutputWithProgress(genCtx, rootDir, excludedPaths)
 
 		select {
 		case <-genCtx.Done():
@@ -239,7 +244,11 @@ func (cg *ContextGenerator) requestShotgunContextGenerationInternal(rootDir stri
 				runtime.LogError(cg.app.ctx, errMsg)
 				runtime.EventsEmit(cg.app.ctx, "shotgunContextError", errMsg)
 			} else {
-				successMsg := fmt.Sprintf("Shotgun context generated successfully for %s.", rootDir)
+				finalSize := len(output)
+				successMsg := fmt.Sprintf("Shotgun context generated successfully for %s. Size: %d bytes.", rootDir, finalSize)
+				if finalSize > maxOutputSizeBytes { // Should have been caught by ErrContextTooLong, but as a safeguard
+					runtime.LogWarningf(cg.app.ctx, "Warning: Generated context size %d exceeds max %d, but was not caught by ErrContextTooLong.", finalSize, maxOutputSizeBytes)
+				}
 				runtime.LogInfo(cg.app.ctx, successMsg)
 				runtime.EventsEmit(cg.app.ctx, "shotgunContextGenerated", output)
 			}
@@ -258,23 +267,98 @@ func (a *App) RequestShotgunContextGeneration(rootDir string, excludedPaths []st
 	a.contextGenerator.requestShotgunContextGenerationInternal(rootDir, excludedPaths)
 }
 
-// GenerateShotgunOutput generates the TXT output
-func (a *App) generateShotgunOutputInternal(ctx context.Context, rootDir string, excludedPaths []string) (string, error) {
-	if err := ctx.Err(); err != nil { // Check for cancellation at the beginning
-		return "", err
+// countProcessableItems estimates the total number of operations for progress tracking.
+// Operations: 1 for root dir line, 1 for each dir/file entry in tree, 1 for each file content read.
+func (a *App) countProcessableItems(jobCtx context.Context, rootDir string, excludedMap map[string]bool) (int, error) {
+	count := 1 // For the root directory line itself
+
+	var counterHelper func(currentPath string) error
+	counterHelper = func(currentPath string) error {
+		select {
+		case <-jobCtx.Done():
+			return jobCtx.Err()
+		default:
+		}
+
+		entries, err := os.ReadDir(currentPath)
+		if err != nil {
+			runtime.LogWarningf(a.ctx, "countProcessableItems: error reading dir %s: %v", currentPath, err)
+			return nil // Continue counting other parts if a subdir is inaccessible
+		}
+
+		for _, entry := range entries {
+			path := filepath.Join(currentPath, entry.Name())
+			relPath, _ := filepath.Rel(rootDir, path)
+
+			if excludedMap[relPath] {
+				continue
+			}
+
+			count++ // For the tree entry (dir or file)
+
+			if entry.IsDir() {
+				err := counterHelper(path)
+				if err != nil { // Propagate cancellation or critical errors
+					return err
+				}
+			} else {
+				count++ // For reading the file content
+			}
+		}
+		return nil
 	}
 
-	var output strings.Builder
-	var fileContents strings.Builder
+	err := counterHelper(rootDir)
+	if err != nil {
+		return 0, err // Return error if counting was interrupted (e.g. context cancelled)
+	}
+	return count, nil
+}
+
+type generationProgressState struct {
+	processedItems int
+	totalItems     int
+}
+
+func (a *App) emitProgress(state *generationProgressState) {
+	runtime.EventsEmit(a.ctx, "shotgunContextGenerationProgress", map[string]int{
+		"current": state.processedItems,
+		"total":   state.totalItems,
+	})
+}
+
+// generateShotgunOutputWithProgress generates the TXT output with progress reporting and size limits
+func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir string, excludedPaths []string) (string, error) {
+	if err := jobCtx.Err(); err != nil { // Check for cancellation at the beginning
+		return "", err
+	}
 
 	excludedMap := make(map[string]bool)
 	for _, p := range excludedPaths {
 		excludedMap[p] = true
 	}
 
-	// buildShotgunTreeHelper is a recursive helper for generating the tree string and file contents
-	var buildShotgunTreeHelper func(pCtx context.Context, currentPath, prefix, rootDirRel string) error
-	buildShotgunTreeHelper = func(pCtx context.Context, currentPath, prefix, rootDirRel string) error {
+	totalItems, err := a.countProcessableItems(jobCtx, rootDir, excludedMap)
+	if err != nil {
+		return "", fmt.Errorf("failed to count processable items: %w", err)
+	}
+	progressState := &generationProgressState{processedItems: 0, totalItems: totalItems}
+	a.emitProgress(progressState) // Initial progress (0 / total)
+
+	var output strings.Builder
+	var fileContents strings.Builder
+
+	// Root directory line
+	output.WriteString(filepath.Base(rootDir) + string(os.PathSeparator) + "\n")
+	progressState.processedItems++
+	a.emitProgress(progressState)
+	if output.Len() > maxOutputSizeBytes {
+		return "", fmt.Errorf("%w: content limit of %d bytes exceeded after root dir line (size: %d bytes)", ErrContextTooLong, maxOutputSizeBytes, output.Len())
+	}
+
+	// buildShotgunTreeRecursive is a recursive helper for generating the tree string and file contents
+	var buildShotgunTreeRecursive func(pCtx context.Context, currentPath, prefix string) error
+	buildShotgunTreeRecursive = func(pCtx context.Context, currentPath, prefix string) error {
 		select {
 		case <-pCtx.Done():
 			return pCtx.Err()
@@ -283,7 +367,10 @@ func (a *App) generateShotgunOutputInternal(ctx context.Context, rootDir string,
 
 		entries, err := os.ReadDir(currentPath)
 		if err != nil {
-			return err
+			runtime.LogWarningf(a.ctx, "buildShotgunTreeRecursive: error reading dir %s: %v", currentPath, err)
+			// Decide if this error should halt the entire process or just skip this directory
+			// For now, returning nil to skip, but log it. Could also return the error.
+			return nil // Or return err if this should stop everything
 		}
 
 		// Sort entries like in ListFiles for consistent tree
@@ -319,7 +406,6 @@ func (a *App) generateShotgunOutputInternal(ctx context.Context, rootDir string,
 			}
 
 			path := filepath.Join(currentPath, entry.Name())
-			// relPath is already computed above and checked against excludedMap
 			relPath, _ := filepath.Rel(rootDir, path)
 
 			isLast := i == len(visibleEntries)-1
@@ -332,8 +418,15 @@ func (a *App) generateShotgunOutputInternal(ctx context.Context, rootDir string,
 			}
 			output.WriteString(prefix + branch + entry.Name() + "\n")
 
+			progressState.processedItems++ // For tree entry
+			a.emitProgress(progressState)
+
+			if output.Len()+fileContents.Len() > maxOutputSizeBytes {
+				return fmt.Errorf("%w: content limit of %d bytes exceeded during tree generation (size: %d bytes)", ErrContextTooLong, maxOutputSizeBytes, output.Len()+fileContents.Len())
+			}
+
 			if entry.IsDir() {
-				err := buildShotgunTreeHelper(pCtx, path, nextPrefix, rootDirRel)
+				err := buildShotgunTreeRecursive(pCtx, path, nextPrefix)
 				if err != nil {
 					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 						return err
@@ -365,24 +458,26 @@ func (a *App) generateShotgunOutputInternal(ctx context.Context, rootDir string,
 				fileContents.WriteString(fmt.Sprintf("*#*#*%s%s*#*#*begin*#*#*\n", dirPart, filePart))
 				fileContents.WriteString(string(content))
 				fileContents.WriteString("\n*#*#*end*#*#*\n\n")
+
+				progressState.processedItems++ // For file content
+				a.emitProgress(progressState)
+
+				if output.Len()+fileContents.Len() > maxOutputSizeBytes { // Final check after append
+					return fmt.Errorf("%w: content limit of %d bytes exceeded after appending file %s (total size: %d bytes)", ErrContextTooLong, maxOutputSizeBytes, relPath, output.Len()+fileContents.Len())
+				}
 			}
 		}
 		return nil
 	}
 
-	output.WriteString(filepath.Base(rootDir) + string(os.PathSeparator) + "\n")
-
-	err := buildShotgunTreeHelper(ctx, rootDir, "", rootDir) // Pass ctx
+	err = buildShotgunTreeRecursive(jobCtx, rootDir, "")
 	if err != nil {
 		return "", fmt.Errorf("failed to build tree for shotgun: %w", err)
 	}
 
-	if err := ctx.Err(); err != nil { // Check for cancellation before final string operations
+	if err := jobCtx.Err(); err != nil { // Check for cancellation before final string operations
 		return "", err
 	}
 
-	output.WriteString("\n")
-	output.WriteString(fileContents.String())
-
-	return output.String(), nil
+	return output.String() + "\n" + fileContents.String(), nil
 }

@@ -100,8 +100,8 @@ hence the name.
 
 ### 5.2. Clone & Bootstrap
 ```bash
-git clone https://github.com/your‑org/shotgun‑app.git
-cd shotgun‑app
+git clone https://github.com/glebkudr/shotgun_code
+cd shotgun_code
 go mod tidy           # backend deps
 cd frontend
 npm install           # Vue deps

@@ -17,9 +17,11 @@
         @toggle-exclude="toggleExcludeNode" />
       <CentralPanel :current-step="currentStep" 
                     :shotgun-prompt-context="shotgunPromptContext"
+                    :generation-progress="generationProgressData"
                     :is-generating-context="isGeneratingContext"
                     :project-root="projectRoot" 
-                    @step-action="handleStepAction" 
+                    @step-action="handleStepAction"
+                    @update-composed-prompt="handleComposedPromptUpdate" 
                     ref="centralPanelRef" />
     </div>
     <div 
@@ -80,7 +82,9 @@ const useGitignore = ref(true);
 const useCustomIgnore = ref(true);
 const manuallyToggledNodes = reactive(new Map());
 const isGeneratingContext = ref(false);
+const generationProgressData = ref({ current: 0, total: 0 });
 const isFileTreeLoading = ref(false);
+const composedLlmPrompt = ref(''); // To store the prompt from Step 2
 let debounceTimer = null;
 
 async function selectProjectFolderHandler() {
@@ -217,6 +221,7 @@ function debouncedTriggerShotgunContextGeneration() {
     addLog("Debounced trigger: Requesting shotgun context generation...", 'info');
     
     updateAllNodesExcludedState(fileTree.value);
+    generationProgressData.value = { current: 0, total: 0 }; // Reset progress before new request
 
     const excludedPathsArray = [];
     function collectExcluded(nodes) {
@@ -257,6 +262,19 @@ function navigateToStep(stepId) {
   }
 }
 
+function handleComposedPromptUpdate(prompt) {
+  composedLlmPrompt.value = prompt;
+  addLog(`MainLayout: Composed LLM prompt updated (${prompt.length} chars).`, 'debug', 'bottom');
+  // Logic to mark step 2 as complete can go here
+  if (currentStep.value === 2 && prompt && steps.value[0].completed) {
+    const step2 = steps.value.find(s => s.id === 2);
+    if (step2 && !step2.completed) {
+      step2.completed = true;
+      addLog("Step 2: Prompt composed. Ready to proceed to Step 3.", "success", "bottom");
+    }
+  }
+}
+
 async function handleStepAction(actionName, payload) {
   addLog(`Action: ${actionName} triggered from step ${currentStep.value}.`, 'info', 'bottom');
   if (payload && actionName === 'composePrompt') {
@@ -266,28 +284,19 @@ async function handleStepAction(actionName, payload) {
   const currentStepObj = steps.value.find(s => s.id === currentStep.value);
 
   switch (actionName) {
-    case 'composePrompt':
-      if (!shotgunPromptContext.value || shotgunPromptContext.value.startsWith('Error:')) {
-        addLog("Project context not generated or has errors. Please ensure Step 1 is complete and context is valid.", 'warn', 'both');
+    case 'executePrompt':
+      if (!composedLlmPrompt.value) {
+        addLog("Cannot execute prompt: Prompt from Step 2 is empty.", 'warn', 'both');
         return;
       }
-      if (centralPanelRef.value?.updateStep2ShotgunContext && shotgunPromptContext.value) {
-         centralPanelRef.value.updateStep2ShotgunContext(shotgunPromptContext.value);
-      }
-      addLog(`Simulating backend: Generating diff...`, 'info', 'both');
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const mockDiff = `--- a/file1.txt\n+++ b/file1.txt\n@@ -1,1 +1,1 @@\n-Hello\n+World`;
-      if (centralPanelRef.value?.updateStep2DiffOutput) centralPanelRef.value.updateStep2DiffOutput(mockDiff);
-      addLog(`Backend: Diff generated (${mockDiff.length} characters).`, 'info', 'both');
-      if (currentStepObj) currentStepObj.completed = true;
-      navigateToStep(2);
-      break;
-    case 'executePrompt':
-      addLog('Simulating backend: Executing diff... (mocked prompt execution)', 'info', 'step');
+      addLog(`Simulating backend: Executing prompt (LLM call)... \nPrompt Preview (first 100 chars): "${composedLlmPrompt.value.substring(0,100)}..."`, 'info', 'step');
+      // Here, you would actually send composedLlmPrompt.value to an LLM
       await new Promise(resolve => setTimeout(resolve, 1000));
-      addLog('Backend: Diff execution simulated (mocked prompt execution complete).', 'info', 'step');
+      addLog('Backend: LLM call simulated. (Mocked response/diff would be processed here).', 'info', 'step');
       if (currentStepObj) currentStepObj.completed = true;
-      navigateToStep(3);
+      // For now, just navigate to Step 4, as Step 3's "execution" is conceptual.
+      // In a real app, Step 3 might display LLM output before proceeding.
+      navigateToStep(4); 
       break;
     case 'applySelectedPatches':
     case 'applyAllPatches':
@@ -344,6 +353,11 @@ onMounted(() => {
     shotgunPromptContext.value = "Error: " + errorMsg;
     isGeneratingContext.value = false;
     addLog(`Error generating context: ${errorMsg}`, 'error');
+  });
+
+  EventsOn("shotgunContextGenerationProgress", (progress) => {
+    // console.log("FE: Progress event:", progress); // For debugging in Browser console
+    generationProgressData.value = progress;
   });
 });
 

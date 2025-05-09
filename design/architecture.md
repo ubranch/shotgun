@@ -196,6 +196,49 @@ The project context, which is the text output displayed in the "Prepare Context"
 
 This asynchronous approach ensures that the application remains interactive and provides a smoother experience, especially when working with large project structures.
 
+## Enhanced Context Generation and UI Feedback
+
+The asynchronous project context generation has been further enhanced with progress reporting and output size limits to improve user experience and application stability.
+
+### 1. Progress Reporting
+
+To provide better feedback during long-running context generation, a progress reporting mechanism has been implemented:
+
+-   **Backend (Go - `app.go`):**
+    -   A new function `countProcessableItems` recursively traverses the project directory (respecting exclusions) to estimate the total number of items (directories, files to list, files to read content from) before actual generation begins.
+    -   During context generation (`generateShotgunOutputWithProgress`):
+        -   A `generationProgressState` struct tracks `processedItems` and `totalItems`.
+        -   The `emitProgress` function is called periodically (after processing the root directory line, each tree entry, and each file content) to send a `shotgunContextGenerationProgress` Wails event.
+        -   This event carries a payload like `{ "current": X, "total": Y }`.
+-   **Frontend (Vue.js):**
+    -   **`MainLayout.vue`**:
+        -   Listens for the `shotgunContextGenerationProgress` Wails event.
+        -   Updates a reactive `generationProgressData` ref (`{ current: 0, total: 0 }`).
+        -   Resets `generationProgressData` before each new generation request.
+    -   **`CentralPanel.vue`**:
+        -   Receives `generationProgressData` as a prop.
+        -   Passes it down to `Step1PrepareContext.vue`.
+    -   **`steps/Step1PrepareContext.vue`**:
+        -   Receives `generationProgress` as a prop.
+        -   Displays a progress bar instead of a generic spinner.
+        -   The progress bar's width is computed based on `generationProgress.current` and `generationProgress.total`.
+        -   Displays text like "X / Y items" or "X / calculating..." if total is not yet known.
+
+### 2. Output Size Limitation
+
+To prevent excessive memory usage and overly large context outputs that might be problematic for LLMs or UI rendering:
+
+-   **Backend (Go - `app.go`):**
+    -   A constant `maxOutputSizeBytes` (e.g., 1MB) defines the maximum allowed size for the generated context string.
+    -   A custom error `ErrContextTooLong` is defined.
+    -   The `generateShotgunOutputWithProgress` function checks the accumulated output size at various stages (after adding the root directory, each tree line, and before/after appending file content).
+    -   If the `maxOutputSizeBytes` is exceeded, the generation is halted, and `ErrContextTooLong` (wrapped with more details) is returned.
+    -   This error is then emitted via the `shotgunContextError` Wails event to the frontend.
+-   **Frontend (Vue.js):**
+    -   The error message, including "context is too long", will be displayed in `Step1PrepareContext.vue` as part of the standard error handling for `shotgunContextError`.
+
+These enhancements provide a more transparent and robust context generation process.
+
 ## 5. Cross-Platform Considerations
 
 -   **Wails**: Natively supports building for Windows, macOS, and Linux from a single codebase.

@@ -1,7 +1,7 @@
 <template>
   <main class="flex-1 p-0 overflow-y-auto bg-white relative">
-    <Step1CopyStructure v-if="currentStep === 1" @action="handleAction" :generated-context="shotgunPromptContext" :is-loading-context="props.isGeneratingContext" :project-root="props.projectRoot" />
-    <Step2GenerateDiff v-if="currentStep === 2" @action="handleAction" ref="step2Ref" />
+    <Step1CopyStructure v-if="currentStep === 1" @action="handleAction" :generated-context="shotgunPromptContext" :is-loading-context="props.isGeneratingContext" :project-root="props.projectRoot" :generation-progress="props.generationProgress" />
+    <Step2ComposePrompt v-if="currentStep === 2" @action="handleAction" ref="step2Ref" :file-list-context="props.shotgunPromptContext" @update:finalPrompt="(prompt) => emit('update-composed-prompt', prompt)" />
     <Step3ExecuteDiff v-if="currentStep === 3" @action="handleAction" ref="step3Ref" />
     <Step4ApplyPatch v-if="currentStep === 4" @action="handleAction" />
   </main>
@@ -10,7 +10,7 @@
 <script setup>
 import { defineProps, defineEmits, ref } from 'vue';
 import Step1CopyStructure from './steps/Step1PrepareContext.vue';
-import Step2GenerateDiff from './steps/Step2ComposePrompt.vue';
+import Step2ComposePrompt from './steps/Step2ComposePrompt.vue';
 import Step3ExecuteDiff from './steps/Step3ExecutePrompt.vue';
 import Step4ApplyPatch from './steps/Step4ApplyPatch.vue';
 
@@ -18,10 +18,11 @@ const props = defineProps({
   currentStep: { type: Number, required: true },
   shotgunPromptContext: { type: String, default: '' },
   isGeneratingContext: { type: Boolean, default: false },
-  projectRoot: { type: String, default: '' }
+  projectRoot: { type: String, default: '' },
+  generationProgress: { type: Object, default: () => ({ current: 0, total: 0 }) }
 });
 
-const emit = defineEmits(['stepAction']);
+const emit = defineEmits(['stepAction', 'update-composed-prompt']);
 
 const step2Ref = ref(null);
 const step3Ref = ref(null);
