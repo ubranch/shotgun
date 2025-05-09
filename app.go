@@ -26,13 +26,13 @@ func (a *App) startup(ctx context.Context) {
 }
 
 type FileNode struct {
-	Name     string      `json:"name"`
-	Path     string      `json:"path"`    // Full path
-	RelPath  string      `json:"relPath"` // Path relative to selected root
-	IsDir    bool        `json:"isDir"`
-	Children []*FileNode `json:"children,omitempty"`
-	// Excluded     bool        `json:"excluded"` // User-set exclusion - This will be handled by frontend based on IsGitignored and manual toggles
-	IsGitignored bool `json:"isGitignored"` // True if path matches a .gitignore rule
+	Name            string      `json:"name"`
+	Path            string      `json:"path"`    // Full path
+	RelPath         string      `json:"relPath"` // Path relative to selected root
+	IsDir           bool        `json:"isDir"`
+	Children        []*FileNode `json:"children,omitempty"`
+	IsGitignored    bool        `json:"isGitignored"`    // True if path matches a .gitignore rule
+	IsCustomIgnored bool        `json:"isCustomIgnored"` // True if path matches a ignore.glob rule
 }
 
 // SelectDirectory opens a dialog to select a directory and returns the chosen path
@@ -115,37 +115,33 @@ func buildTree(currentPath, rootPath string, gitIgn *gitignore.GitIgnore, globIg
 		// For gitignore matching, paths should generally be relative to the .gitignore file (rootPath)
 		// and use OS-specific separators. go-gitignore handles this.
 
-		isIgnored := false
+		isGitignored := false
+		isCustomIgnored := false
 		pathToMatch := relPath
 		if entry.IsDir() {
-			// For directories, some gitignore implementations are stricter if the rule ends with '/'
-			// and the path doesn't. Let's ensure our path to check also ends with '/' if it's a dir.
-			// Note: go-gitignore should ideally handle this.
 			if !strings.HasSuffix(pathToMatch, string(os.PathSeparator)) {
 				pathToMatch += string(os.PathSeparator)
 			}
 		}
 
 		if gitIgn != nil && gitIgn.MatchesPath(pathToMatch) {
-			isIgnored = true
+			isGitignored = true
 		}
-		// Check globIgn only if not already ignored by .gitignore
-		if !isIgnored && globIgn != nil && globIgn.MatchesPath(pathToMatch) {
-			isIgnored = true
+		if globIgn != nil && globIgn.MatchesPath(pathToMatch) {
+			isCustomIgnored = true
 		}
 
-		// Log only for top-level items or specific known items for brevity
 		if depth < 2 || strings.Contains(relPath, "node_modules") || strings.HasSuffix(relPath, ".log") {
-			fmt.Printf("Checking path: '%s' (original relPath: '%s'), IsDir: %v, Ignored: %v\n", pathToMatch, relPath, entry.IsDir(), isIgnored)
+			fmt.Printf("Checking path: '%s' (original relPath: '%s'), IsDir: %v, Gitignored: %v, CustomIgnored: %v\n", pathToMatch, relPath, entry.IsDir(), isGitignored, isCustomIgnored)
 		}
 
 		node := &FileNode{
-			Name:    entry.Name(),
-			Path:    nodePath,
-			RelPath: relPath,
-			IsDir:   entry.IsDir(),
-			// IsGitignored now reflects combined ignore status
-			IsGitignored: isIgnored,
+			Name:            entry.Name(),
+			Path:            nodePath,
+			RelPath:         relPath,
+			IsDir:           entry.IsDir(),
+			IsGitignored:    isGitignored,
+			IsCustomIgnored: isCustomIgnored,
 		}
 
 		if entry.IsDir() {

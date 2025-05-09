@@ -7,6 +7,7 @@ export namespace main {
 	    isDir: boolean;
 	    children?: FileNode[];
 	    isGitignored: boolean;
+	    isCustomIgnored: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new FileNode(source);
@@ -20,6 +21,7 @@ export namespace main {
 	        this.isDir = source["isDir"];
 	        this.children = this.convertValues(source["children"], FileNode);
 	        this.isGitignored = source["isGitignored"];
+	        this.isCustomIgnored = source["isCustomIgnored"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

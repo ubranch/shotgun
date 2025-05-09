@@ -8,10 +8,12 @@
         :project-root="projectRoot"
         :file-tree-nodes="fileTree"
         :use-gitignore="useGitignore"
+        :use-custom-ignore="useCustomIgnore"
         :loading-error="loadingError"
         @navigate="navigateToStep"
         @select-folder="selectProjectFolderHandler"
         @toggle-gitignore="toggleGitignoreHandler"
+        @toggle-custom-ignore="toggleCustomIgnoreHandler"
         @toggle-exclude="toggleExcludeNode" />
       <CentralPanel :current-step="currentStep" 
                     :shotgun-prompt-context="shotgunPromptContext" 
@@ -75,6 +77,7 @@ const fileTree = ref([]);
 const shotgunPromptContext = ref('');
 const loadingError = ref('');
 const useGitignore = ref(true);
+const useCustomIgnore = ref(true);
 const manuallyToggledNodes = reactive(new Map());
 const copyStatusText = ref('');
 const step1ContextGenerationAttempted = ref(false);
@@ -122,7 +125,8 @@ function calculateNodeExcludedState(node) {
   const manualToggle = manuallyToggledNodes.get(node.relPath);
   if (manualToggle !== undefined) return manualToggle;
   if (useGitignore.value && node.isGitignored) return true;
-  return false; 
+  if (useCustomIgnore.value && node.isCustomIgnored) return true;
+  return false;
 }
 
 function mapDataToTreeRecursive(nodes, parent) {
@@ -166,8 +170,17 @@ watch(useGitignore, (newValue) => {
   updateAllNodesExcludedState(fileTree.value);
 });
 
+watch(useCustomIgnore, (newValue) => {
+  addLog(`Custom ignore rules usage changed to: ${newValue}. Updating tree...`, 'info', 'bottom');
+  updateAllNodesExcludedState(fileTree.value);
+});
+
 function toggleGitignoreHandler(value) {
   useGitignore.value = value;
+}
+
+function toggleCustomIgnoreHandler(value) {
+  useCustomIgnore.value = value;
 }
 
 async function generateShotgunPromptContext() {

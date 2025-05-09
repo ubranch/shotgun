@@ -1,5 +1,19 @@
 ![](https://github.com/user-attachments/assets/ec9c0d87-fc7c-4800-a52e-a34356ef09c3)
 
+**Tired of Cursor cutting off context, missing your files and folders, and spitting out empty responses?**
+
+Save your context with Shotgun!
+→ Prepare a truly GIGANTIC prompt
+→ Paste it into **Google AI Studio** and receive a massive patch for your code. 25 free queries per day!
+→ Drop that patch into Cursor or Windsurf and apply the entire diff in a single request.
+
+**That means you get 25 huge, fully coherent patches per day for your codebase—absolutely free, thanks to complete context transfer.**
+
+Perfect for dynamically-typed languages:
+
+Python
+JavaScript
+
 # Shotgun App
 
 *One‑click codebase "blast" for Large‑Language‑Model workflows.*

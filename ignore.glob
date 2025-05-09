@@ -1,3 +1,5 @@
+.git
+
 *.jpg
 *.jpeg
 *.png
@@ -6,6 +8,9 @@
 *.tiff
 *.webp
 *.svg
+*.ico
+*.icns
+
 
 *.mp3
 *.wav

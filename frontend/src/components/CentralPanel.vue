@@ -9,9 +9,9 @@
 
 <script setup>
 import { defineProps, defineEmits, ref } from 'vue';
-import Step1CopyStructure from './steps/Step1CopyStructure.vue';
-import Step2GenerateDiff from './steps/Step2GenerateDiff.vue';
-import Step3ExecuteDiff from './steps/Step3ExecuteDiff.vue';
+import Step1CopyStructure from './steps/Step1PrepareContext.vue';
+import Step2GenerateDiff from './steps/Step2ComposePrompt.vue';
+import Step3ExecuteDiff from './steps/Step3ExecutePrompt.vue';
 import Step4ApplyPatch from './steps/Step4ApplyPatch.vue';
 
 const props = defineProps({

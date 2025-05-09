@@ -20,6 +20,15 @@
           />
           Use .gitignore rules
         </label>
+        <label class="flex items-center text-sm text-gray-700 mt-1">
+          <input
+            type="checkbox"
+            :checked="useCustomIgnore"
+            @change="$emit('toggle-custom-ignore', $event.target.checked)"
+            class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 mr-2"
+          />
+          Use custom rules
+        </label>
       </div>
 
       <h2 class="text-lg font-semibold text-gray-700 mb-2">Project Files</h2>
@@ -65,16 +74,22 @@
 import { defineProps, defineEmits } from 'vue';
 import FileTree from './FileTree.vue'; // Import the existing FileTree
 
+/**
+ * Props for LeftSidebar:
+ * - useGitignore: enables .gitignore rules for file parsing
+ * - useCustomIgnore: enables custom ignore.glob rules for file parsing
+ */
 const props = defineProps({
   currentStep: { type: Number, required: true },
   steps: { type: Array, required: true }, // Array of { id: Number, title: String, completed: Boolean }
   projectRoot: { type: String, default: '' },
   fileTreeNodes: { type: Array, default: () => [] },
   useGitignore: { type: Boolean, default: true },
+  useCustomIgnore: { type: Boolean, default: false },
   loadingError: { type: String, default: '' },
 });
 
-defineEmits(['navigate', 'select-folder', 'toggle-gitignore', 'toggle-exclude']);
+defineEmits(['navigate', 'select-folder', 'toggle-gitignore', 'toggle-custom-ignore', 'toggle-exclude']);
 
 function canNavigateToStep(stepId) {
   if (stepId === props.currentStep) return true;
