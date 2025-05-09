@@ -166,21 +166,60 @@ function mapDataToTreeRecursive(nodes, parent) {
   });
 }
 
-function toggleExcludeNode(node) {
-  node.excluded = !node.excluded;
-  manuallyToggledNodes.set(node.relPath, node.excluded);
-  addLog(`Toggled exclusion for ${node.name} to ${node.excluded}`, 'info', 'bottom');
+function isAnyParentVisuallyExcluded(node) {
+  if (!node || !node.parent) {
+    return false;
+  }
+  let current = node.parent;
+  while (current) {
+    if (current.excluded) { // current.excluded reflects its visual/checkbox state
+      return true;
+    }
+    current = current.parent;
+  }
+  return false;
 }
 
-function updateAllNodesExcludedState(nodesToUpdate) {
-  if (!nodesToUpdate || nodesToUpdate.length === 0) return;
-  nodesToUpdate.forEach(node => {
-    node.excluded = calculateNodeExcludedState(node);
-    if (node.children && node.children.length > 0) {
-      updateAllNodesExcludedState(node.children);
-    }
-  });
+function toggleExcludeNode(nodeToToggle) {
+  // If the node is under an unselected parent and is currently unselected itself (nodeToToggle.excluded is true),
+  // the first click should select it (set nodeToToggle.excluded to false).
+  if (isAnyParentVisuallyExcluded(nodeToToggle) && nodeToToggle.excluded) {
+    nodeToToggle.excluded = false;
+  } else {
+    // Otherwise, normal toggle behavior.
+    nodeToToggle.excluded = !nodeToToggle.excluded;
+  }
+  manuallyToggledNodes.set(nodeToToggle.relPath, nodeToToggle.excluded);
+  addLog(`Toggled exclusion for ${nodeToToggle.name} to ${nodeToToggle.excluded}`, 'info', 'bottom');
 }
+
+function updateAllNodesExcludedState(nodesToUpdate) { // This is the public-facing function
+  // It calls the recursive helper, starting with parentIsVisuallyExcluded = false for root nodes.
+  _updateAllNodesExcludedStateRecursive(nodesToUpdate, false);
+}
+
+function _updateAllNodesExcludedStateRecursive(nodesToUpdate, parentIsVisuallyExcluded) {
+   if (!nodesToUpdate || nodesToUpdate.length === 0) return;
+   nodesToUpdate.forEach(node => {
+    const manualToggle = manuallyToggledNodes.get(node.relPath);
+    let isExcludedByRule = false;
+    if (useGitignore.value && node.isGitignored) isExcludedByRule = true;
+    if (useCustomIgnore.value && node.isCustomIgnored) isExcludedByRule = true;
+
+    if (manualToggle !== undefined) {
+      // If there's a manual toggle, it dictates the state.
+      node.excluded = manualToggle;
+    } else {
+      // If not manually toggled, it's excluded if a rule matches OR if its parent is visually excluded.
+      // This establishes the default inherited exclusion for visual purposes.
+      node.excluded = isExcludedByRule || parentIsVisuallyExcluded;
+    }
+
+     if (node.children && node.children.length > 0) {
+      _updateAllNodesExcludedStateRecursive(node.children, node.excluded); // Pass current node's new visual excluded state
+     }
+   });
+ }
 
 function toggleGitignoreHandler(value) {
   useGitignore.value = value;
@@ -224,17 +263,46 @@ function debouncedTriggerShotgunContextGeneration() {
     generationProgressData.value = { current: 0, total: 0 }; // Reset progress before new request
 
     const excludedPathsArray = [];
-    function collectExcluded(nodes) {
-      if (!nodes) return;
-      nodes.forEach(node => {
-        if (node.excluded) excludedPathsArray.push(node.relPath);
-        if (node.children && node.children.length > 0) collectExcluded(node.children);
-      });
+    
+    // Helper to determine if a node has any visually included (checkbox checked) descendants
+    function hasVisuallyIncludedDescendant(node) {
+      if (!node.isDir || !node.children || node.children.length === 0) {
+        return false;
+      }
+      for (const child of node.children) {
+        if (!child.excluded) { // If child itself is visually included (checkbox is checked)
+          return true;
+        }
+        if (hasVisuallyIncludedDescendant(child)) { // Or if any of its descendants are
+          return true;
+        }
+      }
+      return false;
     }
-    collectExcluded(fileTree.value);
 
-    RequestShotgunContextGeneration(projectRoot.value, excludedPathsArray)
-      .catch(err => {
+    function collectTrulyExcludedPaths(nodes) {
+       if (!nodes) return;
+       nodes.forEach(node => {
+        // A node is TRULY excluded if its checkbox is unchecked (node.excluded is true)
+        // AND it does not have any descendant that is checked (visually included).
+        if (node.excluded && !hasVisuallyIncludedDescendant(node)) {
+          excludedPathsArray.push(node.relPath);
+          // If a node is truly excluded, its children are implicitly excluded from generation,
+          // so no need to recurse further for collecting excluded paths under this node.
+        } else {
+          // If the node is visually included OR it's visually excluded but has an included descendant
+          // (meaning this node's path needs to be in the tree structure for its descendant),
+          // then we must check its children for their own exclusion status.
+          if (node.children && node.children.length > 0) {
+            collectTrulyExcludedPaths(node.children);
+          }
+        }
+       });
+     }
+    collectTrulyExcludedPaths(fileTree.value);
+ 
+     RequestShotgunContextGeneration(projectRoot.value, excludedPathsArray)
+       .catch(err => {
         const errorMsg = "Error calling RequestShotgunContextGeneration: " + (err.message || err);
         addLog(errorMsg, 'error');
         shotgunPromptContext.value = "Error: " + errorMsg; 

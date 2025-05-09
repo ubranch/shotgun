@@ -1,9 +1,7 @@
 <template>
   <div class="p-4 h-full flex flex-col">
     <p class="text-gray-700 mb-4 text-center text-sm">
-      The goal on this page: to form the final prompt for the language model (LLM).
-      <br />Edit the "Your task for AI" field. "Rules" and "File list" are updated automatically.
-      <br />The final prompt in the right column will be updated with your changes.
+      Write the task for the LLM in the central column and copy the final prompt
     </p>
 
     <div class="flex-grow flex flex-row space-x-4 overflow-hidden">
@@ -13,7 +11,7 @@
           <textarea
             id="user-task-ai"
             v-model="userTask"
-            rows="5"
+            rows="15"
             class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
             placeholder="Describe what the AI should do..."
           ></textarea>
@@ -21,8 +19,7 @@
 
         <div>
           <label for="rules-content" class="block text-sm font-medium text-gray-700 mb-1">
-            Rules (for AI):
-            <span class="text-xs text-gray-500">(read-only for now, editable in the future)</span>
+            Custom rules:
           </label>
           <textarea
             id="rules-content"
@@ -30,16 +27,15 @@
             rows="8"
             class="w-full p-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-sm font-mono"
             placeholder="Rules for AI..."
-            readonly
           ></textarea>
         </div>
 
         <div>
-          <label for="file-list-context" class="block text-sm font-medium text-gray-700 mb-1">File list (from context):</label>
+          <label for="file-list-context" class="block text-sm font-medium text-gray-700 mb-1">File list to include:</label>
           <textarea
             id="file-list-context"
             :value="props.fileListContext"
-            rows="10"
+            rows="20"
             readonly
             class="w-full p-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 font-mono text-xs"
             placeholder="File list from Step 1 (Prepare Context) will appear here..."
@@ -133,11 +129,7 @@ You are a "Robotic Senior Software Engineer AI". Your mission is to meticulously
 {FILE_STRUCTURE}
 `;
 
-const DEFAULT_RULES = `* Follow instructions precisely.
-* Prioritize correctness and maintainability.
-* If generating code, ensure it adheres to common best practices for the language in question.
-* If modifying existing code, try to match the existing style and conventions.
-* Output only the requested format. No conversational fluff.`;
+const DEFAULT_RULES = `no additional rules`;
 
 onMounted(() => {
   rulesContent.value = DEFAULT_RULES;

@@ -11,7 +11,6 @@
           type="checkbox" 
           :checked="!node.excluded" 
           @change="handleCheckboxChange(node)"
-          :disabled="isEffectivelyExcludedByParent(node)"
           class="exclude-checkbox"
         />
         <span @click="node.isDir ? toggleExpand(node) : null" :class="{ 'folder-name': node.isDir }">
@@ -24,7 +23,6 @@
         :project-root="projectRoot"
         :depth="depth + 1"
         @toggle-exclude="emitToggleExclude"
-        :parent-excluded="node.excluded || parentExcluded"
       />
     </li>
   </ul>
