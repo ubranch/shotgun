@@ -2,7 +2,9 @@
   <div class="p-6 flex flex-col h-full">
     <h2 class="text-xl font-semibold text-gray-800 mb-4">Step 3: Execute Prompt</h2>
     <p class="text-gray-600 mb-4">
-      For now just go to Google AI studio, copy the prompt and paste it there with 2.5 pro model. It will give you the diff you may apply directly to Cursor or Windsurf.
+      <li>For now just go to Google AI studio, copy the prompt and paste it there with 2.5 pro model with 0.1 temperature. It will give you <b>the diff</b></li>
+      <li>Then open any agentic code tool and ask 'apply diff' + copy-paste the diff. </li>
+      <li>Diff application from the Shotgun itself will be available soon.</li>
     </p>
     
     <!--

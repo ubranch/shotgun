@@ -1,4 +1,10 @@
 <template>
+  <CustomRulesModal
+    :is-visible="isCustomRulesModalVisible"
+    :initial-rules="currentCustomRulesForModal"
+    @save="handleSaveCustomRules"
+    @cancel="handleCancelCustomRules"
+  />
   <aside class="w-64 md:w-72 lg:w-80 bg-gray-50 p-4 border-r border-gray-200 overflow-y-auto flex flex-col flex-shrink-0">
     <!-- Project Selection and File Tree -->
     <div class="mb-6">
@@ -28,6 +34,7 @@
             class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 mr-2"
           />
           Use custom rules
+          <button @click="openCustomRulesModal" title="Edit custom ignore rules" class="ml-2 p-0.5 hover:bg-gray-200 rounded text-xs">⚙️</button>
         </label>
       </div>
 
@@ -71,8 +78,11 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits, ref } from 'vue';
 import FileTree from './FileTree.vue'; // Import the existing FileTree
+import CustomRulesModal from './CustomRulesModal.vue';
+import { GetCustomIgnoreRules, SetCustomIgnoreRules } from '../../wailsjs/go/main/App';
+import { LogError as LogErrorRuntime, LogInfo as LogInfoRuntime } from '../../wailsjs/runtime/runtime';
 
 /**
  * Props for LeftSidebar:
@@ -89,7 +99,43 @@ const props = defineProps({
   loadingError: { type: String, default: '' },
 });
 
-defineEmits(['navigate', 'select-folder', 'toggle-gitignore', 'toggle-custom-ignore', 'toggle-exclude']);
+const emit = defineEmits(['navigate', 'select-folder', 'toggle-gitignore', 'toggle-custom-ignore', 'toggle-exclude', 'custom-rules-updated', 'add-log']);
+
+const isCustomRulesModalVisible = ref(false);
+const currentCustomRulesForModal = ref('');
+
+async function openCustomRulesModal() {
+  try {
+    currentCustomRulesForModal.value = await GetCustomIgnoreRules();
+    isCustomRulesModalVisible.value = true;
+  } catch (error) {
+    console.error("Error fetching custom ignore rules:", error);
+    LogErrorRuntime(`Error fetching custom rules: ${error.message || error}`);
+    emit('add-log', { message: `Failed to load custom rules: ${error.message || error}`, type: 'error' });
+    // Show a placeholder or error message in the textarea if loading fails
+    currentCustomRulesForModal.value = "# Error loading rules. Please check application logs.\n# You can still edit and save.";
+    isCustomRulesModalVisible.value = true; // Still open modal
+  }
+}
+
+async function handleSaveCustomRules(newRules) {
+  try {
+    await SetCustomIgnoreRules(newRules);
+    isCustomRulesModalVisible.value = false;
+    LogInfoRuntime('Custom ignore rules saved successfully via LeftSidebar.');
+    emit('add-log', { message: 'Custom ignore rules saved.', type: 'success' });
+    emit('custom-rules-updated'); // Notify MainLayout to refresh
+  } catch (error) {
+    console.error("Error saving custom ignore rules:", error);
+    LogErrorRuntime(`Error saving custom rules: ${error.message || error}`);
+    emit('add-log', { message: `Failed to save custom rules: ${error.message || error}`, type: 'error' });
+    // Keep modal open for user to retry or copy content, or show an error in the modal itself.
+  }
+}
+
+function handleCancelCustomRules() {
+  isCustomRulesModalVisible.value = false;
+}
 
 function canNavigateToStep(stepId) {
   if (stepId === props.currentStep) return true;
@@ -100,3 +146,7 @@ function canNavigateToStep(stepId) {
   return stepId === firstUncompletedStepId || (firstUncompletedStepId === undefined && targetStep); // Allow any if all completed
 }
 </script> 
+
+<style scoped>
+/* Add your styles here */
+</style> 

@@ -2,9 +2,12 @@ module shotgun_code
 
 go 1.24
 
-require github.com/wailsapp/wails/v2 v2.10.1 // Example, use latest stable version
+require github.com/wailsapp/wails/v2 v2.10.1
 
-require github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
+require (
+	github.com/adrg/xdg v0.5.0
+	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
+)
 
 require (
 	github.com/bep/debounce v1.2.1 // indirect

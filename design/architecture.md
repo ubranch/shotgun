@@ -50,6 +50,28 @@ The Go backend is structured into a `main` package.
             -   Concatenates the tree structure, a blank line, and all formatted file contents.
             -   Returns the complete string.
 
+    -   **`Watchman` (File System Watcher)**:
+        -   A component responsible for monitoring file system changes within the selected project directory.
+        -   **`Watchman` struct**: Holds the application context, root directory being watched, a ticker for periodic checks, the last known state of files, a mutex for synchronization, and a cancel function for its goroutine.
+        -   **`fileMeta` struct**: Stores metadata for each file/directory (ModTime, Size, IsDir) for comparison against the last known state.
+        -   **`NewWatchman(app *App)`**: Constructor for the `Watchman`.
+        -   **`App.StartFileWatcher(rootDirPath string) error` / `App.StopFileWatcher() error`**: Methods exposed to the frontend via Wails. These are called by the frontend to start and stop the file watcher for a given `rootDirPath`. They delegate to the `Watchman` instance.
+        -   **`Watchman.Start(newRootDir string)`**: Initializes and starts the watching process. It stops any previous watcher, performs an initial scan of `newRootDir` using `scanDirectoryState` to establish `lastKnownState`, and then launches the `run` method in a new goroutine.
+        -   **`Watchman.Stop()`**: Stops the current watcher by calling its `cancelFunc` (which cancels the context for the `run` goroutine), stops the ticker, and clears internal state like `rootDir` and `lastKnownState`.
+        -   **`Watchman.run(ctx context.Context)`**: The main monitoring loop, running in its own goroutine. It uses a `time.Ticker` (e.g., every 200ms) to periodically:
+            -   Check if the context has been cancelled (e.g., by `Stop()`).
+            -   Call `scanDirectoryState` to get the current state of files and directories.
+            -   Call `compareStates` to check for differences against `lastKnownState`.
+            -   If changes are detected, it calls `App.notifyFileChange` and updates `lastKnownState`.
+        -   **`Watchman.scanDirectoryState(scanRootDir string)`**: Recursively walks the `scanRootDir` (using `filepath.WalkDir`), collecting `fileMeta` for each file and directory. It calculates paths relative to `scanRootDir`. It includes logic to skip certain directories (e.g., `.git` at the top level of the scanned root) and handles errors during traversal by logging them and attempting to continue.
+        -   **`Watchman.compareStates(oldState, newState map[string]fileMeta)`**: Compares the `newState` with the `oldState`. It checks for:
+            -   Differences in the number of items (creations/deletions).
+            -   Items present in `newState` but not `oldState` (creations).
+            -   For items present in both, it checks for changes in `IsDir` status, `Size`, or `ModTime`.
+            Returns `true` if any change is detected.
+        -   **`App.notifyFileChange(rootDir string)`**: If `compareStates` detects any changes, this method is called on the `App` struct. It emits a `projectFilesChanged` Wails event to the frontend, passing the `rootDir` that experienced changes.
+        -   The frontend listens to this `projectFilesChanged` event to trigger actions like queuing a reload of the file tree (`FileTree.vue`) and, subsequently, the project context if the system is not busy (e.g., not already loading the tree or generating context).
+
 ### Wails Integration:
 
 -   The `App` struct and its public methods (`ListFiles`, `GenerateShotgunOutput`) are bound using `wails.Run(&options.App{Bind: ...})`.

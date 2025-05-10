@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	_ "embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -12,17 +14,28 @@ import (
 	"sync"
 	"time"
 
-	gitignore "github.com/sabhiram/go-gitignore" // Import the gitignore library
+	"github.com/adrg/xdg"
+	gitignore "github.com/sabhiram/go-gitignore"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 const maxOutputSizeBytes = 10_000_000 // 10MB
 var ErrContextTooLong = errors.New("context is too long")
 
+//go:embed ignore.glob
+var defaultCustomIgnoreRulesContent string
+
+type AppSettings struct {
+	CustomIgnoreRules string `json:"customIgnoreRules"`
+}
+
 type App struct {
-	ctx              context.Context
-	contextGenerator *ContextGenerator // Added
-	fileWatcher      *Watchman         // Added for file watcher
+	ctx                         context.Context
+	contextGenerator            *ContextGenerator
+	fileWatcher                 *Watchman
+	settings                    AppSettings
+	currentCustomIgnorePatterns *gitignore.GitIgnore
+	configPath                  string
 }
 
 func NewApp() *App {
@@ -31,8 +44,18 @@ func NewApp() *App {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	a.contextGenerator = NewContextGenerator(a) // Initialize here
-	a.fileWatcher = NewWatchman(a)              // Initialize file watcher
+	a.contextGenerator = NewContextGenerator(a)
+	a.fileWatcher = NewWatchman(a)
+
+	configFilePath, err := xdg.ConfigFile("shotgun-code/settings.json")
+	if err != nil {
+		runtime.LogErrorf(a.ctx, "Error getting config file path: %v. Using defaults and will attempt to save later if rules are modified.", err)
+		// configPath will be empty, loadSettings will handle this by using defaults
+		// and saveSettings will fail gracefully if configPath remains empty and saving is attempted.
+	}
+	a.configPath = configFilePath
+
+	a.loadSettings()
 }
 
 type FileNode struct {
@@ -52,67 +75,47 @@ func (a *App) SelectDirectory() (string, error) {
 
 // ListFiles lists files and folders in a directory, parsing .gitignore if present
 func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
-	var gitIgn *gitignore.GitIgnore
+	runtime.LogDebugf(a.ctx, "ListFiles called for directory: %s", dirPath)
+
+	var gitIgn *gitignore.GitIgnore // For .gitignore in the project directory
 	gitignorePath := filepath.Join(dirPath, ".gitignore")
-	fmt.Printf("Attempting to find .gitignore at: %s\n", gitignorePath)
+	runtime.LogDebugf(a.ctx, "Attempting to find .gitignore at: %s", gitignorePath)
 	if _, err := os.Stat(gitignorePath); err == nil {
-		fmt.Printf(".gitignore found at: %s\n", gitignorePath)
+		runtime.LogDebugf(a.ctx, ".gitignore found at: %s", gitignorePath)
 		gitIgn, err = gitignore.CompileIgnoreFile(gitignorePath)
 		if err != nil {
-			fmt.Printf("Error compiling .gitignore file at %s: %v\n", gitignorePath, err)
-			gitIgn = nil // Ensure ign is nil if compilation fails
+			runtime.LogWarningf(a.ctx, "Error compiling .gitignore file at %s: %v", gitignorePath, err)
+			gitIgn = nil
 		} else {
-			fmt.Printf(".gitignore compiled successfully.\n")
+			runtime.LogDebug(a.ctx, ".gitignore compiled successfully.")
 		}
 	} else {
-		fmt.Printf(".gitignore not found at %s (os.Stat error: %v)\n", gitignorePath, err)
+		runtime.LogDebugf(a.ctx, ".gitignore not found at %s (os.Stat error: %v)", gitignorePath, err)
 		gitIgn = nil
 	}
 
-	var globIgn *gitignore.GitIgnore
-	globIgnorePath := filepath.Join(dirPath, "ignore.glob")
-	fmt.Printf("Attempting to find ignore.glob at: %s\n", globIgnorePath)
-	if _, err := os.Stat(globIgnorePath); err == nil {
-		fmt.Printf("ignore.glob found at: %s\n", globIgnorePath)
-		globIgn, err = gitignore.CompileIgnoreFile(globIgnorePath)
-		if err != nil {
-			fmt.Printf("Error compiling ignore.glob file at %s: %v\n", globIgnorePath, err)
-			globIgn = nil
-		} else {
-			fmt.Printf("ignore.glob compiled successfully.\n")
-		}
-	} else {
-		fmt.Printf("ignore.glob not found at %s (os.Stat error: %v)\n", globIgnorePath, err)
-		globIgn = nil
-	}
+	// App-level custom ignore patterns are in a.currentCustomIgnorePatterns
 
-	// Create the root node representing the selected directory
 	rootNode := &FileNode{
-		Name:    filepath.Base(dirPath),
-		Path:    dirPath,
-		RelPath: ".", // Relative path for the root itself is "."
-		IsDir:   true,
-		// IsGitignored for the root itself is typically false, unless a specific rule targets it.
-		// For simplicity, we'll assume it's not ignored. If needed, this could be checked.
-		IsGitignored: false,
+		Name:         filepath.Base(dirPath),
+		Path:         dirPath,
+		RelPath:      ".",
+		IsDir:        true,
+		IsGitignored: false, // Root itself is not gitignored by default
+		// IsCustomIgnored for root is also false by default, specific patterns would be needed
+		IsCustomIgnored: a.currentCustomIgnorePatterns != nil && a.currentCustomIgnorePatterns.MatchesPath("."),
 	}
 
-	// Get children for the root node using the existing buildTree logic
-	children, err := buildTreeRecursive(context.TODO(), dirPath, dirPath, gitIgn, globIgn, 0) // Using context.TODO() for non-cancellable initial scan
+	children, err := buildTreeRecursive(context.TODO(), dirPath, dirPath, gitIgn, a.currentCustomIgnorePatterns, 0)
 	if err != nil {
-		// If there's an error building the children tree (e.g., permission issues),
-		// return the root node with no children, but also return the error.
-		// Or, decide if this scenario means ListFiles should fail entirely.
-		// For now, let's return the root and the error. The frontend might need to handle this.
 		return []*FileNode{rootNode}, fmt.Errorf("error building children tree for %s: %w", dirPath, err)
 	}
 	rootNode.Children = children
 
-	// ListFiles now returns a slice containing only the root node
 	return []*FileNode{rootNode}, nil
 }
 
-func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIgn *gitignore.GitIgnore, globIgn *gitignore.GitIgnore, depth int) ([]*FileNode, error) {
+func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIgn *gitignore.GitIgnore, customIgn *gitignore.GitIgnore, depth int) ([]*FileNode, error) {
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
@@ -140,11 +143,11 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 			}
 		}
 
-		if gitIgn != nil && gitIgn.MatchesPath(pathToMatch) {
-			isGitignored = true
+		if gitIgn != nil {
+			isGitignored = gitIgn.MatchesPath(pathToMatch)
 		}
-		if globIgn != nil && globIgn.MatchesPath(pathToMatch) {
-			isCustomIgnored = true
+		if customIgn != nil {
+			isCustomIgnored = customIgn.MatchesPath(pathToMatch)
 		}
 
 		if depth < 2 || strings.Contains(relPath, "node_modules") || strings.HasSuffix(relPath, ".log") {
@@ -161,13 +164,21 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 		}
 
 		if entry.IsDir() {
-			// Children inherit gitignore rules through their own path matching
-			children, err := buildTreeRecursive(ctx, nodePath, rootPath, gitIgn, globIgn, depth+1) // Pass ctx
-			if err != nil {
-				fmt.Printf("Error reading dir %s: %v\n", nodePath, err)
-				continue
+			// If it's a directory, recursively call buildTree
+			// Only recurse if not ignored
+			if !isGitignored && !isCustomIgnored {
+				children, err := buildTreeRecursive(ctx, nodePath, rootPath, gitIgn, customIgn, depth+1)
+				if err != nil {
+					if errors.Is(err, context.Canceled) {
+						return nil, err // Propagate cancellation
+					}
+					// runtime.LogWarnf(ctx, "Error building subtree for %s: %v", nodePath, err) // Use ctx if available
+					runtime.LogWarningf(context.Background(), "Error building subtree for %s: %v", nodePath, err) // Fallback for now
+					// Decide: skip this dir or return error up. For now, skip with log.
+				} else {
+					node.Children = children
+				}
 			}
-			node.Children = children
 		}
 		nodes = append(nodes, node)
 	}
@@ -711,4 +722,125 @@ func (w *Watchman) compareStates(oldState, newState map[string]fileMeta) bool {
 // notifyFileChange is an internal method for the App to emit a Wails event.
 func (a *App) notifyFileChange(rootDir string) {
 	runtime.EventsEmit(a.ctx, "projectFilesChanged", rootDir)
+}
+
+// --- Configuration Management ---
+
+func (a *App) compileCustomIgnorePatterns() error {
+	if strings.TrimSpace(a.settings.CustomIgnoreRules) == "" {
+		a.currentCustomIgnorePatterns = nil
+		runtime.LogDebug(a.ctx, "Custom ignore rules are empty, no patterns compiled.")
+		return nil
+	}
+	lines := strings.Split(strings.ReplaceAll(a.settings.CustomIgnoreRules, "\r\n", "\n"), "\n")
+	var validLines []string
+	for _, line := range lines {
+		// CompileIgnoreLines should handle empty/comment lines appropriately based on .gitignore syntax
+		validLines = append(validLines, line)
+	}
+
+	ign := gitignore.CompileIgnoreLines(validLines...)
+	// Поскольку CompileIgnoreLines в этой версии не возвращает ошибку,
+	// проверка на err удалена.
+	// Если ign будет nil (например, если все строки были пустыми или комментариями,
+	// и библиотека так обрабатывает), то это будет корректно обработано ниже.
+	a.currentCustomIgnorePatterns = ign
+	runtime.LogInfo(a.ctx, "Successfully compiled custom ignore patterns.")
+	return nil
+}
+
+func (a *App) loadSettings() {
+	// Default to embedded rules
+	a.settings.CustomIgnoreRules = defaultCustomIgnoreRulesContent
+
+	if a.configPath == "" {
+		runtime.LogWarningf(a.ctx, "Config path is empty, using default custom ignore rules (embedded).")
+		if err := a.compileCustomIgnorePatterns(); err != nil {
+			// Error already logged in compileCustomIgnorePatterns
+		}
+		return
+	}
+
+	data, err := os.ReadFile(a.configPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			runtime.LogInfo(a.ctx, "Settings file not found. Using default custom ignore rules (embedded) and attempting to save them.")
+			// Save default settings to create the file. compileCustomIgnorePatterns will be called after this.
+			if errSave := a.saveSettings(); errSave != nil { // saveSettings will use a.settings.CustomIgnoreRules which is currently default
+				runtime.LogErrorf(a.ctx, "Failed to save default settings: %v", errSave)
+			}
+		} else {
+			runtime.LogErrorf(a.ctx, "Error reading settings file %s: %v. Using default custom ignore rules (embedded).", a.configPath, err)
+		}
+	} else {
+		err = json.Unmarshal(data, &a.settings)
+		if err != nil {
+			runtime.LogErrorf(a.ctx, "Error unmarshalling settings from %s: %v. Using default custom ignore rules (embedded).", a.configPath, err)
+			a.settings.CustomIgnoreRules = defaultCustomIgnoreRulesContent // Reset to default on unmarshal error
+		} else {
+			runtime.LogInfo(a.ctx, "Successfully loaded custom ignore rules from config.")
+			// If loaded rules are empty but default embedded rules are not, use default.
+			if strings.TrimSpace(a.settings.CustomIgnoreRules) == "" && strings.TrimSpace(defaultCustomIgnoreRulesContent) != "" {
+				runtime.LogInfo(a.ctx, "Loaded custom ignore rules are empty, falling back to default embedded rules.")
+				a.settings.CustomIgnoreRules = defaultCustomIgnoreRulesContent
+			}
+		}
+	}
+
+	if errCompile := a.compileCustomIgnorePatterns(); errCompile != nil {
+		// Error already logged in compileCustomIgnorePatterns
+	}
+}
+
+func (a *App) saveSettings() error {
+	if a.configPath == "" {
+		err := errors.New("config path is not set, cannot save settings")
+		runtime.LogError(a.ctx, err.Error())
+		return err
+	}
+
+	data, err := json.MarshalIndent(a.settings, "", "  ")
+	if err != nil {
+		runtime.LogErrorf(a.ctx, "Error marshalling settings: %v", err)
+		return err
+	}
+
+	configDir := filepath.Dir(a.configPath)
+	if err := os.MkdirAll(configDir, os.ModePerm); err != nil {
+		runtime.LogErrorf(a.ctx, "Error creating config directory %s: %v", configDir, err)
+		return err
+	}
+
+	err = os.WriteFile(a.configPath, data, 0644)
+	if err != nil {
+		runtime.LogErrorf(a.ctx, "Error writing settings to %s: %v", a.configPath, err)
+		return err
+	}
+	runtime.LogInfo(a.ctx, "Settings saved successfully.")
+	return nil
+}
+
+// GetCustomIgnoreRules returns the current custom ignore rules as a string.
+func (a *App) GetCustomIgnoreRules() string {
+	// Ensure settings are loaded if they haven't been (e.g. if called before startup completes, though unlikely)
+	// However, loadSettings is called in startup, so this should generally be populated.
+	return a.settings.CustomIgnoreRules
+}
+
+// SetCustomIgnoreRules updates the custom ignore rules, saves them, and recompiles.
+func (a *App) SetCustomIgnoreRules(rules string) error {
+	a.settings.CustomIgnoreRules = rules
+	// Attempt to compile first. If compilation fails, we might not want to save invalid rules,
+	// or save them and let the user know they are not effective.
+	// For now, compile then save. If compile fails, the old patterns (or nil) remain active.
+	compileErr := a.compileCustomIgnorePatterns()
+
+	saveErr := a.saveSettings()
+	if saveErr != nil {
+		return fmt.Errorf("failed to save settings: %w (compile error: %v)", saveErr, compileErr)
+	}
+	if compileErr != nil {
+		return fmt.Errorf("rules saved, but failed to compile custom ignore patterns: %w", compileErr)
+	}
+	return nil
 }

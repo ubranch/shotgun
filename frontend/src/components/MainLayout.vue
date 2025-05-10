@@ -14,7 +14,9 @@
         @select-folder="selectProjectFolderHandler"
         @toggle-gitignore="toggleGitignoreHandler"
         @toggle-custom-ignore="toggleCustomIgnoreHandler"
-        @toggle-exclude="toggleExcludeNode" />
+        @toggle-exclude="toggleExcludeNode"
+        @custom-rules-updated="handleCustomRulesUpdated"
+        @add-log="({message, type}) => addLog(message, type)" />
       <CentralPanel :current-step="currentStep" 
                     :shotgun-prompt-context="shotgunPromptContext"
                     :generation-progress="generationProgressData"
@@ -519,6 +521,17 @@ function checkAndProcessPendingFileTreeReload() {
     addLog("Watchman: Processing queued file tree reload.", 'info');
     // It's important that loadFileTree correctly sets isFileTreeLoading to true at its start
     // and that subsequent context generation is also handled.
+    loadFileTree(projectRoot.value);
+  }
+}
+
+function handleCustomRulesUpdated() {
+  addLog("Custom ignore rules updated by user. Reloading file tree.", 'info');
+  if (projectRoot.value) {
+    // This will call ListFiles in Go, which will use the new custom rules from app.settings.
+    // The new tree will have updated IsCustomIgnored flags.
+    // The watch on fileTree (and its subsequent call to debouncedTriggerShotgunContextGeneration)
+    // will then handle regenerating the context.
     loadFileTree(projectRoot.value);
   }
 }
