@@ -272,3 +272,20 @@ These enhancements provide a more transparent and robust context generation proc
 -   **Go Backend**: Relies primarily on the Go standard library. Wails is the main external dependency.
 -   **Vue Frontend**: Uses Vue 3, Vite, and Tailwind CSS. The UI components for the stepper, panels, and steps are custom built.
 -   This approach aims to keep the application maintainable and focused, leveraging Tailwind CSS for styling efficiency.
+
+## 7. Configuration Management and Custom Ignore Rules
+
+-   **Configuration Storage**: Application settings, including custom ignore rules, are stored in a JSON file (`settings.json`) within the user's standard configuration directory (e.g., `~/.config/shotgun-code/settings.json` on Linux, `%APPDATA%\Shotgun Code\Config\settings.json` on Windows). This is managed using the `github.com/adrg/xdg` library.
+-   **Default Custom Rules**: The `ignore.glob` file located at the root of the application's repository serves as the source for default custom ignore rules. These rules are embedded into the application binary at build time using Go's `embed` package.
+-   **Loading Rules**: On startup, the application attempts to load `settings.json`. 
+    - If the file exists and contains valid `customIgnoreRules`, these are used.
+    - If the file doesn't exist, or if `customIgnoreRules` are empty/missing or invalid, the embedded default rules are used. The application will also attempt to create/update `settings.json` with these defaults (or the last valid loaded rules if applicable).
+-   **Editing Custom Rules**: 
+    - A "gear" icon (⚙️) next to the "Use custom rules" checkbox in the `LeftSidebar` opens a modal.
+    - This modal allows users to view and edit the custom ignore rules in a textarea. The rules follow `.gitignore` pattern syntax.
+    - Saving these rules updates the `settings.json` file. The application then recompiles these rules for internal use.
+-   **Impact of Rule Changes**: 
+    - Any modification to the custom ignore rules (via the modal and save) triggers a reload of the project file tree in the `LeftSidebar`.
+    - This ensures that the `IsCustomIgnored` status of files and folders is updated according to the new rules.
+    - Subsequently, if "Use custom rules" is active, the project context (Step 1 output) will also be regenerated to reflect these changes.
+-   **`ignore.glob` in Project Directory**: The `ignore.glob` file that might exist within a user's selected project directory is **no longer used** for the "Use custom rules" feature. This feature now exclusively relies on the application-level configuration described above. The `.gitignore` file in the project directory continues to be used for the "Use .gitignore rules" feature.

@@ -195,20 +195,22 @@ package main
 
 ## 10. Roadmap
 
-✅ **Step 1: Prepare Context** 
- Basic ability to select a project, exclude items, and generate a structured text context.
+- ✅ **Step 1: Prepare Context**  
+  Basic ability to select a project, exclude items, and generate a structured text context.
 
-✅ **Step 2: Compose Prompt**
- Allow user to input a prompt, (simulate) sending it with context to an LLM, and display a (mock) diff.
+- ✅ **Step 2: Compose Prompt**  
+  - Allow user to input a prompt, (simulate) sending it with context to an LLM, and display a (mock) diff.  
+  - ✅ **Watchman to hot-reload TreeView**  
+  - ✅ **Custom rules**
 
-☐ **Step 3: Execute Prompt** "executing" the prompt/diff and show logs.
+- ☐ **Step 3: Execute Prompt**  
+  “Executing” the prompt and showing logs.
 
-☐ **Step 4: Apply Patch** 
- Enable applying patches inside Shotgun (currently stubbed).
-*   ☐ Direct API bridge to send output to OpenAI / Gemini without copy-paste.
-*   ☐ Preset exclude templates (Go, Node, Rust, …).
-*   ☐ CLI version for headless pipelines.
-*   **Watch token limits** – even million-token models have practical caps. Use Shotgun scopes (root folder vs subfolder) to stay under budget.
+- ☐ **Step 4: Apply Patch**  
+  Enable applying patches inside Shotgun.  
+  - ☐ Direct API bridge to send output to OpenAI / Gemini without copy-paste  
+  - ☐ CLI version for headless pipelines  
+  - **Watch token limits** – even million-token models have practical caps. Use Shotgun scopes (root folder vs subfolder) to stay under budget.  
 
 ---
 
