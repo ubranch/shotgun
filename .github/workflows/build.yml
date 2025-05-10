@@ -1,10 +1,10 @@
-name: Cross‑platform Build + Release — Shotgun Code
+name: Cross‑platform Build + Release — Shotgun Code
 
 on:
   workflow_dispatch:
 
 permissions:
-  contents: write        # нужен доступ к релизам
+  contents: write        
 
 env:
   NODE_OPTIONS: "--max-old-space-size=4096"
@@ -22,7 +22,7 @@ jobs:
             build_name: shotgun-code-linux-amd64
             artifact_name: shotgun_code-linux-amd64
             package: false
-            artifact_pattern: build/bin/shotgun-code-linux-amd64
+            artifact_path: build/bin/shotgun-code-linux-amd64
 
           # ────────── Windows ──────────
           - os: windows-latest
@@ -30,15 +30,15 @@ jobs:
             build_name: shotgun-code-windows-amd64.exe
             artifact_name: shotgun_code-windows-amd64
             package: false
-            artifact_pattern: build/bin/shotgun-code-windows-amd64.exe
+            artifact_path: build/bin/shotgun-code-windows-amd64.exe
 
           # ─────────── macOS ───────────
           - os: macos-latest
             platform: darwin/arm64
-            build_name: shotgun-code            # .app
+            build_name: shotgun-code                # .app
             artifact_name: shotgun_code-darwin-arm64
             package: true
-            artifact_pattern: build/bin/shotgun-code.app.zip
+            artifact_path: build/bin/shotgun-code.app.zip
 
     runs-on: ${{ matrix.os }}
 
@@ -61,8 +61,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.artifact_pattern }}
-          if-no-files-found: error   # сразу упадём, если файла нет
+          path: ${{ matrix.artifact_path }}
+          if-no-files-found: error   
 
 # ─────────────────────── RELEASE ────────────────────────
   release:
@@ -70,10 +70,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download all artifacts
+      - name: Download release artifacts
         uses: actions/download-artifact@v4
         with:
+          pattern: shotgun_code-*      
           path: release-assets
+          fail_on_no_artifact: true
 
       - name: Prepare tag & release metadata
         id: prep
@@ -88,14 +90,16 @@ jobs:
           tag_name:  ${{ steps.prep.outputs.tag_name }}
           name:      ${{ steps.prep.outputs.release_name }}
           body: |
-            🔨 commit ${{ github.sha }}
-            • Linux (amd64), Windows (amd64), macOS (Apple Silicon)  
-            by GitHub Actions.
+            🔨 Автоматическая сборка от commit ${{ github.sha }}
+            Пакеты:
+            • Linux (amd64)  
+            • Windows (amd64)  
+            • macOS (Apple Silicon)  
+            Сгенерировано GitHub Actions.
           draft: false
           prerelease: false
+          
           files: release-assets/**/*
-          overwrite: true      # безопасно перезаписывает совпадающие имена
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
