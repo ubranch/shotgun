@@ -18,28 +18,34 @@ jobs:
             platform: linux/amd64
             safe: linux-amd64
             ext: ""
+            name: shotgun-code
           - os: ubuntu-latest
             platform: linux/arm64
             safe: linux-arm64
             ext: ""
+            name: shotgun-code
           # Windows
           - os: windows-latest
             platform: windows/amd64
             safe: windows-amd64
             ext: ".exe"
+            name: shotgun-code
           - os: windows-latest
             platform: windows/arm64
             safe: windows-arm64
             ext: ".exe"
+            name: shotgun-code
           # macOS
           - os: macos-latest
             platform: darwin/amd64
             safe: darwin-amd64
             ext: ""
+            name: shotgun-code
           - os: macos-latest
             platform: darwin/arm64
             safe: darwin-arm64
             ext: ""
+            name: shotgun-code
     runs-on: ${{ matrix.os }}
 
     steps:
