@@ -14,13 +14,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            platform: linux_amd64
+            platform: linux
             name: 'shotgun-code'
           - os: windows-latest
-            platform: windows_amd64
+            platform: windows
             name: 'shotgun-code'
           - os: macos-latest
-            platform: darwin_universal
+            platform: darwin
             name: 'shotgun-code'
     runs-on: ${{ matrix.os }}
 
