@@ -13,3 +13,11 @@ export function RequestShotgunContextGeneration(arg1, arg2) {
 export function SelectDirectory() {
   return window['go']['main']['App']['SelectDirectory']();
 }
+
+export function StartFileWatcher(arg1) {
+  return window['go']['main']['App']['StartFileWatcher'](arg1);
+}
+
+export function StopFileWatcher() {
+  return window['go']['main']['App']['StopFileWatcher']();
+}

@@ -22,6 +22,7 @@ var ErrContextTooLong = errors.New("context is too long")
 type App struct {
 	ctx              context.Context
 	contextGenerator *ContextGenerator // Added
+	fileWatcher      *Watchman         // Added for file watcher
 }
 
 func NewApp() *App {
@@ -31,6 +32,7 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.contextGenerator = NewContextGenerator(a) // Initialize here
+	a.fileWatcher = NewWatchman(a)              // Initialize file watcher
 }
 
 type FileNode struct {
@@ -480,4 +482,233 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 	}
 
 	return output.String() + "\n" + fileContents.String(), nil
+}
+
+// --- Watchman Implementation ---
+
+type fileMeta struct {
+	ModTime time.Time
+	Size    int64
+	IsDir   bool
+}
+
+type Watchman struct {
+	app            *App
+	rootDir        string
+	ticker         *time.Ticker
+	lastKnownState map[string]fileMeta
+	mu             sync.RWMutex
+	cancelFunc     context.CancelFunc
+}
+
+func NewWatchman(app *App) *Watchman {
+	return &Watchman{
+		app:            app,
+		lastKnownState: make(map[string]fileMeta),
+	}
+}
+
+// StartFileWatcher is called by JavaScript to start watching a directory.
+func (a *App) StartFileWatcher(rootDirPath string) error {
+	runtime.LogInfof(a.ctx, "StartFileWatcher called for: %s", rootDirPath)
+	if a.fileWatcher == nil {
+		return fmt.Errorf("file watcher not initialized")
+	}
+	return a.fileWatcher.Start(rootDirPath)
+}
+
+// StopFileWatcher is called by JavaScript to stop the current watcher.
+func (a *App) StopFileWatcher() error {
+	runtime.LogInfo(a.ctx, "StopFileWatcher called")
+	if a.fileWatcher == nil {
+		return fmt.Errorf("file watcher not initialized")
+	}
+	a.fileWatcher.Stop()
+	return nil
+}
+
+func (w *Watchman) Start(newRootDir string) error {
+	w.Stop() // Stop any existing watcher
+
+	w.mu.Lock()
+	w.rootDir = newRootDir
+	if w.rootDir == "" {
+		w.mu.Unlock()
+		runtime.LogInfo(w.app.ctx, "Watchman: Root directory is empty, not starting.")
+		return nil
+	}
+	w.mu.Unlock()
+
+	runtime.LogInfof(w.app.ctx, "Watchman: Starting for directory %s", newRootDir)
+
+	initialState, err := w.scanDirectoryState(newRootDir)
+	if err != nil {
+		runtime.LogError(w.app.ctx, fmt.Sprintf("Watchman: Error during initial scan of %s: %v", newRootDir, err))
+		return fmt.Errorf("watchman initial scan failed: %w", err)
+	}
+
+	w.mu.Lock()
+	w.lastKnownState = initialState
+	ctx, cancel := context.WithCancel(w.app.ctx) // Use app's context as parent
+	w.cancelFunc = cancel
+	w.mu.Unlock()
+
+	go w.run(ctx)
+	return nil
+}
+
+func (w *Watchman) Stop() {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	if w.cancelFunc != nil {
+		runtime.LogInfo(w.app.ctx, "Watchman: Stopping...")
+		w.cancelFunc()
+		w.cancelFunc = nil // Allow GC and prevent double-cancel
+	}
+	w.rootDir = ""
+	w.lastKnownState = make(map[string]fileMeta) // Clear the state
+	if w.ticker != nil {
+		w.ticker.Stop() // Ensure ticker is stopped if it was running
+		w.ticker = nil
+	}
+}
+
+func (w *Watchman) run(ctx context.Context) {
+	w.mu.RLock()
+	rootDir := w.rootDir
+	w.mu.RUnlock()
+	if rootDir == "" {
+		runtime.LogInfo(w.app.ctx, "Watchman: Goroutine exiting, rootDir is empty.")
+		return
+	}
+
+	w.ticker = time.NewTicker(200 * time.Millisecond)
+	defer func() {
+		w.ticker.Stop()
+		runtime.LogInfo(w.app.ctx, "Watchman: Goroutine and ticker stopped.")
+	}()
+
+	runtime.LogInfof(w.app.ctx, "Watchman: Monitoring goroutine started for %s", rootDir)
+
+	for {
+		select {
+		case <-ctx.Done():
+			runtime.LogInfof(w.app.ctx, "Watchman: Context cancelled, shutting down watcher for %s.", rootDir)
+			return
+		case <-w.ticker.C:
+			w.mu.RLock()
+			currentRootDir := w.rootDir // Check if rootDir changed or cleared by Stop()
+			w.mu.RUnlock()
+
+			if currentRootDir == "" || currentRootDir != rootDir { // rootDir changed by a new Start() or cleared by Stop()
+				runtime.LogInfof(w.app.ctx, "Watchman: Root directory changed or cleared, stopping this watcher instance for %s.", rootDir)
+				return
+			}
+
+			currentState, err := w.scanDirectoryState(currentRootDir)
+			if err != nil {
+				runtime.LogWarningf(w.app.ctx, "Watchman: Error scanning directory %s: %v", currentRootDir, err)
+				continue // Skip this tick on error
+			}
+
+			w.mu.RLock()
+			changed := w.compareStates(w.lastKnownState, currentState)
+			w.mu.RUnlock()
+
+			if changed {
+				runtime.LogInfof(w.app.ctx, "Watchman: Change detected in %s", currentRootDir)
+				w.app.notifyFileChange(currentRootDir) // Notify frontend
+
+				w.mu.Lock()
+				w.lastKnownState = currentState // Update state
+				w.mu.Unlock()
+			}
+		}
+	}
+}
+
+func (w *Watchman) scanDirectoryState(scanRootDir string) (map[string]fileMeta, error) {
+	newState := make(map[string]fileMeta)
+	err := filepath.WalkDir(scanRootDir, func(path string, d fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			runtime.LogWarningf(w.app.ctx, "Watchman scan error accessing %s: %v", path, walkErr)
+			if d != nil && d.IsDir() && path != scanRootDir {
+				return filepath.SkipDir
+			}
+			return nil // Try to continue
+		}
+
+		// Skip the root directory itself from being a map entry
+		if path == scanRootDir {
+			return nil
+		}
+
+		// Skip .git directory at the top level of scanRootDir
+		if d.IsDir() && d.Name() == ".git" {
+			// Check if the .git directory is directly under scanRootDir
+			parentDir := filepath.Dir(path)
+			if parentDir == scanRootDir {
+				return filepath.SkipDir
+			}
+		}
+		// Add other common large/volatile directories to skip for performance if needed
+		// e.g., node_modules, vendor, build, dist, etc.
+		// if d.IsDir() && (d.Name() == "node_modules" || d.Name() == "vendor") {
+		//    if filepath.Dir(path) == scanRootDir { // Simple check for top-level
+		// 	    return filepath.SkipDir
+		//    }
+		// }
+
+		relPath, err := filepath.Rel(scanRootDir, path)
+		if err != nil {
+			runtime.LogWarningf(w.app.ctx, "Watchman: Could not get relative path for %s (root: %s): %v", path, scanRootDir, err)
+			return nil // Continue
+		}
+
+		info, infoErr := d.Info()
+		if infoErr != nil {
+			runtime.LogWarningf(w.app.ctx, "Watchman scan error getting info for %s: %v", path, infoErr)
+			return nil // Continue
+		}
+
+		newState[relPath] = fileMeta{
+			ModTime: info.ModTime(),
+			Size:    info.Size(),
+			IsDir:   d.IsDir(),
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error walking directory %s: %w", scanRootDir, err)
+	}
+	return newState, nil
+}
+
+func (w *Watchman) compareStates(oldState, newState map[string]fileMeta) bool {
+	// Check for size difference first (quick check for additions/deletions)
+	if len(oldState) != len(newState) {
+		return true
+	}
+
+	for relPath, newMeta := range newState {
+		oldMeta, ok := oldState[relPath]
+		if !ok {
+			return true // Creation
+		}
+		if newMeta.IsDir != oldMeta.IsDir ||
+			newMeta.Size != oldMeta.Size ||
+			!newMeta.ModTime.Equal(oldMeta.ModTime) {
+			return true // Modification (type, size, or mtime change)
+		}
+	}
+	// No changes found if all new entries match old entries and lengths are same
+	// (This also covers deletions because if something was deleted, len would differ or an old entry wouldn't be in new)
+	return false
+}
+
+// notifyFileChange is an internal method for the App to emit a Wails event.
+func (a *App) notifyFileChange(rootDir string) {
+	runtime.EventsEmit(a.ctx, "projectFilesChanged", rootDir)
 }

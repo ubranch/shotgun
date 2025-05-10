@@ -41,7 +41,7 @@ import HorizontalStepper from './HorizontalStepper.vue';
 import LeftSidebar from './LeftSidebar.vue';
 import CentralPanel from './CentralPanel.vue';
 import BottomConsole from './BottomConsole.vue';
-import { ListFiles, RequestShotgunContextGeneration, SelectDirectory as SelectDirectoryGo } from '../../wailsjs/go/main/App';
+import { ListFiles, RequestShotgunContextGeneration, SelectDirectory as SelectDirectoryGo, StartFileWatcher, StopFileWatcher } from '../../wailsjs/go/main/App';
 import { EventsOn, Environment } from '../../wailsjs/runtime/runtime';
 
 const currentStep = ref(1);
@@ -88,6 +88,10 @@ const isFileTreeLoading = ref(false);
 const composedLlmPrompt = ref(''); // To store the prompt from Step 2
 const platform = ref('unknown'); // To store OS platform (e.g., 'darwin', 'windows', 'linux')
 let debounceTimer = null;
+
+// Watcher related
+const projectFilesChangedPendingReload = ref(false);
+let unlistenProjectFilesChanged = null;
 
 async function selectProjectFolderHandler() {
   isFileTreeLoading.value = true;
@@ -138,6 +142,7 @@ async function loadFileTree(dirPath) {
     fileTree.value = [];
   } finally {
     isFileTreeLoading.value = false;
+    checkAndProcessPendingFileTreeReload();
   }
 }
 
@@ -416,6 +421,7 @@ onMounted(() => {
     if (currentStep.value === 1 && centralPanelRef.value?.updateStep2ShotgunContext) {
         centralPanelRef.value.updateStep2ShotgunContext(output);
     }
+    checkAndProcessPendingFileTreeReload(); // Check after context generation
   });
 
   EventsOn("shotgunContextError", (errorMsg) => {
@@ -423,6 +429,7 @@ onMounted(() => {
     shotgunPromptContext.value = "Error: " + errorMsg;
     isGeneratingContext.value = false;
     addLog(`Error generating context: ${errorMsg}`, 'error');
+    checkAndProcessPendingFileTreeReload(); // Check after context generation error
   });
 
   EventsOn("shotgunContextGenerationProgress", (progress) => {
@@ -441,12 +448,36 @@ onMounted(() => {
       // platform.value remains 'unknown' as fallback
     }
   })();
+
+  unlistenProjectFilesChanged = EventsOn("projectFilesChanged", (changedRootDir) => {
+    if (changedRootDir !== projectRoot.value) {
+      addLog(`Watchman: Ignoring event for ${changedRootDir}, current root is ${projectRoot.value}`, 'debug');
+      return;
+    }
+    addLog(`Watchman: Event "projectFilesChanged" received for ${changedRootDir}.`, 'debug');
+    if (isFileTreeLoading.value || isGeneratingContext.value) {
+      projectFilesChangedPendingReload.value = true;
+      addLog("Watchman: File change detected, reload queued as system is busy.", 'info');
+    } else {
+      addLog("Watchman: File change detected, reloading tree immediately.", 'info');
+      loadFileTree(projectRoot.value); // This will set isFileTreeLoading = true
+      // debouncedTriggerShotgunContextGeneration will be called by the watcher on fileTree if projectRoot is set
+    }
+  });
 });
 
-onBeforeUnmount(() => {
+onBeforeUnmount(async () => {
   document.removeEventListener('mousemove', doResize);
   document.removeEventListener('mouseup', stopResize);
   clearTimeout(debounceTimer);
+  if (projectRoot.value) {
+    await StopFileWatcher().catch(err => console.error("Error stopping file watcher on unmount:", err));
+    addLog(`File watcher stopped on component unmount for ${projectRoot.value}`, 'debug');
+  }
+  if (unlistenProjectFilesChanged) {
+    unlistenProjectFilesChanged();
+  }
+  // Remember to unlisten other events if they return unlistener functions
 });
 
 watch([fileTree, useGitignore, useCustomIgnore], ([newFileTree, newUseGitignore, newUseCustomIgnore], [oldFileTree, oldUseGitignore, oldUseCustomIgnore]) => {
@@ -459,6 +490,38 @@ watch([fileTree, useGitignore, useCustomIgnore], ([newFileTree, newUseGitignore,
   updateAllNodesExcludedState(fileTree.value);
   debouncedTriggerShotgunContextGeneration();
 }, { deep: true });
+
+watch(projectRoot, async (newRoot, oldRoot) => {
+  if (oldRoot) {
+    await StopFileWatcher().catch(err => addLog(`Error stopping watcher for ${oldRoot}: ${err}`, 'error'));
+    addLog(`File watcher stopped for ${oldRoot}`, 'debug');
+  }
+  if (newRoot) {
+    // Existing logic to loadFileTree, clear errors, etc., happens in selectProjectFolderHandler
+    // which sets projectRoot. Here we just ensure the watcher starts for the new root.
+    await StartFileWatcher(newRoot).catch(err => addLog(`Error starting watcher for ${newRoot}: ${err}`, 'error'));
+    addLog(`File watcher started for ${newRoot}`, 'debug');
+  } else {
+    // Project root cleared, ensure watcher is stopped (already handled by oldRoot check if it was set)
+    fileTree.value = [];
+    shotgunPromptContext.value = '';
+    loadingError.value = '';
+    manuallyToggledNodes.clear();
+    isGeneratingContext.value = false; // Reset generation state
+    projectFilesChangedPendingReload.value = false; // Reset pending reload
+  }
+}, { immediate: false }); // 'immediate: false' to avoid running on initial undefined -> '' or '' -> initial value if set by default
+
+// Helper function to process pending reloads
+function checkAndProcessPendingFileTreeReload() {
+  if (projectFilesChangedPendingReload.value && !isFileTreeLoading.value && !isGeneratingContext.value) {
+    projectFilesChangedPendingReload.value = false;
+    addLog("Watchman: Processing queued file tree reload.", 'info');
+    // It's important that loadFileTree correctly sets isFileTreeLoading to true at its start
+    // and that subsequent context generation is also handled.
+    loadFileTree(projectRoot.value);
+  }
+}
 
 </script>
 
