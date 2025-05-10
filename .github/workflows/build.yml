@@ -1,12 +1,16 @@
-name: Manual Cross-platform Build Shotgun Code
+name: Manual Cross‑platform Build + Release Shotgun Code
 
 on:
   workflow_dispatch:
+
+permissions:
+  contents: write          # <‑‑ важно для создания релизов
 
 env:
   NODE_OPTIONS: "--max-old-space-size=4096"
 
 jobs:
+# ──────────────────────── BUILD MATRIX ────────────────────────
   build:
     strategy:
       fail-fast: false
@@ -24,18 +28,11 @@ jobs:
             build_name: shotgun-code-windows-amd64.exe
             artifact_name: shotgun_code-windows-amd64
 
-
           # ───────────── macOS ─────────────
-          #  Имя .app = «shotgun-code», без суффикса!
-          - os: macos-latest
-            platform: darwin/amd64
-            build_name: shotgun-code
-            artifact_name: shotgun_code-darwin-amd64
-
           - os: macos-latest
             platform: darwin/arm64
             build_name: shotgun-code
-            artifact_name: shotgun_code-darwin-arm64
+            artifact_name: shotgun_code-darwin-arm64   # .app уже в zip
 
     runs-on: ${{ matrix.os }}
 
@@ -47,17 +44,49 @@ jobs:
           submodules: recursive
 
       - name: Build Wails app (${{ matrix.platform }})
-        uses: dAppServer/wails-build-action@main   # v3/current main
+        uses: dAppServer/wails-build-action@main
         with:
           build-name: ${{ matrix.build_name }}
           build-platform: ${{ matrix.platform }}
           go-version: '1.24'
-          package: true            # action сам zip‑ует и загружает .app
-
-      # Дополнительный ditto не нужен — action уже упаковал Mac‑сборку.
+          package: true        # action сам упакует (zip/7z) и положит в build/bin
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: build/bin/
+          name: ${{ matrix.artifact_name }}   # одно имя ‑ один файл
+          path: build/bin/**                  # *.zip, *.exe, *.app.zip …
+
+# ────────────────────── CREATE RELEASE ────────────────────────
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts from build job
+        uses: actions/download-artifact@v4
+        with:
+          path: release‑assets           # все файлы окажутся в этой папке
+
+      - name: Prepare tag & release information
+        id: prep
+        run: |
+          TAG="v$(date -u '+%Y.%m.%d')-${GITHUB_SHA::7}"
+          echo "tag_name=$TAG"            >> $GITHUB_OUTPUT
+          echo "release_name=Shotgun Code $TAG" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name:    ${{ steps.prep.outputs.tag_name }}
+          name:        ${{ steps.prep.outputs.release_name }}
+          body: |
+            🔨 Автоматическая сборка от commit ${{ github.sha }}
+            • Linux, Windows, macOS  
+            • Сгенерировано GitHub Actions
+          draft: false
+          prerelease: false
+          files: |
+            release‑assets/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
