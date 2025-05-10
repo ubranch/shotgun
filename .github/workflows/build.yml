@@ -16,36 +16,36 @@ jobs:
           # Linux
           - os: ubuntu-latest
             platform: linux/amd64
+            name: shotgun-code
             safe: linux-amd64
             ext: ""
-            name: shotgun-code
           - os: ubuntu-latest
             platform: linux/arm64
+            name: shotgun-code
             safe: linux-arm64
             ext: ""
-            name: shotgun-code
           # Windows
           - os: windows-latest
             platform: windows/amd64
+            name: shotgun-code
             safe: windows-amd64
             ext: ".exe"
-            name: shotgun-code
           - os: windows-latest
             platform: windows/arm64
+            name: shotgun-code
             safe: windows-arm64
             ext: ".exe"
-            name: shotgun-code
           # macOS
           - os: macos-latest
             platform: darwin/amd64
+            name: shotgun-code
             safe: darwin-amd64
             ext: ""
-            name: shotgun-code
           - os: macos-latest
             platform: darwin/arm64
+            name: shotgun-code
             safe: darwin-arm64
             ext: ""
-            name: shotgun-code
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -57,15 +57,22 @@ jobs:
 
       - name: Build Wails app (${{ matrix.platform }})
         uses: dAppServer/wails-build-action@main
-        id: wails_build
         with:
           build-name: ${{ matrix.name }}-${{ matrix.safe }}${{ matrix.ext }}
           build-platform: ${{ matrix.platform }}
-          package: false
+          package: true
           go-version: '1.24'
+
+      - name: Zip macOS app
+        if: matrix.os == 'macos-latest'
+        run: |
+          APP_PATH=$(ls build/bin/*.app | head -n1)
+          ZIP_PATH=${APP_PATH}.zip
+          echo "Zipping $APP_PATH → $ZIP_PATH"
+          ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
-          name: shotgun_code-${{ matrix.safe }}${{ matrix.ext }}
+          name: shotgun_code-${{ matrix.safe }}
           path: build/bin/
