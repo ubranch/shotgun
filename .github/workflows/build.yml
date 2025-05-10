@@ -1,38 +1,38 @@
-name: Manual Cross‑platform Build + Release Shotgun Code
+name: Cross‑platform Build + Release Shotgun Code
 
 on:
   workflow_dispatch:
 
 permissions:
-  contents: write          # <‑‑ важно для создания релизов
+  contents: write        # доступ на создание/изменение релизов
 
 env:
   NODE_OPTIONS: "--max-old-space-size=4096"
 
 jobs:
-# ──────────────────────── BUILD MATRIX ────────────────────────
+# ───────────────────────── BUILD ─────────────────────────
   build:
     strategy:
       fail-fast: false
       matrix:
         include:
-          # ───────────── Linux ─────────────
+          # ─────────── Linux ───────────
           - os: ubuntu-latest
             platform: linux/amd64
             build_name: shotgun-code-linux-amd64
             artifact_name: shotgun_code-linux-amd64
 
-          # ──────────── Windows ────────────
+          # ────────── Windows ──────────
           - os: windows-latest
             platform: windows/amd64
             build_name: shotgun-code-windows-amd64.exe
             artifact_name: shotgun_code-windows-amd64
 
-          # ───────────── macOS ─────────────
+          # ─────────── macOS ───────────
           - os: macos-latest
             platform: darwin/arm64
-            build_name: shotgun-code
-            artifact_name: shotgun_code-darwin-arm64   # .app уже в zip
+            build_name: shotgun-code          # .app
+            artifact_name: shotgun_code-darwin-arm64
 
     runs-on: ${{ matrix.os }}
 
@@ -46,47 +46,51 @@ jobs:
       - name: Build Wails app (${{ matrix.platform }})
         uses: dAppServer/wails-build-action@main
         with:
-          build-name: ${{ matrix.build_name }}
-          build-platform: ${{ matrix.platform }}
-          go-version: '1.24'
-          package: true        # action сам упакует (zip/7z) и положит в build/bin
+          build-name:      ${{ matrix.build_name }}
+          build-platform:  ${{ matrix.platform }}
+          go-version:      '1.24'
+          package:         true     # всегда создаём пакет для релиза
 
-      - name: Upload binaries
+      # ── Загружаем ТОЛЬКО готовые пакеты/бинарники ──
+      - name: Upload packaged artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}   # одно имя ‑ один файл
-          path: build/bin/**                  # *.zip, *.exe, *.app.zip …
+          name: ${{ matrix.artifact_name }}
+          path: |
+            build/bin/**/*.zip
+            build/bin/**/*.tar.gz
+            build/bin/**/*.exe
+          if-no-files-found: error
 
-# ────────────────────── CREATE RELEASE ────────────────────────
+# ─────────────────────── RELEASE ────────────────────────
   release:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download all artifacts from build job
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: release‑assets           # все файлы окажутся в этой папке
+          path: release-assets
 
-      - name: Prepare tag & release information
+      - name: Prepare tag & release metadata
         id: prep
         run: |
           TAG="v$(date -u '+%Y.%m.%d')-${GITHUB_SHA::7}"
           echo "tag_name=$TAG"            >> $GITHUB_OUTPUT
-          echo "release_name=Shotgun Code $TAG" >> $GITHUB_OUTPUT
+          echo "release_name=Shotgun Code $TAG" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release and upload assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name:    ${{ steps.prep.outputs.tag_name }}
-          name:        ${{ steps.prep.outputs.release_name }}
+          tag_name:  ${{ steps.prep.outputs.tag_name }}
+          name:      ${{ steps.prep.outputs.release_name }}
           body: |
             🔨 Автоматическая сборка от commit ${{ github.sha }}
-            • Linux, Windows, macOS  
-            • Сгенерировано GitHub Actions
+            Содержит пакеты для Linux, Windows и macOS (Apple Silicon).
           draft: false
           prerelease: false
-          files: |
-            release‑assets/**/*
+          files: release-assets/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
