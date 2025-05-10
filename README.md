@@ -200,7 +200,9 @@ package main
 
 ✅ **Step 2: Compose Prompt**
  Allow user to input a prompt, (simulate) sending it with context to an LLM, and display a (mock) diff.
+
 ☐ **Step 3: Execute Prompt** "executing" the prompt/diff and show logs.
+
 ☐ **Step 4: Apply Patch** 
  Enable applying patches inside Shotgun (currently stubbed).
 *   ☐ Direct API bridge to send output to OpenAI / Gemini without copy-paste.

@@ -11,7 +11,7 @@
       <div v-if="projectRoot" class="text-xs text-gray-600 mb-2 break-all">Selected: {{ projectRoot }}</div>
       
       <div v-if="projectRoot" class="mb-2">
-        <label class="flex items-center text-sm text-gray-700" title="Uses .gitignore file if present in the root folder">
+        <label class="flex items-center text-sm text-gray-700" title="Uses .gitignore file if present in the project folder">
           <input 
             type="checkbox" 
             :checked="useGitignore"
@@ -20,7 +20,7 @@
           />
           Use .gitignore rules
         </label>
-        <label class="flex items-center text-sm text-gray-700 mt-1" title="Uses ignore.glob file if present in the root folder">
+        <label class="flex items-center text-sm text-gray-700 mt-1" title="Uses ignore.glob file if present in the project folder">
           <input
             type="checkbox"
             :checked="useCustomIgnore"
