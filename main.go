@@ -4,10 +4,12 @@ import (
 	"embed"
 	// "io/ioutil" // Deprecated, replaced by os
 	"log"
-	"os" // Added for os.ReadFile
+	"os"                // Added for os.ReadFile
+	goruntime "runtime" // Alias for standard library runtime
 
 	// Required for runtime.OpenDirectoryDialog wrapper if used
 	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/menu" // Import menu package
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
@@ -43,6 +45,13 @@ func main() {
 		log.Println("Warning: Could not load appicon.png:", errPNG)
 	}
 
+	appMenu := menu.NewMenu() // Create an empty menu
+
+	if goruntime.GOOS == "darwin" { // Check if OS is macOS
+		appMenu.Append(menu.AppMenu())  // Add standard AppMenu (Quit, About, Hide, etc.)
+		appMenu.Append(menu.EditMenu()) // Add standard EditMenu (Copy, Paste, Cut, Select All)
+	}
+
 	err := wails.Run(&options.App{
 		Title:  "Shotgun App",
 		Width:  1024,
@@ -55,6 +64,7 @@ func main() {
 		Bind: []interface{}{
 			app, // This binds all public methods of app
 		},
+		Menu: appMenu, // Set the application menu
 
 		Linux: &linux.Options{
 			Icon: iconPNG,

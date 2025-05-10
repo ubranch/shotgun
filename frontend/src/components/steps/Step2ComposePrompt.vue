@@ -77,11 +77,16 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
+import { ClipboardSetText as WailsClipboardSetText } from '../../../wailsjs/runtime/runtime';
 
 const props = defineProps({
   fileListContext: {
     type: String,
     default: ''
+  },
+  platform: { // To know if we are on macOS
+    type: String,
+    default: 'unknown'
   }
 });
 
@@ -167,13 +172,20 @@ watch([userTask, rulesContent, () => props.fileListContext], () => {
 async function copyFinalPromptToClipboard() {
   if (!finalPrompt.value) return;
   try {
-    await navigator.clipboard.writeText(finalPrompt.value);
+    if (props.platform === 'darwin') {
+      await WailsClipboardSetText(finalPrompt.value);
+    } else {
+      await navigator.clipboard.writeText(finalPrompt.value);
+    }
     copyButtonText.value = 'Copied!';
     setTimeout(() => {
       copyButtonText.value = 'Copy All';
     }, 2000);
   } catch (err) {
     console.error('Failed to copy final prompt: ', err);
+    if (props.platform === 'darwin' && err) {
+      console.error('Wails ClipboardSetText failed for final prompt:', err);
+    }
     copyButtonText.value = 'Failed!';
     setTimeout(() => {
       copyButtonText.value = 'Copy All';

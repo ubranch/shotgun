@@ -33,3 +33,9 @@
 
 - [ ] Вынести шаблоны из `ignore.glob` в настройки приложения, чтобы пользователь мог их редактировать через интерфейс приложения.
 - [ ] Обеспечить сохранение пользовательских шаблонов между сессиями приложения.
+
+- [x] Add platform detection (using Wails Environment API) in MainLayout.vue and pass it down to CentralPanel and step components.
+- [x] In Step1PrepareContext.vue and Step2ComposePrompt.vue, use WailsClipboardSetText for macOS (darwin), otherwise use navigator.clipboard for copying to clipboard.
+- [x] Update CentralPanel.vue and MainLayout.vue to forward platform prop.
+- [x] Update prop definitions and usages in all affected components.
+- [x] Update Go main.go to use os.ReadFile and add menu for macOS.

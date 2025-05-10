@@ -90,12 +90,12 @@ jobs:
           tag_name:  ${{ steps.prep.outputs.tag_name }}
           name:      ${{ steps.prep.outputs.release_name }}
           body: |
-            🔨 Автоматическая сборка от commit ${{ github.sha }}
-            Пакеты:
+            🔨 Automatic packaging от commit ${{ github.sha }}
+            Packages:
             • Linux (amd64)  
             • Windows (amd64)  
             • macOS (Apple Silicon)  
-            Сгенерировано GitHub Actions.
+            Created with GitHub Actions.
           draft: false
           prerelease: false
           

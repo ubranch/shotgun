@@ -20,6 +20,7 @@
                     :generation-progress="generationProgressData"
                     :is-generating-context="isGeneratingContext"
                     :project-root="projectRoot" 
+                    :platform="platform"
                     @step-action="handleStepAction"
                     @update-composed-prompt="handleComposedPromptUpdate" 
                     ref="centralPanelRef" />
@@ -41,7 +42,7 @@ import LeftSidebar from './LeftSidebar.vue';
 import CentralPanel from './CentralPanel.vue';
 import BottomConsole from './BottomConsole.vue';
 import { ListFiles, RequestShotgunContextGeneration, SelectDirectory as SelectDirectoryGo } from '../../wailsjs/go/main/App';
-import { EventsOn } from '../../wailsjs/runtime/runtime';
+import { EventsOn, Environment } from '../../wailsjs/runtime/runtime';
 
 const currentStep = ref(1);
 const steps = ref([
@@ -85,6 +86,7 @@ const isGeneratingContext = ref(false);
 const generationProgressData = ref({ current: 0, total: 0 });
 const isFileTreeLoading = ref(false);
 const composedLlmPrompt = ref(''); // To store the prompt from Step 2
+const platform = ref('unknown'); // To store OS platform (e.g., 'darwin', 'windows', 'linux')
 let debounceTimer = null;
 
 async function selectProjectFolderHandler() {
@@ -427,6 +429,18 @@ onMounted(() => {
     // console.log("FE: Progress event:", progress); // For debugging in Browser console
     generationProgressData.value = progress;
   });
+
+  // Get platform information
+  (async () => {
+    try {
+      const envInfo = await Environment();
+      platform.value = envInfo.platform;
+      addLog(`Platform detected: ${platform.value}`, 'debug');
+    } catch (err) {
+      addLog(`Error getting platform: ${err}`, 'error');
+      // platform.value remains 'unknown' as fallback
+    }
+  })();
 });
 
 onBeforeUnmount(() => {

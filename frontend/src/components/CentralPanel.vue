@@ -1,7 +1,7 @@
 <template>
   <main class="flex-1 p-0 overflow-y-auto bg-white relative">
-    <Step1CopyStructure v-if="currentStep === 1" @action="handleAction" :generated-context="shotgunPromptContext" :is-loading-context="props.isGeneratingContext" :project-root="props.projectRoot" :generation-progress="props.generationProgress" />
-    <Step2ComposePrompt v-if="currentStep === 2" @action="handleAction" ref="step2Ref" :file-list-context="props.shotgunPromptContext" @update:finalPrompt="(prompt) => emit('update-composed-prompt', prompt)" />
+    <Step1CopyStructure v-if="currentStep === 1" @action="handleAction" :generated-context="shotgunPromptContext" :is-loading-context="props.isGeneratingContext" :project-root="props.projectRoot" :generation-progress="props.generationProgress" :platform="props.platform" />
+    <Step2ComposePrompt v-if="currentStep === 2" @action="handleAction" ref="step2Ref" :file-list-context="props.shotgunPromptContext" @update:finalPrompt="(prompt) => emit('update-composed-prompt', prompt)" :platform="props.platform" />
     <Step3ExecuteDiff v-if="currentStep === 3" @action="handleAction" ref="step3Ref" />
     <Step4ApplyPatch v-if="currentStep === 4" @action="handleAction" />
   </main>
@@ -19,7 +19,8 @@ const props = defineProps({
   shotgunPromptContext: { type: String, default: '' },
   isGeneratingContext: { type: Boolean, default: false },
   projectRoot: { type: String, default: '' },
-  generationProgress: { type: Object, default: () => ({ current: 0, total: 0 }) }
+  generationProgress: { type: Object, default: () => ({ current: 0, total: 0 }) },
+  platform: { type: String, default: 'unknown' }
 });
 
 const emit = defineEmits(['stepAction', 'update-composed-prompt']);

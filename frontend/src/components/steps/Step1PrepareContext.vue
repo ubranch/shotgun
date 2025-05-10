@@ -53,6 +53,7 @@
 
 <script setup>
 import { defineProps, ref, computed } from 'vue';
+import { ClipboardSetText as WailsClipboardSetText } from '../../../wailsjs/runtime/runtime';
 
 const props = defineProps({
   generatedContext: {
@@ -71,6 +72,10 @@ const props = defineProps({
     type: Object,
     default: () => ({ current: 0, total: 0 })
   },
+  platform: { // To know if we are on macOS
+    type: String,
+    default: 'unknown'
+  }
 });
 
 const progressBarWidth = computed(() => {
@@ -85,13 +90,20 @@ const copyButtonText = ref('Copy All');
 async function copyGeneratedContextToClipboard() {
   if (!props.generatedContext) return;
   try {
-    await navigator.clipboard.writeText(props.generatedContext);
+    if (props.platform === 'darwin') {
+      await WailsClipboardSetText(props.generatedContext);
+    } else {
+      await navigator.clipboard.writeText(props.generatedContext);
+    }
     copyButtonText.value = 'Copied!';
     setTimeout(() => {
       copyButtonText.value = 'Copy All';
     }, 2000);
   } catch (err) {
     console.error('Failed to copy context: ', err);
+    if (props.platform === 'darwin' && err) {
+      console.error('Wails ClipboardSetText failed for context:', err);
+    }
     copyButtonText.value = 'Failed!';
     setTimeout(() => {
       copyButtonText.value = 'Copy All';
