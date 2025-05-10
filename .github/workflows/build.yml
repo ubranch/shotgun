@@ -1,10 +1,10 @@
-name: Cross‑platform Build + Release Shotgun Code
+name: Cross‑platform Build + Release — Shotgun Code
 
 on:
   workflow_dispatch:
 
 permissions:
-  contents: write        # доступ на создание/изменение релизов
+  contents: write        # нужен доступ к релизам
 
 env:
   NODE_OPTIONS: "--max-old-space-size=4096"
@@ -21,18 +21,24 @@ jobs:
             platform: linux/amd64
             build_name: shotgun-code-linux-amd64
             artifact_name: shotgun_code-linux-amd64
+            package: false
+            artifact_pattern: build/bin/shotgun-code-linux-amd64
 
           # ────────── Windows ──────────
           - os: windows-latest
             platform: windows/amd64
             build_name: shotgun-code-windows-amd64.exe
             artifact_name: shotgun_code-windows-amd64
+            package: false
+            artifact_pattern: build/bin/shotgun-code-windows-amd64.exe
 
           # ─────────── macOS ───────────
           - os: macos-latest
             platform: darwin/arm64
-            build_name: shotgun-code          # .app
+            build_name: shotgun-code            # .app
             artifact_name: shotgun_code-darwin-arm64
+            package: true
+            artifact_pattern: build/bin/shotgun-code.app.zip
 
     runs-on: ${{ matrix.os }}
 
@@ -46,21 +52,17 @@ jobs:
       - name: Build Wails app (${{ matrix.platform }})
         uses: dAppServer/wails-build-action@main
         with:
-          build-name:      ${{ matrix.build_name }}
-          build-platform:  ${{ matrix.platform }}
-          go-version:      '1.24'
-          package:         true     # всегда создаём пакет для релиза
+          build-name:     ${{ matrix.build_name }}
+          build-platform: ${{ matrix.platform }}
+          go-version:     '1.24'
+          package:        ${{ matrix.package }}
 
-      # ── Загружаем ТОЛЬКО готовые пакеты/бинарники ──
       - name: Upload packaged artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: |
-            build/bin/**/*.zip
-            build/bin/**/*.tar.gz
-            build/bin/**/*.exe
-          if-no-files-found: error
+          path: ${{ matrix.artifact_pattern }}
+          if-no-files-found: error   # сразу упадём, если файла нет
 
 # ─────────────────────── RELEASE ────────────────────────
   release:
@@ -87,10 +89,13 @@ jobs:
           name:      ${{ steps.prep.outputs.release_name }}
           body: |
             🔨 Автоматическая сборка от commit ${{ github.sha }}
-            Содержит пакеты для Linux, Windows и macOS (Apple Silicon).
+            • Linux (amd64), Windows (amd64), macOS (Apple Silicon)  
+            Сгенерировано GitHub Actions.
           draft: false
           prerelease: false
           files: release-assets/**/*
+          overwrite: true      # безопасно перезаписывает совпадающие имена
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
