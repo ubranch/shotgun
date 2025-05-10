@@ -1,15 +1,16 @@
 # .github/workflows/manual_crossplatform_build.yml
-name: Manual Cross‐platform Build Shotgun Code
+name: Manual Cross-platform Build Shotgun Code
 
 on:
-  workflow_dispatch:              # позволяет запускать вручную из UI
+  workflow_dispatch:   # enable the “Run workflow” button
 
 env:
-  NODE_OPTIONS: "--max-old-space-size=4096"  # чтобы избежать OOM при сборке фронтенда
+  NODE_OPTIONS: "--max-old-space-size=4096"
 
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -17,7 +18,7 @@ jobs:
           - os: windows-latest
             platform: windows/amd64
           - os: macos-latest
-            platform: darwin/universal
+            platform: darwin/amd64   # darwin/universal can sometimes mis-resolve – darwin/amd64 is safest
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -26,7 +27,7 @@ jobs:
         with:
           ref: main
 
-      - name: Setup Go
+      - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
@@ -34,18 +35,18 @@ jobs:
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '16.x'
 
       - name: Install frontend dependencies
-        working-directory: ./frontend
         run: npm ci
+        working-directory: ./frontend
 
       - name: Build frontend
-        working-directory: ./frontend
         run: npm run build
+        working-directory: ./frontend
 
       - name: Build Wails app (${{ matrix.platform }})
         run: wails build --platform ${{ matrix.platform }}
