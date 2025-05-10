@@ -11,8 +11,6 @@ bin/
 vendor/
 
 # Wails specific
-build/
-build/bin/
 build/appicon.png
 build/windows/
 build/darwin/
