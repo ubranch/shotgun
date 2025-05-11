@@ -47,13 +47,22 @@
       <div class="w-1/2 flex flex-col overflow-y-auto p-2 border border-gray-200 rounded-md bg-white">
         <div class="flex justify-between items-center mb-2">
           <h3 class="text-md font-medium text-gray-700">Final Prompt:</h3>
-          <button
-            @click="copyFinalPromptToClipboard"
-            :disabled="!finalPrompt || isLoadingFinalPrompt"
-            class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300"
-          >
-            {{ copyButtonText }}
-          </button>
+          <div class="flex items-center space-x-3">
+            <span
+              v-show="!isLoadingFinalPrompt"
+              :class="['text-xs font-medium', charCountColorClass]"
+              :title="tooltipText"
+            >
+              {{ formattedCharCount }}
+            </span>
+            <button
+              @click="copyFinalPromptToClipboard"
+              :disabled="!finalPrompt || isLoadingFinalPrompt"
+              class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300"
+            >
+              {{ copyButtonText }}
+            </button>
+          </div>
         </div>
         <div v-if="isLoadingFinalPrompt" class="flex-grow flex justify-center items-center">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -76,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { ClipboardSetText as WailsClipboardSetText } from '../../../wailsjs/runtime/runtime';
 
 const props = defineProps({
@@ -99,6 +108,34 @@ const isLoadingFinalPrompt = ref(false);
 const copyButtonText = ref('Copy All');
 
 let debounceTimer = null;
+
+// Character count and related computed properties
+const charCount = computed(() => {
+  return (finalPrompt.value || '').length;
+});
+
+const formattedCharCount = computed(() => {
+  return charCount.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+});
+
+const charCountColorClass = computed(() => {
+  const count = charCount.value;
+  if (count < 1000000) {
+    return 'text-green-600';
+  } else if (count <= 4000000) {
+    return 'text-yellow-500'; // Using 500 for better visibility on white bg
+  } else {
+    return 'text-red-600';
+  }
+});
+
+const tooltipText = computed(() => {
+  if (isLoadingFinalPrompt.value) return 'Calculating...';
+  
+  const count = charCount.value;
+  const tokens = Math.round(count / 4);
+  return `Your text contains ${count} symbols which is roughly equivalent to ${tokens} tokens`;
+});
 
 const PROMPT_TEMPLATE = `## ROLE & PRIMARY GOAL:
 You are a "Robotic Senior Software Engineer AI". Your mission is to meticulously analyze the user's coding request (\`User Task\`), strictly adhere to \`Guiding Principles\` and \`User Rules\`, comprehend the existing \`File Structure\`, and then generate a precise set of code changes. Your *sole and exclusive output* must be a single \`<shotgunDiff>\` XML document. Zero tolerance for any deviation from the specified output format.
