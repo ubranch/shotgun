@@ -6,6 +6,10 @@ export function GetCustomIgnoreRules() {
   return window['go']['main']['App']['GetCustomIgnoreRules']();
 }
 
+export function GetCustomPromptRules() {
+  return window['go']['main']['App']['GetCustomPromptRules']();
+}
+
 export function ListFiles(arg1) {
   return window['go']['main']['App']['ListFiles'](arg1);
 }
@@ -20,6 +24,10 @@ export function SelectDirectory() {
 
 export function SetCustomIgnoreRules(arg1) {
   return window['go']['main']['App']['SetCustomIgnoreRules'](arg1);
+}
+
+export function SetCustomPromptRules(arg1) {
+  return window['go']['main']['App']['SetCustomPromptRules'](arg1);
 }
 
 export function StartFileWatcher(arg1) {

@@ -2,7 +2,7 @@
   <div v-if="isVisible" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center" @click.self="handleCancel">
     <div class="relative mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
       <div class="mt-3 text-center">
-        <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Custom Ignore Rules</h3>
+        <h3 class="text-lg leading-6 font-medium text-gray-900">{{ title }}</h3>
         <div class="mt-2 px-7 py-3">
           <textarea 
             v-model="editableRules"
@@ -10,9 +10,7 @@
             class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm font-mono bg-gray-50"
             placeholder="Enter custom ignore patterns, one per line (e.g., *.log, node_modules/)"
           ></textarea>
-          <p class="text-xs text-gray-500 mt-1 text-left">
-            These rules use .gitignore pattern syntax. They are applied globally when "Use custom rules" is checked.
-          </p>
+          <p class="text-xs text-gray-500 mt-1 text-left">{{ descriptionText }}</p>
         </div>
         <div class="items-center px-4 py-3">
           <button
@@ -34,7 +32,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits } from 'vue';
+import { ref, watch, defineProps, defineEmits, computed } from 'vue';
 
 const props = defineProps({
   isVisible: {
@@ -45,11 +43,28 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  title: {
+    type: String,
+    default: 'Edit Custom Rules'
+  },
+  ruleType: {
+    type: String,
+    required: true,
+    validator: (value) => ['ignore', 'prompt'].includes(value)
+  }
 });
 
 const emit = defineEmits(['save', 'cancel']);
 
 const editableRules = ref('');
+
+const descriptionText = computed(() => {
+  if (props.ruleType === 'prompt') {
+    return 'These rules provide specific instructions or pre-defined text for the AI. They will be included in the final prompt.';
+  }
+  // Default to the description for ignore rules
+  return 'These rules use .gitignore pattern syntax. They are applied globally when "Use custom rules" is checked.';
+});
 
 watch(() => props.initialRules, (newVal) => {
   editableRules.value = newVal;

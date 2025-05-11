@@ -25,8 +25,11 @@ var ErrContextTooLong = errors.New("context is too long")
 //go:embed ignore.glob
 var defaultCustomIgnoreRulesContent string
 
+const defaultCustomPromptRulesContent = "no additional rules"
+
 type AppSettings struct {
 	CustomIgnoreRules string `json:"customIgnoreRules"`
+	CustomPromptRules string `json:"customPromptRules"`
 }
 
 type App struct {
@@ -56,6 +59,10 @@ func (a *App) startup(ctx context.Context) {
 	a.configPath = configFilePath
 
 	a.loadSettings()
+	// Ensure CustomPromptRules has a default if it's empty after loading
+	if strings.TrimSpace(a.settings.CustomPromptRules) == "" {
+		a.settings.CustomPromptRules = defaultCustomPromptRulesContent
+	}
 }
 
 type FileNode struct {
@@ -784,6 +791,11 @@ func (a *App) loadSettings() {
 				runtime.LogInfo(a.ctx, "Loaded custom ignore rules are empty, falling back to default embedded rules.")
 				a.settings.CustomIgnoreRules = defaultCustomIgnoreRulesContent
 			}
+			// Handle CustomPromptRules similarly
+			if strings.TrimSpace(a.settings.CustomPromptRules) == "" {
+				runtime.LogInfo(a.ctx, "Custom prompt rules are empty or missing, using default.")
+				a.settings.CustomPromptRules = defaultCustomPromptRulesContent
+			}
 		}
 	}
 
@@ -842,5 +854,24 @@ func (a *App) SetCustomIgnoreRules(rules string) error {
 	if compileErr != nil {
 		return fmt.Errorf("rules saved, but failed to compile custom ignore patterns: %w", compileErr)
 	}
+	return nil
+}
+
+// GetCustomPromptRules returns the current custom prompt rules as a string.
+func (a *App) GetCustomPromptRules() string {
+	if strings.TrimSpace(a.settings.CustomPromptRules) == "" {
+		return defaultCustomPromptRulesContent
+	}
+	return a.settings.CustomPromptRules
+}
+
+// SetCustomPromptRules updates the custom prompt rules and saves them.
+func (a *App) SetCustomPromptRules(rules string) error {
+	a.settings.CustomPromptRules = rules
+	err := a.saveSettings()
+	if err != nil {
+		return fmt.Errorf("failed to save custom prompt rules: %w", err)
+	}
+	runtime.LogInfo(a.ctx, "Custom prompt rules saved successfully.")
 	return nil
 }

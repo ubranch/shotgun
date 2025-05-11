@@ -2,6 +2,8 @@
   <CustomRulesModal
     :is-visible="isCustomRulesModalVisible"
     :initial-rules="currentCustomRulesForModal"
+    title="Edit Custom Ignore Rules"
+    ruleType="ignore"
     @save="handleSaveCustomRules"
     @cancel="handleCancelCustomRules"
   />

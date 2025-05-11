@@ -4,6 +4,15 @@
       Write the task for the LLM in the central column and copy the final prompt
     </p>
 
+    <CustomRulesModal
+      :is-visible="isPromptRulesModalVisible"
+      :initial-rules="currentPromptRulesForModal"
+      title="Edit Custom Prompt Rules"
+      ruleType="prompt"
+      @save="handleSavePromptRules"
+      @cancel="handleCancelPromptRules"
+    />
+
     <div class="flex-grow flex flex-row space-x-4 overflow-hidden">
       <div class="w-1/2 flex flex-col space-y-3 overflow-y-auto p-2 border border-gray-200 rounded-md bg-gray-50">
         <div>
@@ -18,8 +27,9 @@
         </div>
 
         <div>
-          <label for="rules-content" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="rules-content" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
             Custom rules:
+            <button @click="openPromptRulesModal" title="Edit custom prompt rules" class="ml-2 p-0.5 hover:bg-gray-200 rounded text-xs">⚙️</button>
           </label>
           <textarea
             id="rules-content"
@@ -87,6 +97,9 @@
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue';
 import { ClipboardSetText as WailsClipboardSetText } from '../../../wailsjs/runtime/runtime';
+import { GetCustomPromptRules, SetCustomPromptRules } from '../../../wailsjs/go/main/App';
+import { LogInfo as LogInfoRuntime, LogError as LogErrorRuntime } from '../../../wailsjs/runtime/runtime';
+import CustomRulesModal from '../CustomRulesModal.vue';
 
 const props = defineProps({
   fileListContext: {
@@ -108,6 +121,10 @@ const isLoadingFinalPrompt = ref(false);
 const copyButtonText = ref('Copy All');
 
 let debounceTimer = null;
+
+// Modal state for prompt rules
+const isPromptRulesModalVisible = ref(false);
+const currentPromptRulesForModal = ref('');
 
 // Character count and related computed properties
 const charCount = computed(() => {
@@ -133,7 +150,7 @@ const tooltipText = computed(() => {
   if (isLoadingFinalPrompt.value) return 'Calculating...';
   
   const count = charCount.value;
-  const tokens = Math.round(count / 4);
+  const tokens = Math.round(count / 3.5);
   return `Your text contains ${count} symbols which is roughly equivalent to ${tokens} tokens`;
 });
 
@@ -173,8 +190,16 @@ You are a "Robotic Senior Software Engineer AI". Your mission is to meticulously
 
 const DEFAULT_RULES = `no additional rules`;
 
-onMounted(() => {
-  rulesContent.value = DEFAULT_RULES;
+onMounted(async () => {
+  try {
+    const fetchedRules = await GetCustomPromptRules();
+    rulesContent.value = fetchedRules; // Go side ensures a default if empty
+  } catch (error) {
+    console.error("Failed to load custom prompt rules:", error);
+    LogErrorRuntime(`Failed to load custom prompt rules: ${error.message || error}`);
+    rulesContent.value = DEFAULT_RULES; // Fallback for actual errors
+  }
+
   if (props.fileListContext || userTask.value) {
     debouncedUpdateFinalPrompt();
   }
@@ -228,6 +253,37 @@ async function copyFinalPromptToClipboard() {
       copyButtonText.value = 'Copy All';
     }, 2000);
   }
+}
+
+async function openPromptRulesModal() {
+  try {
+    currentPromptRulesForModal.value = await GetCustomPromptRules();
+    isPromptRulesModalVisible.value = true;
+  } catch (error) {
+    console.error("Error fetching prompt rules for modal:", error);
+    LogErrorRuntime(`Error fetching prompt rules for modal: ${error.message || error}`);
+    // Fallback to current editor content or a default if rulesContent is also problematic
+    currentPromptRulesForModal.value = rulesContent.value || DEFAULT_RULES;
+    isPromptRulesModalVisible.value = true; // Still open modal but with potentially stale/default data
+  }
+}
+
+async function handleSavePromptRules(newRules) {
+  try {
+    await SetCustomPromptRules(newRules);
+    rulesContent.value = newRules; // Update the textarea
+    isPromptRulesModalVisible.value = false;
+    LogInfoRuntime('Custom prompt rules saved successfully.');
+    // The watcher on rulesContent will trigger debouncedUpdateFinalPrompt
+  } catch (error) {
+    console.error("Error saving prompt rules:", error);
+    LogErrorRuntime(`Error saving prompt rules: ${error.message || error}`);
+    // Optionally, keep modal open or show an error message to the user
+  }
+}
+
+function handleCancelPromptRules() {
+  isPromptRulesModalVisible.value = false;
 }
 
 defineExpose({});

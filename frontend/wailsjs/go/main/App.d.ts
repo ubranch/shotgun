@@ -4,6 +4,8 @@ import {main} from '../models';
 
 export function GetCustomIgnoreRules():Promise<string>;
 
+export function GetCustomPromptRules():Promise<string>;
+
 export function ListFiles(arg1:string):Promise<Array<main.FileNode>>;
 
 export function RequestShotgunContextGeneration(arg1:string,arg2:Array<string>):Promise<void>;
@@ -11,6 +13,8 @@ export function RequestShotgunContextGeneration(arg1:string,arg2:Array<string>):
 export function SelectDirectory():Promise<string>;
 
 export function SetCustomIgnoreRules(arg1:string):Promise<void>;
+
+export function SetCustomPromptRules(arg1:string):Promise<void>;
 
 export function StartFileWatcher(arg1:string):Promise<void>;
 
