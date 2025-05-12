@@ -234,11 +234,12 @@ watch([userTask, rulesContent, () => props.fileListContext], () => {
 async function copyFinalPromptToClipboard() {
   if (!finalPrompt.value) return;
   try {
-    if (props.platform === 'darwin') {
-      await WailsClipboardSetText(finalPrompt.value);
-    } else {
-      await navigator.clipboard.writeText(finalPrompt.value);
-    }
+    await navigator.clipboard.writeText(finalPrompt.value);
+    //if (props.platform === 'darwin') {
+    //  await WailsClipboardSetText(finalPrompt.value);
+    //} else {
+    //  await navigator.clipboard.writeText(finalPrompt.value);
+    //}
     copyButtonText.value = 'Copied!';
     setTimeout(() => {
       copyButtonText.value = 'Copy All';
@@ -246,7 +247,7 @@ async function copyFinalPromptToClipboard() {
   } catch (err) {
     console.error('Failed to copy final prompt: ', err);
     if (props.platform === 'darwin' && err) {
-      console.error('Wails ClipboardSetText failed for final prompt:', err);
+      console.error('darvin ClipboardSetText failed for final prompt:', err);
     }
     copyButtonText.value = 'Failed!';
     setTimeout(() => {

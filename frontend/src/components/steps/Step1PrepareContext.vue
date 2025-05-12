@@ -90,11 +90,12 @@ const copyButtonText = ref('Copy All');
 async function copyGeneratedContextToClipboard() {
   if (!props.generatedContext) return;
   try {
-    if (props.platform === 'darwin') {
-      await WailsClipboardSetText(props.generatedContext);
-    } else {
-      await navigator.clipboard.writeText(props.generatedContext);
-    }
+    await navigator.clipboard.writeText(props.generatedContext);
+    //if (props.platform === 'darwin') {
+    //  await WailsClipboardSetText(props.generatedContext);
+    //} else {
+    //  await navigator.clipboard.writeText(props.generatedContext);
+    //}
     copyButtonText.value = 'Copied!';
     setTimeout(() => {
       copyButtonText.value = 'Copy All';
@@ -102,7 +103,7 @@ async function copyGeneratedContextToClipboard() {
   } catch (err) {
     console.error('Failed to copy context: ', err);
     if (props.platform === 'darwin' && err) {
-      console.error('Wails ClipboardSetText failed for context:', err);
+      console.error('darvin ClipboardSetText failed for context:', err);
     }
     copyButtonText.value = 'Failed!';
     setTimeout(() => {
