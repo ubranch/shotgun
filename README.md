@@ -66,10 +66,9 @@ hence the name.
 
 1.  **Step 1: Prepare Context**
     -   User selects a project folder.
-    -   The file tree is displayed in the `LeftSidebar` (`FileTree.vue`).
+    -   The file tree is displayed in the `LeftSidebar`.
     -   User can mark files/folders for exclusion.
-    -   User clicks "Prepare Project Context & Proceed" in `Step1CopyStructure.vue` (which should be renamed/repurposed, or this button is part of `MainLayout`'s direct responsibility for Step 1 trigger).
-    -   `MainLayout.vue` triggers `GenerateShotgunOutput` in Go, passing the selected root and exclusion list.
+    -   The application automatically (or via a button) triggers context generation in Go (`GenerateShotgunOutput`).
     -   The resulting context (tree + file contents) is stored in `shotgunPromptContext` and passed to `CentralPanel.vue`, which in turn makes it available to `Step2GenerateDiff.vue`.
 2.  **Step 2: Compose Prompt**
     -   `Step2GenerateDiff.vue` is shown.
@@ -155,7 +154,7 @@ app/
 └── frontend/
     ├── App.vue
     └── components/
-        └── FileTree.vue
+        └── FileTree.vue (example)
 
 *#*#*main.go*#*#*begin*#*#*
 package main
@@ -168,8 +167,7 @@ package main
 *#*#*end*#*#*
 ```
 *   **Tree View** – quick visual map for you & the LLM.
-*   **Delimited File Blocks** – deterministic markers so models can chunk
-    input or generate per‑file diffs (`*#*#*path*#*#*begin` / `end*#*#*`).
+*   **XML-like File Blocks** – <file path="path/to/file">...</file> for easy parsing by models.
 
 ---
 
@@ -199,12 +197,11 @@ package main
   Basic ability to select a project, exclude items, and generate a structured text context.
 
 - ✅ **Step 2: Compose Prompt**  
-  - Allow user to input a prompt, (simulate) sending it with context to an LLM, and display a (mock) diff.  
   - ✅ **Watchman to hot-reload TreeView**  
   - ✅ **Custom rules**
 
 - ☐ **Step 3: Execute Prompt**  
-  “Executing” the prompt and showing logs.
+  "Executing" the prompt and showing logs.
 
 - ☐ **Step 4: Apply Patch**  
   Enable applying patches inside Shotgun.  

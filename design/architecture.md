@@ -44,10 +44,10 @@ The Go backend is structured into a `main` package.
         -   **File Content Aggregation**:
             -   For each non-excluded file:
                 -   Reads its content.
-                -   Formats it according to the specified `*#*#*...*#*#*begin*#*#* ... *#*#*end*#*#*` structure.
-                -   `filepath_inside_project_dir` is calculated relative to `rootDir`.
+                -   Formats it using an XML-like structure: `<file path="path/to/file.ext">\n[file_content]\n</file>`.
+                -   The `name` attribute contains the path relative to `rootDir`, using forward slashes.
         -   **Final Output**:
-            -   Concatenates the tree structure, a blank line, and all formatted file contents.
+            -   Concatenates the tree structure, a newline, and all formatted file contents.
             -   Returns the complete string.
 
     -   **`Watchman` (File System Watcher)**:

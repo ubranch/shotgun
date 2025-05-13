@@ -465,19 +465,12 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 					content = []byte(fmt.Sprintf("Error reading file: %v", err))
 				}
 
-				var dirPart, filePart string
-				// relPath is relative to rootDir (e.g., "src/main.go" or "file.txt")
-				if strings.Contains(relPath, string(os.PathSeparator)) {
-					dirPart = filepath.Dir(relPath) + string(os.PathSeparator)
-					filePart = filepath.Base(relPath)
-				} else {
-					dirPart = "" // Root level file
-					filePart = relPath
-				}
+				// Ensure forward slashes for the name attribute, consistent with documentation.
+				relPathForwardSlash := filepath.ToSlash(relPath)
 
-				fileContents.WriteString(fmt.Sprintf("*#*#*%s%s*#*#*begin*#*#*\n", dirPart, filePart))
+				fileContents.WriteString(fmt.Sprintf("<file path=\"%s\">\n", relPathForwardSlash))
 				fileContents.WriteString(string(content))
-				fileContents.WriteString("\n*#*#*end*#*#*\n\n")
+				fileContents.WriteString("\n</file>\n") // Each file block ends with a newline
 
 				progressState.processedItems++ // For file content
 				a.emitProgress(progressState)
@@ -499,7 +492,11 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 		return "", err
 	}
 
-	return output.String() + "\n" + fileContents.String(), nil
+	// The final output is the tree, a newline, then all concatenated file contents.
+	// If fileContents is empty, we still want the newline after the tree.
+	// If fileContents is not empty, it already ends with a newline, so an extra one might not be desired
+	// depending on how it's structured. Given each <file> block ends with \n, this should be fine.
+	return output.String() + "\n" + strings.TrimRight(fileContents.String(), "\n"), nil
 }
 
 // --- Watchman Implementation ---
