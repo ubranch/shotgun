@@ -156,15 +156,16 @@ app/
     └── components/
         └── FileTree.vue (example)
 
-*#*#*main.go*#*#*begin*#*#*
+<file path="main.go">
 package main
 ...
-*#*#*end*#*#*
+</file>
 
-*#*#*frontend/components/FileTree.vue*#*#*begin*#*#*
+<file path="frontend/components/FileTree.vue">
 <template>
 ...
-*#*#*end*#*#*
+</template>
+</file>
 ```
 *   **Tree View** – quick visual map for you & the LLM.
 *   **XML-like File Blocks** – <file path="path/to/file">...</file> for easy parsing by models.
