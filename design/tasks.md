@@ -31,8 +31,8 @@
 
 ## Phase 2: Configurable Ignore Patterns
 
-- [x] Вынести шаблоны из `ignore.glob` в настройки приложения, чтобы пользователь мог их редактировать через интерфейс приложения. (Custom rules are now stored in app config (`settings.json` via `xdg`), editable via UI modal. Default rules are embedded from the repository's `ignore.glob` file.)
-- [x] Обеспечить сохранение пользовательских шаблонов между сессиями приложения. (Configuration is saved to `settings.json` using `github.com/adrg/xdg` for persistence across sessions.)
+- [x] Move patterns from `ignore.glob` to application settings so the user can edit them via the application interface. (Custom rules are now stored in app config (`settings.json` via `xdg`), editable via UI modal. Default rules are embedded from the repository's `ignore.glob` file.)
+- [x] Ensure saving of custom user patterns between application sessions. (Configuration is saved to `settings.json` using `github.com/adrg/xdg` for persistence across sessions.)
 
 - [x] Add platform detection (using Wails Environment API) in MainLayout.vue and pass it down to CentralPanel and step components.
 - [x] In Step1PrepareContext.vue and Step2ComposePrompt.vue, use WailsClipboardSetText for macOS (darwin), otherwise use navigator.clipboard for copying to clipboard.
@@ -40,6 +40,6 @@
 - [x] Update prop definitions and usages in all affected components.
 - [x] Update Go main.go to use os.ReadFile and add menu for macOS.
 
-- [ ] Улучшить обработку ошибок и обратную связь с пользователем в UI.
+- [ ] Improve error handling and user feedback in the UI.
 
-### Тестирование
+### Testing
