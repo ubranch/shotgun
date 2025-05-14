@@ -23,8 +23,13 @@
                     :is-generating-context="isGeneratingContext"
                     :project-root="projectRoot" 
                     :platform="platform"
+                    :user-task="userTask"
+                    :rules-content="rulesContent"
+                    :final-prompt="finalPrompt"
                     @step-action="handleStepAction"
-                    @update-composed-prompt="handleComposedPromptUpdate" 
+                    @update-composed-prompt="handleComposedPromptUpdate"
+                    @update:user-task="handleUserTaskUpdate"
+                    @update:rules-content="handleRulesContentUpdate"
                     ref="centralPanelRef" />
     </div>
     <div 
@@ -89,6 +94,9 @@ const generationProgressData = ref({ current: 0, total: 0 });
 const isFileTreeLoading = ref(false);
 const composedLlmPrompt = ref(''); // To store the prompt from Step 2
 const platform = ref('unknown'); // To store OS platform (e.g., 'darwin', 'windows', 'linux')
+const userTask = ref('');
+const rulesContent = ref('');
+const finalPrompt = ref('');
 let debounceTimer = null;
 
 // Watcher related
@@ -341,6 +349,7 @@ function navigateToStep(stepId) {
 
 function handleComposedPromptUpdate(prompt) {
   composedLlmPrompt.value = prompt;
+  finalPrompt.value = prompt;
   addLog(`MainLayout: Composed LLM prompt updated (${prompt.length} chars).`, 'debug', 'bottom');
   // Logic to mark step 2 as complete can go here
   if (currentStep.value === 2 && prompt && steps.value[0].completed) {
@@ -534,6 +543,14 @@ function handleCustomRulesUpdated() {
     // will then handle regenerating the context.
     loadFileTree(projectRoot.value);
   }
+}
+
+function handleUserTaskUpdate(val) {
+  userTask.value = val;
+}
+
+function handleRulesContentUpdate(val) {
+  rulesContent.value = val;
 }
 
 </script>
