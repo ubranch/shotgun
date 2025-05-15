@@ -19,7 +19,8 @@
           <label for="user-task-ai" class="block text-sm font-medium text-gray-700 mb-1">Your task for AI:</label>
           <textarea
             id="user-task-ai"
-            v-model="userTask"
+            :value="userTask"
+            @input="e => emit('update:userTask', e.target.value)"
             rows="15"
             class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
             placeholder="Describe what the AI should do..."
@@ -33,7 +34,8 @@
           </label>
           <textarea
             id="rules-content"
-            v-model="rulesContent"
+            :value="rulesContent"
+            @input="e => emit('update:rulesContent', e.target.value)"
             rows="8"
             class="w-full p-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-sm font-mono"
             placeholder="Rules for AI..."
@@ -67,7 +69,7 @@
             </span>
             <button
               @click="copyFinalPromptToClipboard"
-              :disabled="!finalPrompt || isLoadingFinalPrompt"
+              :disabled="!props.finalPrompt || isLoadingFinalPrompt"
               class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300"
             >
               {{ copyButtonText }}
@@ -80,7 +82,8 @@
         </div>
         <textarea
           v-else
-          v-model="finalPrompt"
+          :value="props.finalPrompt"
+          @input="e => emit('update:finalPrompt', e.target.value)"
           rows="20"
           class="w-full p-2 border border-gray-300 rounded-md shadow-sm font-mono text-xs flex-grow"
           placeholder="The final prompt will be generated here..."
@@ -110,14 +113,23 @@ const props = defineProps({
   platform: { // To know if we are on macOS
     type: String,
     default: 'unknown'
+  },
+  userTask: {
+    type: String,
+    default: ''
+  },
+  rulesContent: {
+    type: String,
+    default: ''
+  },
+  finalPrompt: {
+    type: String,
+    default: ''
   }
 });
 
-const emit = defineEmits(['update:finalPrompt']);
+const emit = defineEmits(['update:finalPrompt', 'update:userTask', 'update:rulesContent']);
 
-const userTask = ref('');
-const rulesContent = ref('');
-const finalPrompt = ref('');
 const isLoadingFinalPrompt = ref(false);
 const copyButtonText = ref('Copy All');
 
@@ -127,9 +139,11 @@ let debounceTimer = null;
 const isPromptRulesModalVisible = ref(false);
 const currentPromptRulesForModal = ref('');
 
+const isFirstMount = ref(true);
+
 // Character count and related computed properties
 const charCount = computed(() => {
-  return (finalPrompt.value || '').length;
+  return (props.finalPrompt || '').length;
 });
 
 const formattedCharCount = computed(() => {
@@ -161,15 +175,24 @@ const DEFAULT_RULES = `no additional rules`;
 
 onMounted(async () => {
   try {
-    const fetchedRules = await GetCustomPromptRules();
-    rulesContent.value = fetchedRules; // Go side ensures a default if empty
+    // Load rules from the backend only on the first mount
+    if (isFirstMount.value) {
+      const fetchedRules = await GetCustomPromptRules();
+      if (!props.rulesContent) {
+        emit('update:rulesContent', fetchedRules);
+      }
+      isFirstMount.value = false;
+    }
   } catch (error) {
     console.error("Failed to load custom prompt rules:", error);
     LogErrorRuntime(`Failed to load custom prompt rules: ${error.message || error}`);
-    rulesContent.value = DEFAULT_RULES; // Fallback for actual errors
+    if (isFirstMount.value && !props.rulesContent) {
+      emit('update:rulesContent', DEFAULT_RULES);
+    }
+    isFirstMount.value = false;
   }
 
-  if (props.fileListContext || userTask.value) {
+  if (!props.finalPrompt && (props.fileListContext || props.userTask)) {
     debouncedUpdateFinalPrompt();
   }
 });
@@ -179,12 +202,11 @@ async function updateFinalPrompt() {
   await new Promise(resolve => setTimeout(resolve, 100));
 
   let populatedPrompt = PROMPT_TEMPLATE;
-  populatedPrompt = populatedPrompt.replace('{TASK}', userTask.value || "No task provided by the user.");
-  populatedPrompt = populatedPrompt.replace('{RULES}', rulesContent.value);
+  populatedPrompt = populatedPrompt.replace('{TASK}', props.userTask || "No task provided by the user.");
+  populatedPrompt = populatedPrompt.replace('{RULES}', props.rulesContent);
   populatedPrompt = populatedPrompt.replace('{FILE_STRUCTURE}', props.fileListContext || "No file structure context provided.");
 
-  finalPrompt.value = populatedPrompt;
-  emit('update:finalPrompt', finalPrompt.value);
+  emit('update:finalPrompt', populatedPrompt);
   isLoadingFinalPrompt.value = false;
 }
 
@@ -196,14 +218,14 @@ function debouncedUpdateFinalPrompt() {
   }, 750);
 }
 
-watch([userTask, rulesContent, () => props.fileListContext], () => {
+watch([() => props.userTask, () => props.rulesContent, () => props.fileListContext], () => {
   debouncedUpdateFinalPrompt();
 }, { deep: true });
 
 async function copyFinalPromptToClipboard() {
-  if (!finalPrompt.value) return;
+  if (!props.finalPrompt) return;
   try {
-    await navigator.clipboard.writeText(finalPrompt.value);
+    await navigator.clipboard.writeText(props.finalPrompt);
     //if (props.platform === 'darwin') {
     //  await WailsClipboardSetText(finalPrompt.value);
     //} else {
@@ -233,7 +255,7 @@ async function openPromptRulesModal() {
     console.error("Error fetching prompt rules for modal:", error);
     LogErrorRuntime(`Error fetching prompt rules for modal: ${error.message || error}`);
     // Fallback to current editor content or a default if rulesContent is also problematic
-    currentPromptRulesForModal.value = rulesContent.value || DEFAULT_RULES;
+    currentPromptRulesForModal.value = props.rulesContent || DEFAULT_RULES;
     isPromptRulesModalVisible.value = true; // Still open modal but with potentially stale/default data
   }
 }
@@ -241,7 +263,7 @@ async function openPromptRulesModal() {
 async function handleSavePromptRules(newRules) {
   try {
     await SetCustomPromptRules(newRules);
-    rulesContent.value = newRules;
+    emit('update:rulesContent', newRules);
     isPromptRulesModalVisible.value = false;
     LogInfoRuntime('Custom prompt rules saved successfully.');
     // The watcher on rulesContent will trigger debouncedUpdateFinalPrompt
