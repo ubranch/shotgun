@@ -58,28 +58,42 @@
 
       <div class="w-1/2 flex flex-col overflow-y-auto p-2 border border-gray-200 rounded-md bg-white">
         <div class="flex justify-between items-center mb-2">
-          <h3 class="text-md font-medium text-gray-700">Final Prompt:</h3>
+          <div class="flex items-center space-x-2">
+            <h3 class="text-md font-medium text-gray-700">Prompt:</h3>
+            <select
+              v-model="selectedPromptTemplateKey"
+              class="ml-2 p-1 border border-gray-300 rounded-md text-xs focus:ring-blue-500 focus:border-blue-500"
+              :disabled="isLoadingFinalPrompt"
+              title="Select prompt template"
+            >
+              <option v-for="(template, key) in promptTemplates" :key="key" :value="key">
+                {{ template.name }}
+              </option>
+            </select>
+          </div>
           <div class="flex items-center space-x-3">
             <span
               v-show="!isLoadingFinalPrompt"
               :class="['text-xs font-medium', charCountColorClass]"
               :title="tooltipText"
             >
-              {{ formattedCharCount }}
+              {{ formattedCharCount }} chars
             </span>
             <button
               @click="copyFinalPromptToClipboard"
               :disabled="!props.finalPrompt || isLoadingFinalPrompt"
               class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300"
             >
-              {{ copyButtonText }}
+              {{ copyButtonText }} Final
             </button>
           </div>
         </div>
+
         <div v-if="isLoadingFinalPrompt" class="flex-grow flex justify-center items-center">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           <p class="text-gray-500 ml-2">Updating prompt...</p>
         </div>
+
         <textarea
           v-else
           :value="props.finalPrompt"
@@ -103,7 +117,10 @@ import { ClipboardSetText as WailsClipboardSetText } from '../../../wailsjs/runt
 import { GetCustomPromptRules, SetCustomPromptRules } from '../../../wailsjs/go/main/App';
 import { LogInfo as LogInfoRuntime, LogError as LogErrorRuntime } from '../../../wailsjs/runtime/runtime';
 import CustomRulesModal from '../CustomRulesModal.vue';
-import promptTemplateContentFromFile from '../../../../design/prompts/prompt_makeDiff6.md?raw';
+
+import devTemplateContentFromFile from '../../../../design/prompts/prompt_makeDiffGitFormat.md?raw';
+import architectTemplateContentFromFile from '../../../../design/prompts/prompt_makePlan.md?raw';
+import findBugTemplateContentFromFile from '../../../../design/prompts/prompt_analyzeBug.md?raw';
 
 const props = defineProps({
   fileListContext: {
@@ -129,6 +146,14 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:finalPrompt', 'update:userTask', 'update:rulesContent']);
+
+const promptTemplates = {
+  dev: { name: 'Dev', content: devTemplateContentFromFile },
+  architect: { name: 'Architect', content: architectTemplateContentFromFile },
+  findBug: { name: 'Find Bug', content: findBugTemplateContentFromFile },
+};
+
+const selectedPromptTemplateKey = ref('dev'); // Default template
 
 const isLoadingFinalPrompt = ref(false);
 const copyButtonText = ref('Copy All');
@@ -169,8 +194,6 @@ const tooltipText = computed(() => {
   return `Your text contains ${count} symbols which is roughly equivalent to ${tokens} tokens`;
 });
 
-const PROMPT_TEMPLATE = promptTemplateContentFromFile;
-
 const DEFAULT_RULES = `no additional rules`;
 
 onMounted(async () => {
@@ -201,7 +224,8 @@ async function updateFinalPrompt() {
   isLoadingFinalPrompt.value = true;
   await new Promise(resolve => setTimeout(resolve, 100));
 
-  let populatedPrompt = PROMPT_TEMPLATE;
+  const currentTemplateContent = promptTemplates[selectedPromptTemplateKey.value].content;
+  let populatedPrompt = currentTemplateContent;
   populatedPrompt = populatedPrompt.replace('{TASK}', props.userTask || "No task provided by the user.");
   populatedPrompt = populatedPrompt.replace('{RULES}', props.rulesContent);
   populatedPrompt = populatedPrompt.replace('{FILE_STRUCTURE}', props.fileListContext || "No file structure context provided.");
@@ -221,6 +245,11 @@ function debouncedUpdateFinalPrompt() {
 watch([() => props.userTask, () => props.rulesContent, () => props.fileListContext], () => {
   debouncedUpdateFinalPrompt();
 }, { deep: true });
+
+watch(selectedPromptTemplateKey, () => {
+  LogInfoRuntime(`Prompt template changed to: ${promptTemplates[selectedPromptTemplateKey.value].name}. Updating final prompt.`);
+  debouncedUpdateFinalPrompt();
+});
 
 async function copyFinalPromptToClipboard() {
   if (!props.finalPrompt) return;
