@@ -30,6 +30,14 @@ export function SetCustomPromptRules(arg1) {
   return window['go']['main']['App']['SetCustomPromptRules'](arg1);
 }
 
+export function SetUseCustomIgnore(arg1) {
+  return window['go']['main']['App']['SetUseCustomIgnore'](arg1);
+}
+
+export function SetUseGitignore(arg1) {
+  return window['go']['main']['App']['SetUseGitignore'](arg1);
+}
+
 export function StartFileWatcher(arg1) {
   return window['go']['main']['App']['StartFileWatcher'](arg1);
 }

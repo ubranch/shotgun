@@ -19,8 +19,7 @@
           <label for="user-task-ai" class="block text-sm font-medium text-gray-700 mb-1">Your task for AI:</label>
           <textarea
             id="user-task-ai"
-            :value="userTask"
-            @input="e => emit('update:userTask', e.target.value)"
+            v-model="localUserTask"
             rows="15"
             class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
             placeholder="Describe what the AI should do..."
@@ -77,14 +76,14 @@
               :class="['text-xs font-medium', charCountColorClass]"
               :title="tooltipText"
             >
-              {{ formattedCharCount }} chars
+              ~{{ approximateTokens }} tokens
             </span>
             <button
               @click="copyFinalPromptToClipboard"
               :disabled="!props.finalPrompt || isLoadingFinalPrompt"
               class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300"
             >
-              {{ copyButtonText }} Final
+              {{ copyButtonText }}
             </button>
           </div>
         </div>
@@ -158,7 +157,8 @@ const selectedPromptTemplateKey = ref('dev'); // Default template
 const isLoadingFinalPrompt = ref(false);
 const copyButtonText = ref('Copy All');
 
-let debounceTimer = null;
+let finalPromptDebounceTimer = null;
+let userTaskInputDebounceTimer = null;
 
 // Modal state for prompt rules
 const isPromptRulesModalVisible = ref(false);
@@ -166,13 +166,16 @@ const currentPromptRulesForModal = ref('');
 
 const isFirstMount = ref(true);
 
+const localUserTask = ref(props.userTask);
+
 // Character count and related computed properties
 const charCount = computed(() => {
   return (props.finalPrompt || '').length;
 });
 
-const formattedCharCount = computed(() => {
-  return charCount.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+const approximateTokens = computed(() => {
+  const tokens = Math.round(charCount.value / 3);
+  return tokens.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 });
 
 const charCountColorClass = computed(() => {
@@ -190,7 +193,7 @@ const tooltipText = computed(() => {
   if (isLoadingFinalPrompt.value) return 'Calculating...';
   
   const count = charCount.value;
-  const tokens = Math.round(count / 3.5);
+  const tokens = Math.round(count / 3);
   return `Your text contains ${count} symbols which is roughly equivalent to ${tokens} tokens`;
 });
 
@@ -198,6 +201,7 @@ const DEFAULT_RULES = `no additional rules`;
 
 onMounted(async () => {
   try {
+    localUserTask.value = props.userTask;
     // Load rules from the backend only on the first mount
     if (isFirstMount.value) {
       const fetchedRules = await GetCustomPromptRules();
@@ -235,14 +239,28 @@ async function updateFinalPrompt() {
 }
 
 function debouncedUpdateFinalPrompt() {
-  clearTimeout(debounceTimer);
-  isLoadingFinalPrompt.value = true;
-  debounceTimer = setTimeout(() => {
+  clearTimeout(finalPromptDebounceTimer);
+  finalPromptDebounceTimer = setTimeout(() => {
     updateFinalPrompt();
   }, 750);
 }
 
-watch([() => props.userTask, () => props.rulesContent, () => props.fileListContext], () => {
+watch(() => props.userTask, (newValue) => {
+  if (newValue !== localUserTask.value) {
+    localUserTask.value = newValue;
+  }
+});
+
+watch(localUserTask, (currentValue) => {
+  clearTimeout(userTaskInputDebounceTimer);
+  userTaskInputDebounceTimer = setTimeout(() => {
+    if (currentValue !== props.userTask) {
+      emit('update:userTask', currentValue);
+    }
+  }, 300);
+});
+
+watch([() => props.userTask, () => props.rulesContent, () => props.fileListContext, selectedPromptTemplateKey], () => {
   debouncedUpdateFinalPrompt();
 }, { deep: true });
 
@@ -255,11 +273,6 @@ async function copyFinalPromptToClipboard() {
   if (!props.finalPrompt) return;
   try {
     await navigator.clipboard.writeText(props.finalPrompt);
-    //if (props.platform === 'darwin') {
-    //  await WailsClipboardSetText(finalPrompt.value);
-    //} else {
-    //  await navigator.clipboard.writeText(finalPrompt.value);
-    //}
     copyButtonText.value = 'Copied!';
     setTimeout(() => {
       copyButtonText.value = 'Copy All';
@@ -283,9 +296,8 @@ async function openPromptRulesModal() {
   } catch (error) {
     console.error("Error fetching prompt rules for modal:", error);
     LogErrorRuntime(`Error fetching prompt rules for modal: ${error.message || error}`);
-    // Fallback to current editor content or a default if rulesContent is also problematic
     currentPromptRulesForModal.value = props.rulesContent || DEFAULT_RULES;
-    isPromptRulesModalVisible.value = true; // Still open modal but with potentially stale/default data
+    isPromptRulesModalVisible.value = true;
   }
 }
 
@@ -295,11 +307,9 @@ async function handleSavePromptRules(newRules) {
     emit('update:rulesContent', newRules);
     isPromptRulesModalVisible.value = false;
     LogInfoRuntime('Custom prompt rules saved successfully.');
-    // The watcher on rulesContent will trigger debouncedUpdateFinalPrompt
   } catch (error) {
     console.error("Error saving prompt rules:", error);
     LogErrorRuntime(`Error saving prompt rules: ${error.message || error}`);
-    // Optionally, keep modal open or show an error message to the user
   }
 }
 

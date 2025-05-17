@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/adrg/xdg"
+	"github.com/fsnotify/fsnotify"
 	gitignore "github.com/sabhiram/go-gitignore"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -39,6 +40,9 @@ type App struct {
 	settings                    AppSettings
 	currentCustomIgnorePatterns *gitignore.GitIgnore
 	configPath                  string
+	useGitignore                bool
+	useCustomIgnore             bool
+	projectGitignore            *gitignore.GitIgnore // Compiled .gitignore for the current project
 }
 
 func NewApp() *App {
@@ -49,6 +53,8 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.contextGenerator = NewContextGenerator(a)
 	a.fileWatcher = NewWatchman(a)
+	a.useGitignore = true    // Default to true, matching frontend
+	a.useCustomIgnore = true // Default to true, matching frontend
 
 	configFilePath, err := xdg.ConfigFile("shotgun-code/settings.json")
 	if err != nil {
@@ -84,6 +90,7 @@ func (a *App) SelectDirectory() (string, error) {
 func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 	runtime.LogDebugf(a.ctx, "ListFiles called for directory: %s", dirPath)
 
+	a.projectGitignore = nil        // Reset for the new directory
 	var gitIgn *gitignore.GitIgnore // For .gitignore in the project directory
 	gitignorePath := filepath.Join(dirPath, ".gitignore")
 	runtime.LogDebugf(a.ctx, "Attempting to find .gitignore at: %s", gitignorePath)
@@ -94,6 +101,7 @@ func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 			runtime.LogWarningf(a.ctx, "Error compiling .gitignore file at %s: %v", gitignorePath, err)
 			gitIgn = nil
 		} else {
+			a.projectGitignore = gitIgn // Store the compiled project-specific gitignore
 			runtime.LogDebug(a.ctx, ".gitignore compiled successfully.")
 		}
 	} else {
@@ -501,25 +509,25 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 
 // --- Watchman Implementation ---
 
-type fileMeta struct {
-	ModTime time.Time
-	Size    int64
-	IsDir   bool
-}
-
 type Watchman struct {
-	app            *App
-	rootDir        string
-	ticker         *time.Ticker
-	lastKnownState map[string]fileMeta
-	mu             sync.RWMutex
-	cancelFunc     context.CancelFunc
+	app         *App
+	rootDir     string
+	fsWatcher   *fsnotify.Watcher
+	watchedDirs map[string]bool // Tracks directories explicitly added to fsnotify
+
+	// lastKnownState map[string]fileMeta // Removed, fsnotify handles state
+	mu         sync.Mutex // Changed to Mutex for simplicity with Start/Stop/Refresh
+	cancelFunc context.CancelFunc
+
+	// Store current patterns to be used by scanDirectoryStateInternal
+	currentProjectGitignore *gitignore.GitIgnore
+	currentCustomPatterns   *gitignore.GitIgnore
 }
 
 func NewWatchman(app *App) *Watchman {
 	return &Watchman{
-		app:            app,
-		lastKnownState: make(map[string]fileMeta),
+		app:         app,
+		watchedDirs: make(map[string]bool),
 	}
 }
 
@@ -554,19 +562,35 @@ func (w *Watchman) Start(newRootDir string) error {
 	}
 	w.mu.Unlock()
 
-	runtime.LogInfof(w.app.ctx, "Watchman: Starting for directory %s", newRootDir)
-
-	initialState, err := w.scanDirectoryState(newRootDir)
-	if err != nil {
-		runtime.LogError(w.app.ctx, fmt.Sprintf("Watchman: Error during initial scan of %s: %v", newRootDir, err))
-		return fmt.Errorf("watchman initial scan failed: %w", err)
+	// Initialize patterns based on App's current state
+	if w.app.useGitignore {
+		w.currentProjectGitignore = w.app.projectGitignore
+	} else {
+		w.currentProjectGitignore = nil
+	}
+	if w.app.useCustomIgnore {
+		w.currentCustomPatterns = w.app.currentCustomIgnorePatterns
+	} else {
+		w.currentCustomPatterns = nil
 	}
 
 	w.mu.Lock()
-	w.lastKnownState = initialState
+	// Ensure settings are loaded if they haven't been (e.g. if called before startup completes, though unlikely)
+	// However, loadSettings is called in startup, so this should generally be populated.
 	ctx, cancel := context.WithCancel(w.app.ctx) // Use app's context as parent
 	w.cancelFunc = cancel
 	w.mu.Unlock()
+
+	var err error
+	w.fsWatcher, err = fsnotify.NewWatcher()
+	if err != nil {
+		runtime.LogErrorf(w.app.ctx, "Watchman: Error creating fsnotify watcher: %v", err)
+		return fmt.Errorf("failed to create fsnotify watcher: %w", err)
+	}
+	w.watchedDirs = make(map[string]bool) // Initialize/clear
+
+	runtime.LogInfof(w.app.ctx, "Watchman: Starting for directory %s", newRootDir)
+	w.addPathsToWatcherRecursive(newRootDir) // Add initial paths
 
 	go w.run(ctx)
 	return nil
@@ -581,151 +605,233 @@ func (w *Watchman) Stop() {
 		w.cancelFunc()
 		w.cancelFunc = nil // Allow GC and prevent double-cancel
 	}
-	w.rootDir = ""
-	w.lastKnownState = make(map[string]fileMeta) // Clear the state
-	if w.ticker != nil {
-		w.ticker.Stop() // Ensure ticker is stopped if it was running
-		w.ticker = nil
+	if w.fsWatcher != nil {
+		err := w.fsWatcher.Close()
+		if err != nil {
+			runtime.LogWarningf(w.app.ctx, "Watchman: Error closing fsnotify watcher: %v", err)
+		}
+		w.fsWatcher = nil
 	}
+	w.rootDir = ""
+	w.watchedDirs = make(map[string]bool) // Clear watched directories
 }
 
 func (w *Watchman) run(ctx context.Context) {
-	w.mu.RLock()
-	rootDir := w.rootDir
-	w.mu.RUnlock()
-	if rootDir == "" {
-		runtime.LogInfo(w.app.ctx, "Watchman: Goroutine exiting, rootDir is empty.")
-		return
-	}
-
-	w.ticker = time.NewTicker(200 * time.Millisecond)
 	defer func() {
-		w.ticker.Stop()
-		runtime.LogInfo(w.app.ctx, "Watchman: Goroutine and ticker stopped.")
+		if w.fsWatcher != nil {
+			// This close is a safeguard; Stop() should ideally be called.
+			w.fsWatcher.Close()
+		}
+		runtime.LogInfo(w.app.ctx, "Watchman: Goroutine stopped.")
 	}()
 
-	runtime.LogInfof(w.app.ctx, "Watchman: Monitoring goroutine started for %s", rootDir)
+	w.mu.Lock()
+	currentRootDir := w.rootDir
+	w.mu.Unlock()
+	runtime.LogInfof(w.app.ctx, "Watchman: Monitoring goroutine started for %s", currentRootDir)
 
 	for {
 		select {
 		case <-ctx.Done():
-			runtime.LogInfof(w.app.ctx, "Watchman: Context cancelled, shutting down watcher for %s.", rootDir)
+			w.mu.Lock()
+			shutdownRootDir := w.rootDir // Re-fetch rootDir under lock as it might have changed
+			w.mu.Unlock()
+			runtime.LogInfof(w.app.ctx, "Watchman: Context cancelled, shutting down watcher for %s.", shutdownRootDir)
 			return
-		case <-w.ticker.C:
-			w.mu.RLock()
-			currentRootDir := w.rootDir // Check if rootDir changed or cleared by Stop()
-			w.mu.RUnlock()
 
-			if currentRootDir == "" || currentRootDir != rootDir { // rootDir changed by a new Start() or cleared by Stop()
-				runtime.LogInfof(w.app.ctx, "Watchman: Root directory changed or cleared, stopping this watcher instance for %s.", rootDir)
+		case event, ok := <-w.fsWatcher.Events:
+			if !ok {
+				runtime.LogInfo(w.app.ctx, "Watchman: fsnotify events channel closed.")
 				return
 			}
+			runtime.LogDebugf(w.app.ctx, "Watchman: fsnotify event: %s", event)
 
-			currentState, err := w.scanDirectoryState(currentRootDir)
-			if err != nil {
-				runtime.LogWarningf(w.app.ctx, "Watchman: Error scanning directory %s: %v", currentRootDir, err)
-				continue // Skip this tick on error
+			w.mu.Lock()
+			currentRootDir = w.rootDir // Update currentRootDir under lock
+			// Safely copy ignore patterns
+			projIgn := w.currentProjectGitignore
+			custIgn := w.currentCustomPatterns
+			w.mu.Unlock()
+
+			if currentRootDir == "" { // Watcher might have been stopped
+				continue
 			}
 
-			w.mu.RLock()
-			changed := w.compareStates(w.lastKnownState, currentState)
-			w.mu.RUnlock()
+			relEventPath, err := filepath.Rel(currentRootDir, event.Name)
+			if err != nil {
+				runtime.LogWarningf(w.app.ctx, "Watchman: Could not get relative path for event %s (root: %s): %v", event.Name, currentRootDir, err)
+				continue
+			}
 
-			if changed {
-				runtime.LogInfof(w.app.ctx, "Watchman: Change detected in %s", currentRootDir)
-				w.app.notifyFileChange(currentRootDir) // Notify frontend
+			// Check if the event path is ignored
+			isIgnoredByGit := projIgn != nil && projIgn.MatchesPath(relEventPath)
+			isIgnoredByCustom := custIgn != nil && custIgn.MatchesPath(relEventPath)
 
+			if isIgnoredByGit || isIgnoredByCustom {
+				runtime.LogDebugf(w.app.ctx, "Watchman: Ignoring event for %s as it's an ignored path.", event.Name)
+				continue
+			}
+
+			// Handle relevant events (excluding Chmod)
+			if event.Op&fsnotify.Chmod == 0 {
+				runtime.LogInfof(w.app.ctx, "Watchman: Relevant change detected for %s in %s", event.Name, currentRootDir)
+				w.app.notifyFileChange(currentRootDir)
+			}
+
+			// Dynamic directory watching
+			if event.Op&fsnotify.Create != 0 {
+				info, statErr := os.Stat(event.Name)
+				if statErr == nil && info.IsDir() {
+					// Check if this new directory itself is ignored before adding
+					isNewDirIgnoredByGit := projIgn != nil && projIgn.MatchesPath(relEventPath)
+					isNewDirIgnoredByCustom := custIgn != nil && custIgn.MatchesPath(relEventPath)
+					if !isNewDirIgnoredByGit && !isNewDirIgnoredByCustom {
+						runtime.LogDebugf(w.app.ctx, "Watchman: New directory created %s, adding to watcher.", event.Name)
+						w.addPathsToWatcherRecursive(event.Name) // This will add event.Name and its children
+					} else {
+						runtime.LogDebugf(w.app.ctx, "Watchman: New directory %s is ignored, not adding to watcher.", event.Name)
+					}
+				}
+			}
+
+			if event.Op&fsnotify.Remove != 0 || event.Op&fsnotify.Rename != 0 {
 				w.mu.Lock()
-				w.lastKnownState = currentState // Update state
+				if w.watchedDirs[event.Name] {
+					runtime.LogDebugf(w.app.ctx, "Watchman: Watched directory %s removed/renamed, removing from watcher.", event.Name)
+					// fsnotify might remove it automatically, but explicit removal is safer for our tracking
+					if w.fsWatcher != nil { // Check fsWatcher as it might be closed by Stop()
+						err := w.fsWatcher.Remove(event.Name)
+						if err != nil {
+							runtime.LogWarningf(w.app.ctx, "Watchman: Error removing path %s from fsnotify: %v", event.Name, err)
+						}
+					}
+					delete(w.watchedDirs, event.Name)
+				}
 				w.mu.Unlock()
 			}
+
+		case err, ok := <-w.fsWatcher.Errors:
+			if !ok {
+				runtime.LogInfo(w.app.ctx, "Watchman: fsnotify errors channel closed.")
+				return
+			}
+			runtime.LogErrorf(w.app.ctx, "Watchman: fsnotify error: %v", err)
 		}
 	}
 }
 
-func (w *Watchman) scanDirectoryState(scanRootDir string) (map[string]fileMeta, error) {
-	newState := make(map[string]fileMeta)
-	err := filepath.WalkDir(scanRootDir, func(path string, d fs.DirEntry, walkErr error) error {
+func (w *Watchman) addPathsToWatcherRecursive(baseDirToAdd string) {
+	w.mu.Lock() // Lock to access watcher and ignore patterns
+	fsW := w.fsWatcher
+	projIgn := w.currentProjectGitignore
+	custIgn := w.currentCustomPatterns
+	overallRoot := w.rootDir
+	w.mu.Unlock()
+
+	if fsW == nil || overallRoot == "" {
+		runtime.LogWarningf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: fsWatcher is nil or rootDir is empty. Skipping add for %s.", baseDirToAdd)
+		return
+	}
+
+	filepath.WalkDir(baseDirToAdd, func(path string, d fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			runtime.LogWarningf(w.app.ctx, "Watchman scan error accessing %s: %v", path, walkErr)
-			if d != nil && d.IsDir() && path != scanRootDir {
+			if d != nil && d.IsDir() && path != overallRoot { // Changed scanRootDir to overallRoot for clarity
 				return filepath.SkipDir
 			}
 			return nil // Try to continue
 		}
 
-		// Skip the root directory itself from being a map entry
-		if path == scanRootDir {
+		if !d.IsDir() {
 			return nil
 		}
 
-		// Skip .git directory at the top level of scanRootDir
+		relPath, errRel := filepath.Rel(overallRoot, path)
+		if errRel != nil {
+			runtime.LogWarningf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: Could not get relative path for %s (root: %s): %v", path, overallRoot, errRel)
+			return nil // Continue with other paths
+		}
+
+		// Skip .git directory at the top level of overallRoot
 		if d.IsDir() && d.Name() == ".git" {
-			// Check if the .git directory is directly under scanRootDir
 			parentDir := filepath.Dir(path)
-			if parentDir == scanRootDir {
+			if parentDir == overallRoot {
+				runtime.LogDebugf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: Skipping .git directory: %s", path)
 				return filepath.SkipDir
 			}
 		}
-		// Add other common large/volatile directories to skip for performance if needed
-		// e.g., node_modules, vendor, build, dist, etc.
-		// if d.IsDir() && (d.Name() == "node_modules" || d.Name() == "vendor") {
-		//    if filepath.Dir(path) == scanRootDir { // Simple check for top-level
-		// 	    return filepath.SkipDir
-		//    }
-		// }
 
-		relPath, err := filepath.Rel(scanRootDir, path)
-		if err != nil {
-			runtime.LogWarningf(w.app.ctx, "Watchman: Could not get relative path for %s (root: %s): %v", path, scanRootDir, err)
-			return nil // Continue
+		isIgnoredByGit := projIgn != nil && projIgn.MatchesPath(relPath)
+		isIgnoredByCustom := custIgn != nil && custIgn.MatchesPath(relPath)
+
+		if isIgnoredByGit || isIgnoredByCustom {
+			runtime.LogDebugf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: Skipping ignored directory: %s", path)
+			return filepath.SkipDir
 		}
 
-		info, infoErr := d.Info()
-		if infoErr != nil {
-			runtime.LogWarningf(w.app.ctx, "Watchman scan error getting info for %s: %v", path, infoErr)
-			return nil // Continue
-		}
-
-		newState[relPath] = fileMeta{
-			ModTime: info.ModTime(),
-			Size:    info.Size(),
-			IsDir:   d.IsDir(),
+		errAdd := fsW.Add(path)
+		if errAdd != nil {
+			runtime.LogWarningf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: Error adding path %s to fsnotify: %v", path, errAdd)
+		} else {
+			runtime.LogDebugf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: Added to watcher: %s", path)
+			w.mu.Lock()
+			w.watchedDirs[path] = true
+			w.mu.Unlock()
 		}
 		return nil
 	})
-
-	if err != nil {
-		return nil, fmt.Errorf("error walking directory %s: %w", scanRootDir, err)
-	}
-	return newState, nil
-}
-
-func (w *Watchman) compareStates(oldState, newState map[string]fileMeta) bool {
-	// Check for size difference first (quick check for additions/deletions)
-	if len(oldState) != len(newState) {
-		return true
-	}
-
-	for relPath, newMeta := range newState {
-		oldMeta, ok := oldState[relPath]
-		if !ok {
-			return true // Creation
-		}
-		if newMeta.IsDir != oldMeta.IsDir ||
-			newMeta.Size != oldMeta.Size ||
-			!newMeta.ModTime.Equal(oldMeta.ModTime) {
-			return true // Modification (type, size, or mtime change)
-		}
-	}
-	// No changes found if all new entries match old entries and lengths are same
-	// (This also covers deletions because if something was deleted, len would differ or an old entry wouldn't be in new)
-	return false
 }
 
 // notifyFileChange is an internal method for the App to emit a Wails event.
 func (a *App) notifyFileChange(rootDir string) {
 	runtime.EventsEmit(a.ctx, "projectFilesChanged", rootDir)
+}
+
+// RefreshIgnoresAndRescan is called when ignore settings change in the App.
+func (w *Watchman) RefreshIgnoresAndRescan() error {
+	w.mu.Lock()
+	if w.rootDir == "" {
+		w.mu.Unlock()
+		runtime.LogInfo(w.app.ctx, "Watchman.RefreshIgnoresAndRescan: No rootDir, skipping.")
+		return nil
+	}
+	runtime.LogInfo(w.app.ctx, "Watchman.RefreshIgnoresAndRescan: Refreshing ignore patterns and re-scanning.")
+
+	// Update patterns based on App's current state
+	if w.app.useGitignore {
+		w.currentProjectGitignore = w.app.projectGitignore
+	} else {
+		w.currentProjectGitignore = nil
+	}
+	if w.app.useCustomIgnore {
+		w.currentCustomPatterns = w.app.currentCustomIgnorePatterns
+	} else {
+		w.currentCustomPatterns = nil
+	}
+	currentRootDir := w.rootDir
+	defer w.mu.Unlock()
+
+	// Stop existing watcher (closes, clears watchedDirs)
+	if w.cancelFunc != nil {
+		w.cancelFunc()
+	}
+	if w.fsWatcher != nil {
+		w.fsWatcher.Close()
+	}
+	w.watchedDirs = make(map[string]bool)
+
+	// Create new watcher
+	var err error
+	w.fsWatcher, err = fsnotify.NewWatcher()
+	if err != nil {
+		runtime.LogErrorf(w.app.ctx, "Watchman.RefreshIgnoresAndRescan: Error creating new fsnotify watcher: %v", err)
+		return fmt.Errorf("failed to create new fsnotify watcher: %w", err)
+	}
+
+	w.addPathsToWatcherRecursive(currentRootDir) // Add paths with new rules
+	w.app.notifyFileChange(currentRootDir)       // Notify frontend to refresh its view
+
+	return nil
 }
 
 // --- Configuration Management ---
@@ -851,6 +957,10 @@ func (a *App) SetCustomIgnoreRules(rules string) error {
 	if compileErr != nil {
 		return fmt.Errorf("rules saved, but failed to compile custom ignore patterns: %w", compileErr)
 	}
+
+	if a.fileWatcher != nil && a.fileWatcher.rootDir != "" {
+		return a.fileWatcher.RefreshIgnoresAndRescan()
+	}
 	return nil
 }
 
@@ -870,5 +980,27 @@ func (a *App) SetCustomPromptRules(rules string) error {
 		return fmt.Errorf("failed to save custom prompt rules: %w", err)
 	}
 	runtime.LogInfo(a.ctx, "Custom prompt rules saved successfully.")
+	return nil
+}
+
+// SetUseGitignore updates the app's setting for using .gitignore and informs the watcher.
+func (a *App) SetUseGitignore(enabled bool) error {
+	a.useGitignore = enabled
+	runtime.LogInfof(a.ctx, "App setting useGitignore changed to: %v", enabled)
+	if a.fileWatcher != nil && a.fileWatcher.rootDir != "" {
+		// Assuming watcher is for the current project if active.
+		return a.fileWatcher.RefreshIgnoresAndRescan()
+	}
+	return nil
+}
+
+// SetUseCustomIgnore updates the app's setting for using custom ignore rules and informs the watcher.
+func (a *App) SetUseCustomIgnore(enabled bool) error {
+	a.useCustomIgnore = enabled
+	runtime.LogInfof(a.ctx, "App setting useCustomIgnore changed to: %v", enabled)
+	if a.fileWatcher != nil && a.fileWatcher.rootDir != "" {
+		// Assuming watcher is for the current project if active.
+		return a.fileWatcher.RefreshIgnoresAndRescan()
+	}
 	return nil
 }

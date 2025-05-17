@@ -16,6 +16,10 @@ export function SetCustomIgnoreRules(arg1:string):Promise<void>;
 
 export function SetCustomPromptRules(arg1:string):Promise<void>;
 
+export function SetUseCustomIgnore(arg1:boolean):Promise<void>;
+
+export function SetUseGitignore(arg1:boolean):Promise<void>;
+
 export function StartFileWatcher(arg1:string):Promise<void>;
 
 export function StopFileWatcher():Promise<void>;

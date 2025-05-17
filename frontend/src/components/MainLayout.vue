@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col h-screen bg-gray-100">
-    <HorizontalStepper :current-step="currentStep" :steps="steps" @navigate="navigateToStep" />
+    <HorizontalStepper :current-step="currentStep" :steps="steps" @navigate="navigateToStep" :key="`hstepper-${currentStep}-${steps.map(s=>s.completed).join('')}`" />
     <div class="flex flex-1 overflow-hidden">
       <LeftSidebar 
         :current-step="currentStep" 
@@ -48,7 +48,7 @@ import HorizontalStepper from './HorizontalStepper.vue';
 import LeftSidebar from './LeftSidebar.vue';
 import CentralPanel from './CentralPanel.vue';
 import BottomConsole from './BottomConsole.vue';
-import { ListFiles, RequestShotgunContextGeneration, SelectDirectory as SelectDirectoryGo, StartFileWatcher, StopFileWatcher } from '../../wailsjs/go/main/App';
+import { ListFiles, RequestShotgunContextGeneration, SelectDirectory as SelectDirectoryGo, StartFileWatcher, StopFileWatcher, SetUseGitignore, SetUseCustomIgnore } from '../../wailsjs/go/main/App';
 import { EventsOn, Environment } from '../../wailsjs/runtime/runtime';
 
 const currentStep = ref(1);
@@ -240,16 +240,28 @@ function _updateAllNodesExcludedStateRecursive(nodesToUpdate, parentIsVisuallyEx
 
 function toggleGitignoreHandler(value) {
   useGitignore.value = value;
-  addLog(`.gitignore usage changed to: ${value}. Updating tree...`, 'info', 'bottom');
+  addLog(`.gitignore usage changed to: ${value}. Updating tree and watcher...`, 'info', 'bottom');
+  SetUseGitignore(value)
+    .then(() => addLog(`Watchman instructed to use .gitignore: ${value}`, 'debug'))
+    .catch(err => addLog(`Error setting useGitignore in backend: ${err}`, 'error'));
+  // Context regeneration is handled by the watch on [fileTree, useGitignore, useCustomIgnore]
+  // which calls updateAllNodesExcludedState and debouncedTriggerShotgunContextGeneration.
 }
 
 function toggleCustomIgnoreHandler(value) {
   useCustomIgnore.value = value;
-  addLog(`Custom ignore rules usage changed to: ${value}. Updating tree...`, 'info', 'bottom');
+  addLog(`Custom ignore rules usage changed to: ${value}. Updating tree and watcher...`, 'info', 'bottom');
+  SetUseCustomIgnore(value)
+    .then(() => addLog(`Watchman instructed to use custom ignores: ${value}`, 'debug'))
+    .catch(err => addLog(`Error setting useCustomIgnore in backend: ${err}`, 'error'));
 }
 
 function debouncedTriggerShotgunContextGeneration() {
   if (!projectRoot.value) {
+    // Clear context and stop loading if no project root
+    shotgunPromptContext.value = ''; // Clear previous context
+    generationProgressData.value = { current: 0, total: 0 }; // Reset progress
+    // isGeneratingContext will be set to false by the return or by the timeout if it runs
     isGeneratingContext.value = false;
     return;
   }
