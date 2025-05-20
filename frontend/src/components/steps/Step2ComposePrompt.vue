@@ -120,6 +120,7 @@ import CustomRulesModal from '../CustomRulesModal.vue';
 import devTemplateContentFromFile from '../../../../design/prompts/prompt_makeDiffGitFormat.md?raw';
 import architectTemplateContentFromFile from '../../../../design/prompts/prompt_makePlan.md?raw';
 import findBugTemplateContentFromFile from '../../../../design/prompts/prompt_analyzeBug.md?raw';
+import projectManagerTemplateContentFromFile from '../../../../design/prompts/prompt_projectManager.md?raw';
 
 const props = defineProps({
   fileListContext: {
@@ -150,6 +151,7 @@ const promptTemplates = {
   dev: { name: 'Dev', content: devTemplateContentFromFile },
   architect: { name: 'Architect', content: architectTemplateContentFromFile },
   findBug: { name: 'Find Bug', content: findBugTemplateContentFromFile },
+  projectManager: { name: 'Project: Update Tasks', content: projectManagerTemplateContentFromFile },
 };
 
 const selectedPromptTemplateKey = ref('dev'); // Default template
@@ -233,6 +235,14 @@ async function updateFinalPrompt() {
   populatedPrompt = populatedPrompt.replace('{TASK}', props.userTask || "No task provided by the user.");
   populatedPrompt = populatedPrompt.replace('{RULES}', props.rulesContent);
   populatedPrompt = populatedPrompt.replace('{FILE_STRUCTURE}', props.fileListContext || "No file structure context provided.");
+
+  // Insert current date in YYYY-MM-DD format
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const currentDate = `${yyyy}-${mm}-${dd}`;
+  populatedPrompt = populatedPrompt.replaceAll('{CURRENT_DATE}', currentDate);
 
   emit('update:finalPrompt', populatedPrompt);
   isLoadingFinalPrompt.value = false;
