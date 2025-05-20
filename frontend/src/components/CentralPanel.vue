@@ -2,8 +2,8 @@
   <main class="flex-1 p-0 overflow-y-auto bg-white relative">
     <Step1CopyStructure v-if="currentStep === 1" @action="handleAction" :generated-context="shotgunPromptContext" :is-loading-context="props.isGeneratingContext" :project-root="props.projectRoot" :generation-progress="props.generationProgress" :platform="props.platform" />
     <Step2ComposePrompt v-if="currentStep === 2" @action="handleAction" ref="step2Ref" :file-list-context="props.shotgunPromptContext" @update:finalPrompt="(val) => emit('update-composed-prompt', val)" :platform="props.platform" :user-task="props.userTask" :rules-content="props.rulesContent" :final-prompt="props.finalPrompt" @update:userTask="(val) => emit('update:userTask', val)" @update:rulesContent="(val) => emit('update:rulesContent', val)" />
-    <Step3ExecuteDiff v-if="currentStep === 3" @action="handleAction" ref="step3Ref" />
-    <Step4ApplyPatch v-if="currentStep === 4" @action="handleAction" />
+    <Step3ExecutePrompt v-if="currentStep === 3" @action="handleAction" ref="step3Ref" />
+    <Step4ApplyPatch v-if="currentStep === 4" @action="handleAction" :split-diffs="props.splitDiffs" :is-loading="props.isLoadingSplitDiffs" :platform="props.platform" />
   </main>
 </template>
 
@@ -11,7 +11,7 @@
 import { defineProps, defineEmits, ref } from 'vue';
 import Step1CopyStructure from './steps/Step1PrepareContext.vue';
 import Step2ComposePrompt from './steps/Step2ComposePrompt.vue';
-import Step3ExecuteDiff from './steps/Step3ExecutePrompt.vue';
+import Step3ExecutePrompt from './steps/Step3ExecutePrompt.vue';
 import Step4ApplyPatch from './steps/Step4ApplyPatch.vue';
 
 const props = defineProps({
@@ -23,7 +23,9 @@ const props = defineProps({
   platform: { type: String, default: 'unknown' },
   userTask: { type: String, default: '' },
   rulesContent: { type: String, default: '' },
-  finalPrompt: { type: String, default: '' }
+  finalPrompt: { type: String, default: '' },
+  splitDiffs: { type: Array, default: () => [] },
+  isLoadingSplitDiffs: { type: Boolean, default: false }
 });
 
 const emit = defineEmits(['stepAction', 'update-composed-prompt', 'update:userTask', 'update:rulesContent']);

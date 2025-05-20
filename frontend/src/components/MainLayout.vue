@@ -25,6 +25,8 @@
                     :platform="platform"
                     :user-task="userTask"
                     :rules-content="rulesContent"
+                    :split-diffs="splitDiffs"
+                    :is-loading-split-diffs="isLoadingSplitDiffs"
                     :final-prompt="finalPrompt"
                     @step-action="handleStepAction"
                     @update-composed-prompt="handleComposedPromptUpdate"
@@ -48,15 +50,15 @@ import HorizontalStepper from './HorizontalStepper.vue';
 import LeftSidebar from './LeftSidebar.vue';
 import CentralPanel from './CentralPanel.vue';
 import BottomConsole from './BottomConsole.vue';
-import { ListFiles, RequestShotgunContextGeneration, SelectDirectory as SelectDirectoryGo, StartFileWatcher, StopFileWatcher, SetUseGitignore, SetUseCustomIgnore } from '../../wailsjs/go/main/App';
+import { ListFiles, RequestShotgunContextGeneration, SelectDirectory as SelectDirectoryGo, StartFileWatcher, StopFileWatcher, SetUseGitignore, SetUseCustomIgnore, SplitShotgunDiff } from '../../wailsjs/go/main/App';
 import { EventsOn, Environment } from '../../wailsjs/runtime/runtime';
 
 const currentStep = ref(1);
 const steps = ref([
   { id: 1, title: 'Prepare Context', completed: false, description: 'Select project folder, review files, and generate the initial project context for the LLM.' },
   { id: 2, title: 'Compose Prompt', completed: false, description: 'Provide a prompt to the LLM based on the project context to generate a code diff.' },
-  { id: 3, title: 'Execute Prompt', completed: false, description: 'Review and simulate the execution of the generated diff to understand its impact.' },
-  { id: 4, title: 'Apply Patch', completed: false, description: 'Apply the verified changes (patches) to your actual project files.' },
+  { id: 3, title: 'Execute Prompt', completed: false, description: 'Paste a large shotgunDiff and split it into smaller, manageable parts.' },
+  { id: 4, title: 'Apply Patch', completed: false, description: 'Copy and apply the smaller diff parts to your project.' },
 ]);
 
 const logMessages = ref([]);
@@ -97,6 +99,8 @@ const platform = ref('unknown'); // To store OS platform (e.g., 'darwin', 'windo
 const userTask = ref('');
 const rulesContent = ref('');
 const finalPrompt = ref('');
+const isLoadingSplitDiffs = ref(false);
+const splitDiffs = ref([]);
 let debounceTimer = null;
 
 // Watcher related
@@ -116,6 +120,8 @@ async function selectProjectFolderHandler() {
       fileTree.value = [];
       
       await loadFileTree(selectedDir);
+
+      splitDiffs.value = []; // Clear any previous splits when new project selected
 
       if (!isFileTreeLoading.value && projectRoot.value) {
          debouncedTriggerShotgunContextGeneration();
@@ -396,11 +402,38 @@ async function handleStepAction(actionName, payload) {
       // In a real app, Step 3 might display LLM output before proceeding.
       navigateToStep(4); 
       break;
+    case 'splitDiff':
+      if (!payload || !payload.diffXML || payload.lineLimit <= 0) {
+        addLog("Invalid payload for splitting diff.", 'error', 'bottom');
+        return;
+      }
+      addLog(`Splitting diff (approx ${payload.lineLimit} lines per split)...`, 'info', 'bottom');
+      isLoadingSplitDiffs.value = true;
+      splitDiffs.value = []; // Clear previous splits
+      try {
+        const result = await SplitShotgunDiff(payload.diffXML, payload.lineLimit);
+        splitDiffs.value = result;
+        addLog(`Diff split into ${result.length} parts.`, 'success', 'bottom');
+        
+        if (currentStepObj) currentStepObj.completed = true;
+        navigateToStep(4);
+
+      } catch (err) {
+        const errorMsg = `Error splitting diff: ${err.message || err}`;
+        addLog(errorMsg, 'error', 'bottom');
+      } finally {
+        isLoadingSplitDiffs.value = false;
+      }
+      break;
     case 'applySelectedPatches':
     case 'applyAllPatches':
       addLog(`Simulating backend: Applying patches (${actionName})...`, 'info', 'bottom');
       await new Promise(resolve => setTimeout(resolve, 1000));
       addLog('Backend: Patches applied. Process complete!', 'info', 'bottom');
+      if (currentStepObj) currentStepObj.completed = true;
+      break;
+    case 'finishSplitting':
+      addLog("Finished with split diffs.", 'info', 'bottom');
       if (currentStepObj) currentStepObj.completed = true;
       break;
     default:
