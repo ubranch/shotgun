@@ -22,9 +22,8 @@
           </button>
         </div>
         <p class="text-gray-600 text-xs mb-2">
-          <!-- Each metric will be displayed in a pill div -->
-           <!-- the lines metric will be orange if it's greater than 300 -->
-          <div class="inline-block px-2 py-1 rounded-full text-xs" :class="diff.split('\n').length > 300 ? 'bg-orange-100' : 'bg-gray-100'">
+           <!-- the lines metric will be orange if it's greater than 300, soon to update to get line size from previous step -->
+          <div class="inline-block px-2 py-1 rounded-full text-xs" :class="diff.split('\n').length > 300 ? 'bg-orange-100' : 'bg-blue-100'">
             {{ diff.split('\n').length }} lines
           </div>
           <div class="inline-block px-2 py-1 bg-blue-100 rounded-full text-xs ml-2">
