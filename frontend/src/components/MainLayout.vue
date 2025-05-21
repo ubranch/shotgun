@@ -28,10 +28,15 @@
                     :split-diffs="splitDiffs"
                     :is-loading-split-diffs="isLoadingSplitDiffs"
                     :final-prompt="finalPrompt"
+                    :split-line-limit="splitLineLimitValue"
+                    :shotgun-git-diff="shotgunGitDiff"
+                    :split-line-limit-value="splitLineLimitValue"
                     @step-action="handleStepAction"
                     @update-composed-prompt="handleComposedPromptUpdate"
                     @update:user-task="handleUserTaskUpdate"
                     @update:rules-content="handleRulesContentUpdate"
+                    @update:shotgunGitDiff="handleShotgunGitDiffUpdate"
+                    @update:splitLineLimit="handleSplitLineLimitUpdate"
                     ref="centralPanelRef" />
     </div>
     <div 
@@ -101,6 +106,8 @@ const rulesContent = ref('');
 const finalPrompt = ref('');
 const isLoadingSplitDiffs = ref(false);
 const splitDiffs = ref([]);
+const shotgunGitDiff = ref('');
+const splitLineLimitValue = ref(0); // Add new state variable
 let debounceTimer = null;
 
 // Watcher related
@@ -402,16 +409,18 @@ async function handleStepAction(actionName, payload) {
       // In a real app, Step 3 might display LLM output before proceeding.
       navigateToStep(4); 
       break;
-    case 'splitDiff':
-      if (!payload || !payload.diffXML || payload.lineLimit <= 0) {
+    case 'executePromptAndSplitDiff': // Handle the actual splitting action
+      if (!payload || !payload.gitDiff || payload.lineLimit <= 0) {
         addLog("Invalid payload for splitting diff.", 'error', 'bottom');
         return;
       }
       addLog(`Splitting diff (approx ${payload.lineLimit} lines per split)...`, 'info', 'bottom');
       isLoadingSplitDiffs.value = true;
       splitDiffs.value = []; // Clear previous splits
+      shotgunGitDiff.value = payload.gitDiff;
+      splitLineLimitValue.value = payload.lineLimit; // Store the line limit
       try {
-        const result = await SplitShotgunDiff(payload.diffXML, payload.lineLimit);
+        const result = await SplitShotgunDiff(payload.gitDiff, payload.lineLimit);
         splitDiffs.value = result;
         addLog(`Diff split into ${result.length} parts.`, 'success', 'bottom');
         
@@ -596,6 +605,15 @@ function handleUserTaskUpdate(val) {
 
 function handleRulesContentUpdate(val) {
   rulesContent.value = val;
+}
+
+// Add handlers for the new updates
+function handleShotgunGitDiffUpdate(val) {
+  shotgunGitDiff.value = val;
+}
+
+function handleSplitLineLimitUpdate(val) {
+  splitLineLimitValue.value = val;
 }
 
 </script>

@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"encoding/xml"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -11,184 +11,360 @@ import (
 
 // --- Shotgun Diff Splitting ---
 
-// ShotgunHunk represents a hunk within a shotgun diff file.
-type ShotgunHunk struct {
-	Range string `xml:"range,attr"`
-	CDATA string `xml:",cdata"`
-}
+// SplitShotgunDiff parses a Git diff string and splits it into multiple
+// smaller Git diff strings, each not exceeding approxLineLimit lines.
+// It tries to split between file diffs first, then between hunks if a single file diff is too large.
+func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]string, error) {
+	runtime.LogInfof(a.ctx, "SplitShotgunDiff called with line limit: %d for git diff text", approxLineLimit)
 
-// ShotgunFileEntry represents a file entry within a shotgun diff.
-type ShotgunFileEntry struct {
-	Path  string        `xml:"path,attr"`
-	Hunks []ShotgunHunk `xml:"hunk"`
-}
-
-// ShotgunDiff represents the structure of a shotgunDiff XML.
-type ShotgunDiff struct {
-	XMLName xml.Name           `xml:"shotgunDiff"`
-	Xmlns   string             `xml:"xmlns,attr,omitempty"`
-	Files   []ShotgunFileEntry `xml:"file"`
-}
-
-// SplitShotgunDiff parses a shotgunDiff XML string and splits it into multiple
-// smaller shotgunDiff XML strings, each not exceeding approxLineLimit lines.
-func (a *App) SplitShotgunDiff(diffXML string, approxLineLimit int) ([]string, error) {
-	runtime.LogInfof(a.ctx, "SplitShotgunDiff called with line limit: %d", approxLineLimit)
-	var parsedDiff ShotgunDiff
-	if err := xml.Unmarshal([]byte(diffXML), &parsedDiff); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal shotgunDiff XML: %w", err)
+	if strings.TrimSpace(gitDiffText) == "" {
+		return []string{}, nil
 	}
 
-	outputXmlns := parsedDiff.Xmlns
-	if outputXmlns == "" {
-		outputXmlns = "https://example.com/shotgun/diff/v1" // Default if not present
+	// Regex to find the start of a file diff block.
+	// Go's regex engine (RE2) does not support lookarounds like (?=).
+	// We will find the start indices of each file block and split manually.
+	fileDiffStartRegex := regexp.MustCompile(`(?m)^diff --git `)
+	startIndices := fileDiffStartRegex.FindAllStringIndex(gitDiffText, -1)
+
+	var fileDiffBlocks []string
+
+	if len(startIndices) == 0 {
+		// If no "diff --git" is found, treat the whole input as a single block
+		runtime.LogWarning(a.ctx, fmt.Sprintf("SplitShotgunDiff: No 'diff --git' blocks found in input. Treating as single block."))
+		if strings.TrimSpace(gitDiffText) != "" {
+			fileDiffBlocks = append(fileDiffBlocks, gitDiffText)
+		}
+	} else {
+		// Split the text based on the start indices
+		for i := 0; i < len(startIndices); i++ {
+			start := startIndices[i][0]
+			end := len(gitDiffText)
+			if i+1 < len(startIndices) {
+				end = startIndices[i+1][0]
+			}
+			block := gitDiffText[start:end]
+			block = strings.TrimSpace(block)
+			if block != "" {
+				fileDiffBlocks = append(fileDiffBlocks, block)
+			}
+		}
 	}
 
 	var splitDiffs []string
-	currentLineCount := 0
-	currentSplitFiles := make(map[string]*ShotgunFileEntry) // Map to store files in current split by path
+	var currentSplitContent strings.Builder
+	currentSplitLines := 0
 
-	// Helper function to finalize the current split
-	finalizeSplit := func() error {
-		if len(currentSplitFiles) == 0 {
-			return nil
-		}
+	hunkHeaderRegex := regexp.MustCompile(`^@@ .* @@`)
 
-		processedPaths := make(map[string]bool) // Keep track of paths added
-		currentSplitFileSlice := make([]ShotgunFileEntry, 0, len(currentSplitFiles))
+	for _, fileBlock := range fileDiffBlocks {
+		// fileBlock is already trimmed by the splitting logic above, but continue check is fine
+		if fileBlock == "" { continue }
 
-		// First pass: iterate in the order of originalFile.Path to maintain original file order if possible
-		for _, originalFile := range parsedDiff.Files {
-			if entry, exists := currentSplitFiles[originalFile.Path]; exists {
-				hunksCopy := make([]ShotgunHunk, len(entry.Hunks))
-				copy(hunksCopy, entry.Hunks)
-				currentSplitFileSlice = append(currentSplitFileSlice, ShotgunFileEntry{
-					Path:  entry.Path,
-					Hunks: hunksCopy,
-				})
-				processedPaths[originalFile.Path] = true
-			}
-		}
+		fileBlockLines := strings.Split(fileBlock, "\n")
+		numLinesInFileBlock := len(fileBlockLines)
 
-		// Second pass: add any files that might be in currentSplitFiles but were not processed
-		// This ensures all items in currentSplitFiles are included, even if a path was not in parsedDiff.Files (unlikely)
-		// or if just to iterate remaining items.
-		if len(processedPaths) < len(currentSplitFiles) {
-			runtime.LogDebugf(a.ctx, "finalizeSplit: %d files in current split, %d processed by original order. Adding remaining.", len(currentSplitFiles), len(processedPaths))
-			// Iterate over the map keys for any remaining files. Order for these is map iteration order.
-			for path, entry := range currentSplitFiles {
-				if !processedPaths[path] {
-					hunksCopy := make([]ShotgunHunk, len(entry.Hunks))
-					copy(hunksCopy, entry.Hunks)
-					currentSplitFileSlice = append(currentSplitFileSlice, ShotgunFileEntry{
-						Path:  path, // Use path from map key
-						Hunks: hunksCopy,
-					})
-				}
-			}
-		}
-
-		currentOutput := ShotgunDiff{Xmlns: outputXmlns, Files: currentSplitFileSlice}
-		xmlBytes, err := xml.MarshalIndent(currentOutput, "", "  ")
-		if err != nil {
-			return fmt.Errorf("failed to marshal split diff: %w", err)
-		}
-		splitDiffs = append(splitDiffs, string(xmlBytes))
-
-		// Reset for next split
-		currentSplitFiles = make(map[string]*ShotgunFileEntry)
-		currentLineCount = 0
-		return nil
-	}
-
-	for _, fileEntry := range parsedDiff.Files { // Iterate through each file in the input diff
-		filePath := fileEntry.Path
-
-		for _, hunk := range fileEntry.Hunks { // Iterate through each hunk of the current file
-			hunkContentLines := strings.Split(strings.ReplaceAll(hunk.CDATA, "\r\n", "\n"), "\n")
-			numLinesInHunk := countLinesInHunk(a, hunk, hunkContentLines, filePath)
-
-			// Case 1: This hunk ALONE is larger than the approxLineLimit.
-			// It must go into its own split.
-			// If the current split has any content, finalize it first.
-			if numLinesInHunk > approxLineLimit {
-				if currentLineCount > 0 {
-					if err := finalizeSplit(); err != nil {
-						return nil, err
-					}
-				}
-				// This large hunk forms a new split by itself.
-				currentSplitFiles[filePath] = &ShotgunFileEntry{
-					Path:  filePath,
-					Hunks: []ShotgunHunk{hunk},
-				}
-				currentLineCount = numLinesInHunk // This will be > approxLineLimit
-
-				if err := finalizeSplit(); err != nil { // Finalize this single-hunk split
-					return nil, err
-				}
-				continue // Move to the next hunk in the input file
+		// Check if the fileBlock itself is too large
+		if numLinesInFileBlock > approxLineLimit {
+			// If there's pending content in currentSplitContent, finalize it
+			if currentSplitContent.Len() > 0 {
+				splitDiffs = append(splitDiffs, currentSplitContent.String())
+				currentSplitContent.Reset()
+				currentSplitLines = 0
 			}
 
-			// Case 2: Adding this hunk would exceed the limit (but hunk itself is not > limit).
-			// Finalize the current split (which does NOT include this hunk yet).
-			// Then, this hunk will be added to a new, empty split.
-			if currentLineCount > 0 && (currentLineCount+numLinesInHunk > approxLineLimit) {
-				if err := finalizeSplit(); err != nil {
-					return nil, err
+			// This fileBlock is too large, needs to be split by hunks
+			// Extract file header (lines before the first hunk)
+			firstHunkIndex := -1
+			for i, line := range fileBlockLines {
+				if hunkHeaderRegex.MatchString(line) {
+					firstHunkIndex = i
+					break
 				}
-				// currentLineCount is now 0, currentSplitFiles is empty.
 			}
 
-			// Case 3: Add this hunk to the current split.
-			// This occurs if:
-			// a) The split was just reset (currentLineCount == 0).
-			// b) Or, currentLineCount > 0 and adding this hunk does NOT exceed the limit.
-			fileEntryInCurrentSplit, exists := currentSplitFiles[filePath]
-			if !exists {
-				fileEntryInCurrentSplit = &ShotgunFileEntry{
-					Path:  filePath,
-					Hunks: []ShotgunHunk{},
-				}
-				currentSplitFiles[filePath] = fileEntryInCurrentSplit
+			if firstHunkIndex == -1 { // No hunks found, but block is large? Unusual. Treat as one large piece.
+				runtime.LogWarning(a.ctx, fmt.Sprintf("SplitShotgunDiff: Large file block without hunks in '%s'. Treating as single block.", getPathFromDiffHeader(fileBlockLines[0])))
+				splitDiffs = append(splitDiffs, fileBlock+"\n") // Add newline for consistency if it's a full block
+				continue
 			}
 
-			fileEntryInCurrentSplit.Hunks = append(fileEntryInCurrentSplit.Hunks, hunk)
-			currentLineCount += numLinesInHunk
+			fileHeader := strings.Join(fileBlockLines[:firstHunkIndex], "\n") + "\n"
+			numLinesInHeader := firstHunkIndex
+
+			var currentFileSplitHunks strings.Builder
+			currentFileSplitHunkLines := 0
+
+			hunkStartIndex := firstHunkIndex
+			for hunkStartIndex < len(fileBlockLines) {
+				// Find the end of the current hunk
+				hunkEndIndex := hunkStartIndex + 1
+				for hunkEndIndex < len(fileBlockLines) && !hunkHeaderRegex.MatchString(fileBlockLines[hunkEndIndex]) {
+					hunkEndIndex++
+				}
+				
+				currentHunkContent := strings.Join(fileBlockLines[hunkStartIndex:hunkEndIndex], "\n")
+				numLinesInCurrentHunk := hunkEndIndex - hunkStartIndex
+
+				// If this single hunk (plus header) is larger than limit, it gets its own split
+				if numLinesInHeader + numLinesInCurrentHunk > approxLineLimit && currentFileSplitHunkLines == 0 {
+					splitDiffs = append(splitDiffs, fileHeader + currentHunkContent + "\n")
+					hunkStartIndex = hunkEndIndex
+					continue
+				}
+
+				// If adding this hunk exceeds the limit (for this file's partial split)
+				if currentFileSplitHunkLines > 0 && (numLinesInHeader + currentFileSplitHunkLines + numLinesInCurrentHunk > approxLineLimit) {
+					splitDiffs = append(splitDiffs, fileHeader + currentFileSplitHunks.String())
+					currentFileSplitHunks.Reset()
+					currentFileSplitHunkLines = 0
+				}
+
+				currentFileSplitHunks.WriteString(currentHunkContent + "\n")
+				currentFileSplitHunkLines += numLinesInCurrentHunk
+				hunkStartIndex = hunkEndIndex
+			}
+
+			// Add any remaining hunks for the current file
+			if currentFileSplitHunks.Len() > 0 {
+				splitDiffs = append(splitDiffs, fileHeader + currentFileSplitHunks.String())
+			}
+
+		} else { // File block is not too large by itself
+			// If adding this fileBlock would exceed the limit for the current_split
+			if currentSplitLines > 0 && (currentSplitLines + numLinesInFileBlock > approxLineLimit) {
+				splitDiffs = append(splitDiffs, currentSplitContent.String())
+				currentSplitContent.Reset()
+				currentSplitLines = 0
+			}
+			currentSplitContent.WriteString(fileBlock + "\n") // Add newline between file blocks
+			currentSplitLines += numLinesInFileBlock
 		}
 	}
 
 	// Add any remaining content as the final split
-	if err := finalizeSplit(); err != nil {
-		return nil, err
+	if currentSplitContent.Len() > 0 {
+		splitDiffs = append(splitDiffs, currentSplitContent.String())
+	}
+	
+	// Trim trailing newlines from each split diff for consistency and prepare for potential merging
+	initialSplitDiffs := make([]string, 0, len(splitDiffs))
+	initialSplitSizes := make([]int, 0, len(splitDiffs))
+	for _, sDiff := range splitDiffs {
+		trimmedDiff := strings.TrimSpace(sDiff)
+		if trimmedDiff != "" {
+			initialSplitDiffs = append(initialSplitDiffs, trimmedDiff)
+			initialSplitSizes = append(initialSplitSizes, len(strings.Split(trimmedDiff, "\n")))
+		}
 	}
 
-	runtime.LogInfof(a.ctx, "Successfully split diff into %d parts.", len(splitDiffs))
-	return splitDiffs, nil
+	// --- Advanced Merging Logic ---
+	// If approxLineLimit is not positive, merging logic is skipped.
+	if approxLineLimit <= 0 {
+		runtime.LogInfof(a.ctx, "approxLineLimit is %d, skipping merge step. Returning %d initial splits.", approxLineLimit, len(initialSplitDiffs))
+		return initialSplitDiffs, nil
+	}
+
+	// If there's 0 or 1 split, no merging is possible or needed.
+	if len(initialSplitDiffs) <= 1 {
+		runtime.LogInfof(a.ctx, "Only %d initial split(s), no merging needed. Returning as is.", len(initialSplitDiffs))
+		return initialSplitDiffs, nil
+	}
+
+	runtime.LogInfof(a.ctx, "Starting advanced merge step for %d initial splits with approxLineLimit %d.", len(initialSplitDiffs), approxLineLimit)
+
+	// Allow merged splits to be up to 20% larger than the user's approximate line limit.
+	maxAllowedLines := int(float64(approxLineLimit) * 1.20)
+	runtime.LogInfof(a.ctx, "Max allowed lines per merged split: %d", maxAllowedLines)
+
+	// This is a modified bin packing problem approach:
+	// 1. Initialize splitsToMerge list with initial splits
+	// 2. Define a cost function to evaluate merged solutions
+	// 3. Try various combinations, picking the best solution
+
+	type MergeGroup struct {
+		Splits    []string
+		LineCount int
+	}
+
+	// First, identify large splits that must be their own group as they're already close to or exceeding the limit
+	var largeSplits []MergeGroup
+	var smallSplits []int // Indices of small splits we'll try to recombine
+	
+	for i, size := range initialSplitSizes {
+		if size >= approxLineLimit { // Already close to or above line limit - keep as is
+			largeSplits = append(largeSplits, MergeGroup{
+				Splits:    []string{initialSplitDiffs[i]},
+				LineCount: size,
+			})
+			runtime.LogInfof(a.ctx, "Split %d with %d lines kept as standalone group (already large)", i, size)
+		} else {
+			smallSplits = append(smallSplits, i)
+		}
+	}
+
+	// If no small splits, return the identified large splits as-is
+	if len(smallSplits) == 0 {
+		runtime.LogInfof(a.ctx, "No small splits to merge, returning %d large splits as-is", len(largeSplits))
+		result := make([]string, len(largeSplits))
+		for i, group := range largeSplits {
+			result[i] = group.Splits[0] // Each large split is its own group with one split
+		}
+		return result, nil
+	}
+
+	// For small splits, try to find the optimal combination
+	smallSplitData := make([]struct {
+		Content   string
+		LineCount int
+	}, len(smallSplits))
+	
+	for i, idx := range smallSplits {
+		smallSplitData[i].Content = initialSplitDiffs[idx]
+		smallSplitData[i].LineCount = initialSplitSizes[idx]
+	}
+
+	// Helper function to calculate solution score (lower is better)
+	// Prefers fewer groups and groups closer to maxAllowedLines in size
+	calculateSolutionScore := func(solution []MergeGroup) float64 {
+		if len(solution) == 0 {
+			return float64(1<<31 - 1) // Maximum value, invalid solution
+		}
+		
+		score := float64(len(solution)) * 1000 // Base score is number of groups * 1000
+		
+		// Add penalties for uneven groups and groups far below the limit
+		for _, group := range solution {
+			// Penalty for how far the group is from the ideal size (maxAllowedLines)
+			// We prefer groups to be closer to maxAllowedLines, but not over
+			utilization := float64(group.LineCount) / float64(maxAllowedLines)
+			if utilization > 1.0 {
+				// Severe penalty for exceeding max allowed lines
+				score += 10000 * (utilization - 1.0)
+			} else {
+				// Penalty for underutilization
+				score += 100 * (1.0 - utilization)
+			}
+		}
+		
+		return score
+	}
+
+	// Create initial solution with each small split in its own group
+	initialSolution := make([]MergeGroup, len(smallSplitData))
+	for i, data := range smallSplitData {
+		initialSolution[i] = MergeGroup{
+			Splits:    []string{data.Content},
+			LineCount: data.LineCount,
+		}
+	}
+
+	// Apply a greedy bottom-up algorithm to merge small splits
+	// Try to select pairs of groups to merge, prioritizing those that give the best improvement in score
+	currentSolution := initialSolution
+	
+	for {
+		bestScore := calculateSolutionScore(currentSolution)
+		var bestMerge struct {
+			GroupIndex1 int
+			GroupIndex2 int
+			NewScore    float64
+		}
+		bestMerge.NewScore = bestScore
+		mergeFound := false
+		
+		// Try combining each pair of groups
+		for i := 0; i < len(currentSolution); i++ {
+			for j := i + 1; j < len(currentSolution); j++ {
+				// Check if merging is valid (doesn't exceed limits)
+				// +1 for the newline separator between diffs
+				combinedLineCount := currentSolution[i].LineCount + currentSolution[j].LineCount + 1
+				if combinedLineCount <= maxAllowedLines {
+					// Try the merge and evaluate
+					newSolution := make([]MergeGroup, 0, len(currentSolution) - 1)
+					
+					// Add the merged group
+					merged := MergeGroup{
+						Splits:    append(append([]string{}, currentSolution[i].Splits...), currentSolution[j].Splits...),
+						LineCount: combinedLineCount,
+					}
+					newSolution = append(newSolution, merged)
+					
+					// Add all other groups
+					for k := 0; k < len(currentSolution); k++ {
+						if k != i && k != j {
+							newSolution = append(newSolution, currentSolution[k])
+						}
+					}
+					
+					newScore := calculateSolutionScore(newSolution)
+					if newScore < bestMerge.NewScore {
+						bestMerge.GroupIndex1 = i
+						bestMerge.GroupIndex2 = j
+						bestMerge.NewScore = newScore
+						mergeFound = true
+					}
+				}
+			}
+		}
+		
+		// If no improvement was found, stop
+		if !mergeFound || bestMerge.NewScore >= bestScore {
+			break
+		}
+		
+		// Apply the best merge
+		i, j := bestMerge.GroupIndex1, bestMerge.GroupIndex2
+		if i > j {
+			i, j = j, i // Ensure i < j to simplify logic below
+		}
+		
+		// Merge group j into group i
+		combinedLineCount := currentSolution[i].LineCount + currentSolution[j].LineCount + 1
+		currentSolution[i].Splits = append(currentSolution[i].Splits, currentSolution[j].Splits...)
+		currentSolution[i].LineCount = combinedLineCount
+		
+		// Remove group j
+		currentSolution = append(currentSolution[:j], currentSolution[j+1:]...)
+		
+		runtime.LogInfof(a.ctx, "Merged two groups, solution now has %d groups with score %.2f", 
+			len(currentSolution), bestMerge.NewScore)
+	}
+
+	// Combine the large splits and the optimized small splits
+	finalGroups := append(largeSplits, currentSolution...)
+	runtime.LogInfof(a.ctx, "Final solution: %d groups (%d large, %d optimized small groups)", 
+		len(finalGroups), len(largeSplits), len(currentSolution))
+
+	// Build the final result strings
+	mergedSplitsResult := make([]string, len(finalGroups))
+	for i, group := range finalGroups {
+		if len(group.Splits) == 1 {
+			// Single split, no need to join
+			mergedSplitsResult[i] = group.Splits[0]
+		} else {
+			// Multiple splits, join with newlines
+			mergedSplitsResult[i] = strings.Join(group.Splits, "\n")
+		}
+		runtime.LogInfof(a.ctx, "Group %d: %d splits, %d lines", i, len(group.Splits), group.LineCount)
+	}
+
+	runtime.LogInfof(a.ctx, "Split git diff: %d initial splits, merged into %d final splits. Target line limit ~%d (merged max %d).",
+		len(initialSplitDiffs), len(mergedSplitsResult), approxLineLimit, maxAllowedLines)
+	return mergedSplitsResult, nil
 }
 
-// Helper function to count lines in a hunk.
-// For splitting purposes, we count all lines in the CDATA block.
-func countLinesInHunk(a *App, hunk ShotgunHunk, hunkContentLines []string, filePath string) int {
-	numLinesInHunk := len(hunkContentLines)
-
-	// Ensure that a hunk, especially if its CDATA is effectively empty but it's still processed as a hunk,
-	// contributes at least 1 to the line count.
-	// len(hunkContentLines) will be 1 for an empty CDATA string ("") due to strings.Split behavior.
-	// This check is a safeguard for potential edge cases or if hunkContentLines could somehow be empty.
-	if numLinesInHunk < 1 {
-		numLinesInHunk = 1
-		runtime.LogDebugf(a.ctx, "Hunk for file %s (range: %s) had calculated CDATA line count < 1, defaulting to 1.", filePath, hunk.Range)
+// Helper to get a/path from "diff --git a/path b/path"
+func getPathFromDiffHeader(diffHeaderLine string) string {
+	parts := strings.Fields(diffHeaderLine)
+	if len(parts) >= 3 {
+		return parts[2] // a/path
 	}
-
-	runtime.LogDebugf(a.ctx, "Counted %d lines for hunk in file %s (range: %s) based on CDATA length (len(hunkContentLines)).", numLinesInHunk, filePath, hunk.Range)
-	return numLinesInHunk
+	return "unknown_file"
 }
 
 // StartupTest initializes the app for testing
-// Note: This function remains here for now as it initializes the App struct for testing,
-// which includes components beyond just diff splitting. It might be moved later
-// if a more dedicated testing setup is introduced.
+// This is a minimal setup and should be expanded
 func (a *App) StartupTest(ctx context.Context) {
 	a.ctx = ctx
 	a.contextGenerator = NewContextGenerator(a)
