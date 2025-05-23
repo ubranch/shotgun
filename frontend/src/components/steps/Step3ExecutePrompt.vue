@@ -1,24 +1,16 @@
 <template>
   <div class="p-6 flex flex-col h-full">
-    <h2 class="text-xl font-semibold text-gray-800 mb-2">Step 3: Execute Prompt & Split Diff</h2>
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">Step 3: Execute Prompt</h2>
     <p class="text-gray-600 mb-2">
-      For now, please go to an external LLM provider like Google AI Studio or an equivalent.
-      Copy the full project context generated in Step 1 and the prompt you composed in Step 2.
-      Paste them into the LLM and obtain the resulting diff output.
+      <li>For now go to Google AI studio, copy the prompt and paste it there with 2.5 pro model with 0.1 temperature. It will give you <b>the diff</b></li>
+      <li>Then open any agentic code tool and ask 'apply diff' + copy-paste the diff. </li>
     </p>
-    <p class="text-gray-600 mb-4">
-      Then, paste the full <code>gitDiff</code> output (the LLM's response) below.
-      You can also specify the approximate number of lines per split, or leave it as the total number of lines if you don't want to split the diff.
-    </p>
-
     <p class="text-gray-600 mb-2">
-      <strong>Why Split the Diff?</strong>
-      <br>
-      Sometimes, the generated diff is a large file that can be difficult to apply with some LLMs or review tools. Splitting it into smaller parts makes it easier to manage and reduces the risk of errors.
-    </p>
-
     <hr class="my-4"/>
-
+      <strong>Prepare the Diff to Apply</strong>
+      <br>
+      This tool will split the diff into smaller parts to make it easier to apply.
+    </p>
     <div class="mb-4">
       <label for="shotgun-git-diff-input" class="block text-sm font-bold text-gray-700 mb-1">Git Diff Output:</label>
       <textarea
