@@ -38,8 +38,16 @@ export function SetUseGitignore(arg1) {
   return window['go']['main']['App']['SetUseGitignore'](arg1);
 }
 
+export function SplitShotgunDiff(arg1, arg2) {
+  return window['go']['main']['App']['SplitShotgunDiff'](arg1, arg2);
+}
+
 export function StartFileWatcher(arg1) {
   return window['go']['main']['App']['StartFileWatcher'](arg1);
+}
+
+export function StartupTest(arg1) {
+  return window['go']['main']['App']['StartupTest'](arg1);
 }
 
 export function StopFileWatcher() {
