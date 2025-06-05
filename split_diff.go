@@ -15,7 +15,7 @@ import (
 // smaller Git diff strings, each not exceeding approxLineLimit lines.
 // It tries to split between file diffs first, then between hunks if a single file diff is too large.
 func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]string, error) {
-	runtime.LogInfof(a.ctx, "SplitShotgunDiff called with line limit: %d for git diff text", approxLineLimit)
+	runtime.LogInfof(a.ctx, "splitshotgundiff called with line limit: %d for git diff text", approxLineLimit)
 
 	if strings.TrimSpace(gitDiffText) == "" {
 		return []string{}, nil
@@ -31,7 +31,7 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 
 	if len(startIndices) == 0 {
 		// If no "diff --git" is found, treat the whole input as a single block
-		runtime.LogWarning(a.ctx, fmt.Sprintf("SplitShotgunDiff: No 'diff --git' blocks found in input. Treating as single block."))
+		runtime.LogWarning(a.ctx, fmt.Sprintf("splitshotgundiff: no 'diff --git' blocks found in input. treating as single block."))
 		if strings.TrimSpace(gitDiffText) != "" {
 			fileDiffBlocks = append(fileDiffBlocks, gitDiffText)
 		}
@@ -84,7 +84,7 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 			}
 
 			if firstHunkIndex == -1 { // No hunks found, but block is large? Unusual. Treat as one large piece.
-				runtime.LogWarning(a.ctx, fmt.Sprintf("SplitShotgunDiff: Large file block without hunks in '%s'. Treating as single block.", getPathFromDiffHeader(fileBlockLines[0])))
+				runtime.LogWarning(a.ctx, fmt.Sprintf("splitshotgundiff: large file block without hunks in '%s'. treating as single block.", getPathFromDiffHeader(fileBlockLines[0])))
 				splitDiffs = append(splitDiffs, fileBlock+"\n") // Add newline for consistency if it's a full block
 				continue
 			}
@@ -102,7 +102,7 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 				for hunkEndIndex < len(fileBlockLines) && !hunkHeaderRegex.MatchString(fileBlockLines[hunkEndIndex]) {
 					hunkEndIndex++
 				}
-				
+
 				currentHunkContent := strings.Join(fileBlockLines[hunkStartIndex:hunkEndIndex], "\n")
 				numLinesInCurrentHunk := hunkEndIndex - hunkStartIndex
 
@@ -146,7 +146,7 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 	if currentSplitContent.Len() > 0 {
 		splitDiffs = append(splitDiffs, currentSplitContent.String())
 	}
-	
+
 	// Trim trailing newlines from each split diff for consistency and prepare for potential merging
 	initialSplitDiffs := make([]string, 0, len(splitDiffs))
 	initialSplitSizes := make([]int, 0, len(splitDiffs))
@@ -161,21 +161,21 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 	// --- Advanced Merging Logic ---
 	// If approxLineLimit is not positive, merging logic is skipped.
 	if approxLineLimit <= 0 {
-		runtime.LogInfof(a.ctx, "approxLineLimit is %d, skipping merge step. Returning %d initial splits.", approxLineLimit, len(initialSplitDiffs))
+		runtime.LogInfof(a.ctx, "approxlinelimit is %d, skipping merge step. returning %d initial splits.", approxLineLimit, len(initialSplitDiffs))
 		return initialSplitDiffs, nil
 	}
 
 	// If there's 0 or 1 split, no merging is possible or needed.
 	if len(initialSplitDiffs) <= 1 {
-		runtime.LogInfof(a.ctx, "Only %d initial split(s), no merging needed. Returning as is.", len(initialSplitDiffs))
+		runtime.LogInfof(a.ctx, "only %d initial split(s), no merging needed. returning as is.", len(initialSplitDiffs))
 		return initialSplitDiffs, nil
 	}
 
-	runtime.LogInfof(a.ctx, "Starting advanced merge step for %d initial splits with approxLineLimit %d.", len(initialSplitDiffs), approxLineLimit)
+	runtime.LogInfof(a.ctx, "starting advanced merge step for %d initial splits with approxlinelimit %d.", len(initialSplitDiffs), approxLineLimit)
 
 	// Allow merged splits to be up to 20% larger than the user's approximate line limit.
 	maxAllowedLines := int(float64(approxLineLimit) * 1.20)
-	runtime.LogInfof(a.ctx, "Max allowed lines per merged split: %d", maxAllowedLines)
+	runtime.LogInfof(a.ctx, "max allowed lines per merged split: %d", maxAllowedLines)
 
 	// This is a modified bin packing problem approach:
 	// 1. Initialize splitsToMerge list with initial splits
@@ -190,14 +190,14 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 	// First, identify large splits that must be their own group as they're already close to or exceeding the limit
 	var largeSplits []MergeGroup
 	var smallSplits []int // Indices of small splits we'll try to recombine
-	
+
 	for i, size := range initialSplitSizes {
 		if size >= approxLineLimit { // Already close to or above line limit - keep as is
 			largeSplits = append(largeSplits, MergeGroup{
 				Splits:    []string{initialSplitDiffs[i]},
 				LineCount: size,
 			})
-			runtime.LogInfof(a.ctx, "Split %d with %d lines kept as standalone group (already large)", i, size)
+			runtime.LogInfof(a.ctx, "split %d with %d lines kept as standalone group (already large)", i, size)
 		} else {
 			smallSplits = append(smallSplits, i)
 		}
@@ -205,7 +205,7 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 
 	// If no small splits, return the identified large splits as-is
 	if len(smallSplits) == 0 {
-		runtime.LogInfof(a.ctx, "No small splits to merge, returning %d large splits as-is", len(largeSplits))
+		runtime.LogInfof(a.ctx, "no small splits to merge, returning %d large splits as-is", len(largeSplits))
 		result := make([]string, len(largeSplits))
 		for i, group := range largeSplits {
 			result[i] = group.Splits[0] // Each large split is its own group with one split
@@ -218,7 +218,7 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 		Content   string
 		LineCount int
 	}, len(smallSplits))
-	
+
 	for i, idx := range smallSplits {
 		smallSplitData[i].Content = initialSplitDiffs[idx]
 		smallSplitData[i].LineCount = initialSplitSizes[idx]
@@ -230,9 +230,9 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 		if len(solution) == 0 {
 			return float64(1<<31 - 1) // Maximum value, invalid solution
 		}
-		
+
 		score := float64(len(solution)) * 1000 // Base score is number of groups * 1000
-		
+
 		// Add penalties for uneven groups and groups far below the limit
 		for _, group := range solution {
 			// Penalty for how far the group is from the ideal size (maxAllowedLines)
@@ -246,7 +246,7 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 				score += 100 * (1.0 - utilization)
 			}
 		}
-		
+
 		return score
 	}
 
@@ -262,7 +262,7 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 	// Apply a greedy bottom-up algorithm to merge small splits
 	// Try to select pairs of groups to merge, prioritizing those that give the best improvement in score
 	currentSolution := initialSolution
-	
+
 	for {
 		bestScore := calculateSolutionScore(currentSolution)
 		var bestMerge struct {
@@ -272,7 +272,7 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 		}
 		bestMerge.NewScore = bestScore
 		mergeFound := false
-		
+
 		// Try combining each pair of groups
 		for i := 0; i < len(currentSolution); i++ {
 			for j := i + 1; j < len(currentSolution); j++ {
@@ -282,21 +282,21 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 				if combinedLineCount <= maxAllowedLines {
 					// Try the merge and evaluate
 					newSolution := make([]MergeGroup, 0, len(currentSolution) - 1)
-					
+
 					// Add the merged group
 					merged := MergeGroup{
 						Splits:    append(append([]string{}, currentSolution[i].Splits...), currentSolution[j].Splits...),
 						LineCount: combinedLineCount,
 					}
 					newSolution = append(newSolution, merged)
-					
+
 					// Add all other groups
 					for k := 0; k < len(currentSolution); k++ {
 						if k != i && k != j {
 							newSolution = append(newSolution, currentSolution[k])
 						}
 					}
-					
+
 					newScore := calculateSolutionScore(newSolution)
 					if newScore < bestMerge.NewScore {
 						bestMerge.GroupIndex1 = i
@@ -307,33 +307,33 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 				}
 			}
 		}
-		
+
 		// If no improvement was found, stop
 		if !mergeFound || bestMerge.NewScore >= bestScore {
 			break
 		}
-		
+
 		// Apply the best merge
 		i, j := bestMerge.GroupIndex1, bestMerge.GroupIndex2
 		if i > j {
 			i, j = j, i // Ensure i < j to simplify logic below
 		}
-		
+
 		// Merge group j into group i
 		combinedLineCount := currentSolution[i].LineCount + currentSolution[j].LineCount + 1
 		currentSolution[i].Splits = append(currentSolution[i].Splits, currentSolution[j].Splits...)
 		currentSolution[i].LineCount = combinedLineCount
-		
+
 		// Remove group j
 		currentSolution = append(currentSolution[:j], currentSolution[j+1:]...)
-		
-		runtime.LogInfof(a.ctx, "Merged two groups, solution now has %d groups with score %.2f", 
+
+		runtime.LogInfof(a.ctx, "merged two groups, solution now has %d groups with score %.2f",
 			len(currentSolution), bestMerge.NewScore)
 	}
 
 	// Combine the large splits and the optimized small splits
 	finalGroups := append(largeSplits, currentSolution...)
-	runtime.LogInfof(a.ctx, "Final solution: %d groups (%d large, %d optimized small groups)", 
+	runtime.LogInfof(a.ctx, "final solution: %d groups (%d large, %d optimized small groups)",
 		len(finalGroups), len(largeSplits), len(currentSolution))
 
 	// Build the final result strings
@@ -346,10 +346,10 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 			// Multiple splits, join with newlines
 			mergedSplitsResult[i] = strings.Join(group.Splits, "\n")
 		}
-		runtime.LogInfof(a.ctx, "Group %d: %d splits, %d lines", i, len(group.Splits), group.LineCount)
+		runtime.LogInfof(a.ctx, "group %d: %d splits, %d lines", i, len(group.Splits), group.LineCount)
 	}
 
-	runtime.LogInfof(a.ctx, "Split git diff: %d initial splits, merged into %d final splits. Target line limit ~%d (merged max %d).",
+	runtime.LogInfof(a.ctx, "split git diff: %d initial splits, merged into %d final splits. target line limit ~%d (merged max %d).",
 		len(initialSplitDiffs), len(mergedSplitsResult), approxLineLimit, maxAllowedLines)
 	return mergedSplitsResult, nil
 }
@@ -372,4 +372,4 @@ func (a *App) StartupTest(ctx context.Context) {
 	a.settings.CustomIgnoreRules = defaultCustomIgnoreRulesContent
 	a.settings.CustomPromptRules = defaultCustomPromptRulesContent
 	_ = a.compileCustomIgnorePatterns()
-} 
+}

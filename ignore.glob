@@ -48,6 +48,8 @@ cache/
 *.gz
 *.tgz
 *.bz2
+*.lock
+*-lock.json
 
 *.sqlite
 *.sqlite3

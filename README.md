@@ -1,227 +1,239 @@
 ![](https://github.com/user-attachments/assets/058bf4a2-9f81-406c-96ea-795cd4eaf118)
 
-**Tired of Cursor cutting off context, missing your files and folders, and spitting out empty responses?**
+**tired of cursor cutting off context, missing your files and folders, and spitting out empty responses?**
 
-Save your context with Shotgun!
-→ Prepare a truly GIGANTIC prompt
-→ Paste it into **Google AI Studio** and receive a massive patch for your code. 25 free queries per day!
-→ Drop that patch into Cursor or Windsurf and apply the entire diff in a single request.
+save your context with shotgun!
+→ prepare a truly gigantic prompt
+→ paste it into **google ai studio** and receive a massive patch for your code. 25 free queries per day!
+→ drop that patch into cursor or windsurf and apply the entire diff in a single request.
 
-**That means you get 25 huge, fully coherent patches per day for your codebase—absolutely free, thanks to complete context transfer.**
+**that means you get 25 huge, fully coherent patches per day for your codebase—absolutely free, thanks to complete context transfer.**
 
-Perfect for dynamically-typed languages:
+perfect for dynamically-typed languages:
 
-Python
-JavaScript
+python
+javascript
 
-# Shotgun App
+# shotgun app
 
-*One‑click codebase "blast" for Large‑Language‑Model workflows.*
+_one‑click codebase "blast" for large‑language‑model workflows._
 
 ---
 
-## 1. What Shotgun Does
-Shotgun is a tiny desktop tool that **explodes an entire project into a single,
-well‑structured text payload** designed for AI assistants.
-Think of it as a rapid‑fire alternative to copy‑pasting dozens of files by hand:
+## 1. what shotgun does
 
-*   **Select a folder → get an instant tree + file dump**
+shotgun is a tiny desktop tool that **explodes an entire project into a single,
+well‑structured text payload** designed for ai assistants.
+think of it as a rapid‑fire alternative to copy‑pasting dozens of files by hand:
+
+-   **select a folder → get an instant tree + file dump**
     in a predictable delimiter format (`*#*#*...*#*#*begin … *#*#*end*#*#*`).
-*   **Tick check‑boxes to exclude noise** (logs, build artifacts, `node_modules`, …).
-*   **Paste the result into ChatGPT, Gemini 2.5, Cursor, etc.**
+-   **tick check‑boxes to exclude noise** (logs, build artifacts, `node_modules`, …).
+-   **paste the result into chatgpt, gemini 2.5, cursor, etc.**
     to ask for multi‑file edits, refactors, bug fixes, reviews, or documentation.
-*   **Receive a diff‑style reply** and apply changes with your favourite patch tool.
+-   **receive a diff‑style reply** and apply changes with your favourite patch tool.
 
-Shotgun trades surgical, single‑file prompts for a **"whole‑repository blast"** –
+shotgun trades surgical, single‑file prompts for a **"whole‑repository blast"** –
 hence the name.
 
 ---
 
-## 2. Why You Might Need It
+## 2. why you might need it
 
-| Scenario                 | Pain Point                             | Shotgun Benefit                                           |
-|--------------------------|----------------------------------------|-----------------------------------------------------------|
-| **Bulk bug fixing**      | "Please fix X across 12 files."        | Generates a complete snapshot so the LLM sees all usages. |
-| **Large‑scale refactor** | IDE refactors miss edge cases.         | LLM gets full context and returns a patch set.            |
-| **On‑boarding review**   | New joiner must understand legacy code. | Produce a single, searchable text file to discuss in chat.  |
-| **Doc generation**       | Want docs/tests for every exported symbol. | LLM can iterate over full source without extra API calls. |
-| **Cursor / CodePilot prompts** | Tools accept pasted context but no filesystem. | Shotgun bridges the gap.                                  |
-
----
-
-## 3. Key Features
-
-*   ⚡ **Fast tree scan** (Go + Wails backend) – thousands of files in milliseconds.
-*   ✅ **Interactive exclude list** – skip folders, temporary files, or secrets.
-*   📝 **Deterministic delimiters** – easy for LLMs to parse and for you to split.
-*   🔄 **Re‑generate anytime** – tweak the excludes and hit *Shotgun* again.
-*   🪶 **Lightweight** – no DB, no cloud; a single native executable plus a Vue UI.
-*   🖥️ **Cross‑platform** – Windows, macOS, Linux.
+| scenario                       | pain point                                     | shotgun benefit                                            |
+| ------------------------------ | ---------------------------------------------- | ---------------------------------------------------------- |
+| **bulk bug fixing**            | "please fix x across 12 files."                | generates a complete snapshot so the llm sees all usages.  |
+| **large‑scale refactor**       | ide refactors miss edge cases.                 | llm gets full context and returns a patch set.             |
+| **on‑boarding review**         | new joiner must understand legacy code.        | produce a single, searchable text file to discuss in chat. |
+| **doc generation**             | want docs/tests for every exported symbol.     | llm can iterate over full source without extra api calls.  |
+| **cursor / codepilot prompts** | tools accept pasted context but no filesystem. | shotgun bridges the gap.                                   |
 
 ---
 
-## 4. How It Works
+## 3. key features
 
-(This describes the UI flow. The core `GenerateShotgunOutput` Go function remains the primary backend logic for creating the text payload based on the selected root and exclusions.)
-
-1.  **Step 1: Prepare Context**
-    -   User selects a project folder.
-    -   The file tree is displayed in the `LeftSidebar`.
-    -   User can mark files/folders for exclusion.
-    -   The application automatically (or via a button) triggers context generation in Go (`GenerateShotgunOutput`).
-    -   The resulting context (tree + file contents) is stored in `shotgunPromptContext` and passed to `CentralPanel.vue`, which in turn makes it available to `Step2GenerateDiff.vue`.
-2.  **Step 2: Compose Prompt**
-    -   `Step2GenerateDiff.vue` is shown.
-    -   It displays the `shotgunPromptContext` (likely in a read-only textarea).
-    -   User types their instructions for the LLM into another textarea (the prompt).
-    -   User clicks "Compose Prompt" (was "Generate Diff").
-    -   `MainLayout.vue` (simulates) sending the `shotgunPromptContext` and the user's prompt to an LLM.
-    -   (Simulated) LLM returns a diff, which is then displayed in the "Diff Viewer" section of `Step2GenerateDiff.vue`.
-3.  **Step 3: Execute Prompt**
-    -   `Step3ExecuteDiff.vue` is shown.
-    -   User clicks "Execute Prompt" (was "Execute Diff").
-    -   `MainLayout.vue` (simulates) the "execution" of this prompt/diff. This step is more conceptual in the current stubbed implementation but would represent running or applying the changes indicated by the LLM.
-    -   Logs appear in the step-specific console within `Step3ExecuteDiff.vue` and/or the `BottomConsole.vue`.
-4.  **Step 4: Apply Patch**
-    -   `Step4ApplyPatch.vue` is shown.
-    -   User interacts with a (currently stubbed) patch editor.
-    -   User clicks "Apply Selected" or "Apply All & Finish".
-    -   `MainLayout.vue` (simulates) applying these patches.
+-   ⚡ **fast tree scan** (go + wails backend) – thousands of files in milliseconds.
+-   ✅ **interactive exclude list** – skip folders, temporary files, or secrets.
+-   📝 **deterministic delimiters** – easy for llms to parse and for you to split.
+-   🔄 **re‑generate anytime** – tweak the excludes and hit _shotgun_ again.
+-   🪶 **lightweight** – no db, no cloud; a single native executable plus a vue ui.
+-   🖥️ **cross‑platform** – windows, macos, linux.
 
 ---
 
-## 5. Installation
+## 4. how it works
 
-### 5.1. Prerequisites
-*   **Go ≥ 1.20**   `go version`
-*   **Node.js LTS**  `node -v`
-*   **Wails CLI**    `go install github.com/wailsapp/wails/v2/cmd/wails@latest`
+(this describes the ui flow. the core `generateshotgunoutput` go function remains the primary backend logic for creating the text payload based on the selected root and exclusions.)
 
-### 5.2. Clone & Bootstrap
+1.  **step 1: prepare context**
+    -   user selects a project folder.
+    -   the file tree is displayed in the `leftsidebar`.
+    -   user can mark files/folders for exclusion.
+    -   the application automatically (or via a button) triggers context generation in go (`generateshotgunoutput`).
+    -   the resulting context (tree + file contents) is stored in `shotgunpromptcontext` and passed to `centralpanel.vue`, which in turn makes it available to `step2generatediff.vue`.
+2.  **step 2: compose prompt**
+    -   `step2generatediff.vue` is shown.
+    -   it displays the `shotgunpromptcontext` (likely in a read-only textarea).
+    -   user types their instructions for the llm into another textarea (the prompt).
+    -   user clicks "compose prompt" (was "generate diff").
+    -   `mainlayout.vue` (simulates) sending the `shotgunpromptcontext` and the user's prompt to an llm.
+    -   (simulated) llm returns a diff, which is then displayed in the "diff viewer" section of `step2generatediff.vue`.
+3.  **step 3: execute prompt**
+    -   `step3executediff.vue` is shown.
+    -   user clicks "execute prompt" (was "execute diff").
+    -   `mainlayout.vue` (simulates) the "execution" of this prompt/diff. this step is more conceptual in the current stubbed implementation but would represent running or applying the changes indicated by the llm.
+    -   logs appear in the step-specific console within `step3executediff.vue` and/or the `bottomconsole.vue`.
+4.  **step 4: apply patch**
+    -   `step4applypatch.vue` is shown.
+    -   user interacts with a (currently stubbed) patch editor.
+    -   user clicks "apply selected" or "apply all & finish".
+    -   `mainlayout.vue` (simulates) applying these patches.
+
+---
+
+## 5. installation
+
+### 5.1. prerequisites
+
+-   **go ≥ 1.20** `go version`
+-   **node.js lts** `node -v`
+-   **wails cli** `go install github.com/wailsapp/wails/v2/cmd/wails@latest`
+
+### 5.2. clone & bootstrap
+
 ```bash
 git clone https://github.com/glebkudr/shotgun_code
 cd shotgun_code
 go mod tidy           # backend deps
 cd frontend
-npm install           # Vue deps
+npm install           # vue deps
 cd ..
 ```
 
-### 5.3. Run in Dev Mode
+### 5.3. run in dev mode
+
 ```bash
 wails dev
 ```
-Hot‑reloads Vue; restart the command for Go code changes.
 
-### 5.4. Build a Release
+hot‑reloads vue; restart the command for go code changes.
+
+### 5.4. build a release
+
 ```bash
 wails build           # binaries land in build/bin/
 ```
 
 ---
 
-## 6. Quick‑Start Workflow
+## 6. quick‑start workflow
 
-1.  Run `wails dev`. The app window will open.
-2.  **Step 1: Prepare Context**
-    - Click "Select Project Folder" and choose your repository root.
-    - In the left pane (`LeftSidebar`), expand folders and un-tick any items you wish to exclude from the context.
-    - Click the "Prepare Project Context & Proceed" button (typically in `Step1CopyStructure.vue` or a similar area for Step 1).
-    - The generated context (project tree and file contents) will be prepared internally.
-3.  **Step 2: Compose Prompt**
-    - The view will switch to Step 2 (`Step2GenerateDiff.vue`).
-    - The generated project context from Step 1 will be displayed (usually read-only).
-    - Enter your instructions for the LLM in the "Prompt Editor" textarea.
-    - Click "Compose Prompt".
-    - A (mock) diff will be generated and shown in the "Diff Viewer".
-4.  **Step 3: Execute Prompt**
-    - The view will switch to Step 3 (`Step3ExecuteDiff.vue`).
-    - Click "Execute Prompt".
-    - (Mock) execution logs will appear in the console areas.
-5.  **Step 4: Apply Patch**
-    - The view will switch to Step 4 (`Step4ApplyPatch.vue`).
-    - Interact with the (stubbed) patch editor.
-    - Click "Apply Selected" or "Apply All & Finish" to (simulate) completing the process.
-6.  You can navigate between completed steps using the top `HorizontalStepper` or the `LeftSidebar` step list.
+1.  run `wails dev`. the app window will open.
+2.  **step 1: prepare context**
+    -   click "select project folder" and choose your repository root.
+    -   in the left pane (`leftsidebar`), expand folders and un-tick any items you wish to exclude from the context.
+    -   click the "prepare project context & proceed" button (typically in `step1copystructure.vue` or a similar area for step 1).
+    -   the generated context (project tree and file contents) will be prepared internally.
+3.  **step 2: compose prompt**
+    -   the view will switch to step 2 (`step2generatediff.vue`).
+    -   the generated project context from step 1 will be displayed (usually read-only).
+    -   enter your instructions for the llm in the "prompt editor" textarea.
+    -   click "compose prompt".
+    -   a (mock) diff will be generated and shown in the "diff viewer".
+4.  **step 3: execute prompt**
+    -   the view will switch to step 3 (`step3executediff.vue`).
+    -   click "execute prompt".
+    -   (mock) execution logs will appear in the console areas.
+5.  **step 4: apply patch**
+    -   the view will switch to step 4 (`step4applypatch.vue`).
+    -   interact with the (stubbed) patch editor.
+    -   click "apply selected" or "apply all & finish" to (simulate) completing the process.
+6.  you can navigate between completed steps using the top `horizontalstepper` or the `leftsidebar` step list.
 
 ---
 
-## 7. Shotgun Output Anatomy
+## 7. shotgun output anatomy
+
 ```text
 app/
 ├── main.go
 ├── app.go
 └── frontend/
-    ├── App.vue
+    ├── app.vue
     └── components/
-        └── FileTree.vue (example)
+        └── filetree.vue (example)
 
 <file path="main.go">
 package main
 ...
 </file>
 
-<file path="frontend/components/FileTree.vue">
+<file path="frontend/components/filetree.vue">
 <template>
 ...
 </template>
 </file>
 ```
-*   **Tree View** – quick visual map for you & the LLM.
-*   **XML-like File Blocks** – <file path="path/to/file">...</file> for easy parsing by models.
+
+-   **tree view** – quick visual map for you & the llm.
+-   **xml-like file blocks** – <file path="path/to/file">...</file> for easy parsing by models.
 
 ---
 
-## 8. Best Practices
-*   **Trim the noise** – exclude lock files, vendored libs, generated assets.
-    Less tokens → cheaper & more accurate completions.
-*   **Ask for diffs, not whole files** – keeps responses concise.
-*   **Iterate** – generate → ask → patch → re‑generate if needed.
-*   **Watch token limits** – even million‑token models have practical caps.
-    Use Shotgun scopes (root folder vs subfolder) to stay under budget.
+## 8. best practices
+
+-   **trim the noise** – exclude lock files, vendored libs, generated assets.
+    less tokens → cheaper & more accurate completions.
+-   **ask for diffs, not whole files** – keeps responses concise.
+-   **iterate** – generate → ask → patch → re‑generate if needed.
+-   **watch token limits** – even million‑token models have practical caps.
+    use shotgun scopes (root folder vs subfolder) to stay under budget.
 
 ---
 
-## 9. Troubleshooting
+## 9. troubleshooting
 
-| Symptom                     | Fix                                                          |
-|-----------------------------|--------------------------------------------------------------|
-| `wails: command not found`  | Ensure `$GOROOT/bin` or `$HOME/go/bin` is on `PATH`.         |
-| Blank window on `wails dev` | Check Node version & reinstall frontend deps.              |
-| Output too large            | Split Shotgun runs by subdirectory; or exclude binaries/tests. |
-
----
-
-## 10. Roadmap
-
-- ✅ **Step 1: Prepare Context**  
-  Basic ability to select a project, exclude items, and generate a structured text context.
-
-- ✅ **Step 2: Compose Prompt**  
-  - ✅ **Watchman to hot-reload TreeView**  
-  - ✅ **Custom rules**
-
-- ☐ **Step 3: Execute Prompt**  
-  "Executing" the prompt and showing logs.
-
-- ☐ **Step 4: Apply Patch**  
-  Enable applying patches inside Shotgun.  
-  - ☐ Direct API bridge to send output to OpenAI / Gemini without copy-paste  
-  - ☐ CLI version for headless pipelines  
-  - **Watch token limits** – even million-token models have practical caps. Use Shotgun scopes (root folder vs subfolder) to stay under budget.  
+| symptom                     | fix                                                            |
+| --------------------------- | -------------------------------------------------------------- |
+| `wails: command not found`  | ensure `$goroot/bin` or `$home/go/bin` is on `path`.           |
+| blank window on `wails dev` | check node version & reinstall frontend deps.                  |
+| output too large            | split shotgun runs by subdirectory; or exclude binaries/tests. |
 
 ---
 
-## 11. Contributing
-PRs and issues are welcome!
-Please format Go code with `go fmt` and follow Vue 3 style guidelines.
+## 10. roadmap
+
+-   ✅ **step 1: prepare context**
+    basic ability to select a project, exclude items, and generate a structured text context.
+
+-   ✅ **step 2: compose prompt**
+
+    -   ✅ **watchman to hot-reload treeview**
+    -   ✅ **custom rules**
+
+-   ☐ **step 3: execute prompt**
+    "executing" the prompt and showing logs.
+
+-   ☐ **step 4: apply patch**
+    enable applying patches inside shotgun.
+    -   ☐ direct api bridge to send output to openai / gemini without copy-paste
+    -   ☐ cli version for headless pipelines
+    -   **watch token limits** – even million‑token models have practical caps. use shotgun scopes (root folder vs subfolder) to stay under budget.
 
 ---
 
-## 12. License
-Custom MIT-like – see `LICENSE.md` file.
+## 11. contributing
+
+prs and issues are welcome!
+please format go code with `go fmt` and follow vue 3 style guidelines.
 
 ---
 
-Shotgun – load, aim, blast your code straight into the mind of an LLM.
-Iterate faster. Ship better. 
+## 12. license
+
+custom mit-like – see `license.md` file.
+
+---
+
+shotgun – load, aim, blast your code straight into the mind of an llm.
+iterate faster. ship better.

@@ -1,4 +1,4 @@
-module shotgun_code
+module shotgun
 
 go 1.24.0
 

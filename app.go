@@ -58,7 +58,7 @@ func (a *App) startup(ctx context.Context) {
 
 	configFilePath, err := xdg.ConfigFile("shotgun-code/settings.json")
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error getting config file path: %v. Using defaults and will attempt to save later if rules are modified.", err)
+		runtime.LogErrorf(a.ctx, "error getting config file path: %v. using defaults and will attempt to save later if rules are modified.", err)
 		// configPath will be empty, loadSettings will handle this by using defaults
 		// and saveSettings will fail gracefully if configPath remains empty and saving is attempted.
 	}
@@ -83,7 +83,16 @@ type FileNode struct {
 
 // SelectDirectory opens a dialog to select a directory and returns the chosen path
 func (a *App) SelectDirectory() (string, error) {
-	return runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{})
+	dirPath, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{})
+	if err != nil {
+		return "", err
+	}
+	if dirPath != "" {
+		folderName := filepath.Base(dirPath)
+		title := fmt.Sprintf("%s | shotgun", folderName)
+		runtime.WindowSetTitle(a.ctx, title)
+	}
+	return dirPath, nil
 }
 
 // ListFiles lists files and folders in a directory, parsing .gitignore if present
@@ -93,19 +102,19 @@ func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 	a.projectGitignore = nil        // Reset for the new directory
 	var gitIgn *gitignore.GitIgnore // For .gitignore in the project directory
 	gitignorePath := filepath.Join(dirPath, ".gitignore")
-	runtime.LogDebugf(a.ctx, "Attempting to find .gitignore at: %s", gitignorePath)
+	runtime.LogDebugf(a.ctx, "attempting to find .gitignore at: %s", gitignorePath)
 	if _, err := os.Stat(gitignorePath); err == nil {
 		runtime.LogDebugf(a.ctx, ".gitignore found at: %s", gitignorePath)
 		gitIgn, err = gitignore.CompileIgnoreFile(gitignorePath)
 		if err != nil {
-			runtime.LogWarningf(a.ctx, "Error compiling .gitignore file at %s: %v", gitignorePath, err)
+			runtime.LogWarningf(a.ctx, "error compiling .gitignore file at %s: %v", gitignorePath, err)
 			gitIgn = nil
 		} else {
 			a.projectGitignore = gitIgn // Store the compiled project-specific gitignore
 			runtime.LogDebug(a.ctx, ".gitignore compiled successfully.")
 		}
 	} else {
-		runtime.LogDebugf(a.ctx, ".gitignore not found at %s (os.Stat error: %v)", gitignorePath, err)
+		runtime.LogDebugf(a.ctx, ".gitignore not found at %s (os.stat error: %v)", gitignorePath, err)
 		gitIgn = nil
 	}
 
@@ -166,7 +175,7 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 		}
 
 		if depth < 2 || strings.Contains(relPath, "node_modules") || strings.HasSuffix(relPath, ".log") {
-			fmt.Printf("Checking path: '%s' (original relPath: '%s'), IsDir: %v, Gitignored: %v, CustomIgnored: %v\n", pathToMatch, relPath, entry.IsDir(), isGitignored, isCustomIgnored)
+			fmt.Printf("checking path: '%s' (original relpath: '%s'), isdir: %v, gitignored: %v, customignored: %v\n", pathToMatch, relPath, entry.IsDir(), isGitignored, isCustomIgnored)
 		}
 
 		node := &FileNode{
@@ -188,7 +197,7 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 						return nil, err // Propagate cancellation
 					}
 					// runtime.LogWarnf(ctx, "Error building subtree for %s: %v", nodePath, err) // Use ctx if available
-					runtime.LogWarningf(context.Background(), "Error building subtree for %s: %v", nodePath, err) // Fallback for now
+					runtime.LogWarningf(context.Background(), "error building subtree for %s: %v", nodePath, err) // Fallback for now
 					// Decide: skip this dir or return error up. For now, skip with log.
 				} else {
 					node.Children = children
@@ -228,7 +237,7 @@ func NewContextGenerator(app *App) *ContextGenerator {
 func (cg *ContextGenerator) requestShotgunContextGenerationInternal(rootDir string, excludedPaths []string) {
 	cg.mu.Lock()
 	if cg.currentCancelFunc != nil {
-		runtime.LogDebug(cg.app.ctx, "Cancelling previous context generation job.")
+		runtime.LogDebug(cg.app.ctx, "cancelling previous context generation job.")
 		cg.currentCancelFunc()
 	}
 
@@ -236,7 +245,7 @@ func (cg *ContextGenerator) requestShotgunContextGenerationInternal(rootDir stri
 	myToken := new(struct{}) // Create a unique token for this generation job
 	cg.currentCancelFunc = cancel
 	cg.currentCancelToken = myToken
-	runtime.LogInfof(cg.app.ctx, "Starting new shotgun context generation for: %s. Max size: %d bytes.", rootDir, maxOutputSizeBytes)
+	runtime.LogInfof(cg.app.ctx, "starting new shotgun context generation for: %s. max size: %d bytes.", rootDir, maxOutputSizeBytes)
 	cg.mu.Unlock()
 
 	go func(tokenForThisJob interface{}) {
@@ -246,16 +255,16 @@ func (cg *ContextGenerator) requestShotgunContextGenerationInternal(rootDir stri
 			if cg.currentCancelToken == tokenForThisJob { // Only clear if it's still this job's token
 				cg.currentCancelFunc = nil
 				cg.currentCancelToken = nil
-				runtime.LogDebug(cg.app.ctx, "Cleared currentCancelFunc for completed/cancelled job (token match).")
+				runtime.LogDebug(cg.app.ctx, "cleared currentcancelfunc for completed/cancelled job (token match).")
 			} else {
-				runtime.LogDebug(cg.app.ctx, "currentCancelFunc was replaced by a newer job (token mismatch); not clearing.")
+				runtime.LogDebug(cg.app.ctx, "currentcancelfunc was replaced by a newer job (token mismatch); not clearing.")
 			}
 			cg.mu.Unlock()
-			runtime.LogInfof(cg.app.ctx, "Shotgun context generation goroutine finished in %s", time.Since(jobStartTime))
+			runtime.LogInfof(cg.app.ctx, "shotgun context generation goroutine finished in %s", time.Since(jobStartTime))
 		}()
 
 		if genCtx.Err() != nil { // Check for immediate cancellation
-			runtime.LogInfo(cg.app.ctx, fmt.Sprintf("Context generation for %s cancelled before starting: %v", rootDir, genCtx.Err()))
+			runtime.LogInfo(cg.app.ctx, fmt.Sprintf("context generation for %s cancelled before starting: %v", rootDir, genCtx.Err()))
 			return
 		}
 
@@ -263,19 +272,19 @@ func (cg *ContextGenerator) requestShotgunContextGenerationInternal(rootDir stri
 
 		select {
 		case <-genCtx.Done():
-			errMsg := fmt.Sprintf("Shotgun context generation cancelled for %s: %v", rootDir, genCtx.Err())
+			errMsg := fmt.Sprintf("shotgun context generation cancelled for %s: %v", rootDir, genCtx.Err())
 			runtime.LogInfo(cg.app.ctx, errMsg) // Changed from LogWarn
 			runtime.EventsEmit(cg.app.ctx, "shotgunContextError", errMsg)
 		default:
 			if err != nil {
-				errMsg := fmt.Sprintf("Error generating shotgun output for %s: %v", rootDir, err)
+				errMsg := fmt.Sprintf("error generating shotgun output for %s: %v", rootDir, err)
 				runtime.LogError(cg.app.ctx, errMsg)
 				runtime.EventsEmit(cg.app.ctx, "shotgunContextError", errMsg)
 			} else {
 				finalSize := len(output)
-				successMsg := fmt.Sprintf("Shotgun context generated successfully for %s. Size: %d bytes.", rootDir, finalSize)
+				successMsg := fmt.Sprintf("shotgun context generated successfully for %s. size: %d bytes.", rootDir, finalSize)
 				if finalSize > maxOutputSizeBytes { // Should have been caught by ErrContextTooLong, but as a safeguard
-					runtime.LogWarningf(cg.app.ctx, "Warning: Generated context size %d exceeds max %d, but was not caught by ErrContextTooLong.", finalSize, maxOutputSizeBytes)
+					runtime.LogWarningf(cg.app.ctx, "warning: generated context size %d exceeds max %d, but was not caught by errcontexttoolong.", finalSize, maxOutputSizeBytes)
 				}
 				runtime.LogInfo(cg.app.ctx, successMsg)
 				runtime.EventsEmit(cg.app.ctx, "shotgunContextGenerated", output)
@@ -288,8 +297,8 @@ func (cg *ContextGenerator) requestShotgunContextGenerationInternal(rootDir stri
 func (a *App) RequestShotgunContextGeneration(rootDir string, excludedPaths []string) {
 	if a.contextGenerator == nil {
 		// This should not happen if startup initializes it correctly
-		runtime.LogError(a.ctx, "ContextGenerator not initialized")
-		runtime.EventsEmit(a.ctx, "shotgunContextError", "Internal error: ContextGenerator not initialized")
+		runtime.LogError(a.ctx, "contextgenerator not initialized")
+		runtime.EventsEmit(a.ctx, "shotgunContextError", "internal error: contextgenerator not initialized")
 		return
 	}
 	a.contextGenerator.requestShotgunContextGenerationInternal(rootDir, excludedPaths)
@@ -310,7 +319,7 @@ func (a *App) countProcessableItems(jobCtx context.Context, rootDir string, excl
 
 		entries, err := os.ReadDir(currentPath)
 		if err != nil {
-			runtime.LogWarningf(a.ctx, "countProcessableItems: error reading dir %s: %v", currentPath, err)
+			runtime.LogWarningf(a.ctx, "countprocessableitems: error reading dir %s: %v", currentPath, err)
 			return nil // Continue counting other parts if a subdir is inaccessible
 		}
 
@@ -395,7 +404,7 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 
 		entries, err := os.ReadDir(currentPath)
 		if err != nil {
-			runtime.LogWarningf(a.ctx, "buildShotgunTreeRecursive: error reading dir %s: %v", currentPath, err)
+			runtime.LogWarningf(a.ctx, "buildshotguntreerecursive: error reading dir %s: %v", currentPath, err)
 			// Decide if this error should halt the entire process or just skip this directory
 			// For now, returning nil to skip, but log it. Could also return the error.
 			return nil // Or return err if this should stop everything
@@ -459,7 +468,7 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 						return err
 					}
-					fmt.Printf("Error processing subdirectory %s: %v\n", path, err)
+					fmt.Printf("error processing subdirectory %s: %v\n", path, err)
 				}
 			} else {
 				select { // Check before heavy I/O
@@ -469,8 +478,8 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 				}
 				content, err := os.ReadFile(path)
 				if err != nil {
-					fmt.Printf("Error reading file %s: %v\n", path, err)
-					content = []byte(fmt.Sprintf("Error reading file: %v", err))
+					fmt.Printf("error reading file %s: %v\n", path, err)
+					content = []byte(fmt.Sprintf("error reading file: %v", err))
 				}
 
 				// Ensure forward slashes for the name attribute, consistent with documentation.
@@ -533,7 +542,7 @@ func NewWatchman(app *App) *Watchman {
 
 // StartFileWatcher is called by JavaScript to start watching a directory.
 func (a *App) StartFileWatcher(rootDirPath string) error {
-	runtime.LogInfof(a.ctx, "StartFileWatcher called for: %s", rootDirPath)
+	runtime.LogInfof(a.ctx, "startfilewatcher called for: %s", rootDirPath)
 	if a.fileWatcher == nil {
 		return fmt.Errorf("file watcher not initialized")
 	}
@@ -542,7 +551,7 @@ func (a *App) StartFileWatcher(rootDirPath string) error {
 
 // StopFileWatcher is called by JavaScript to stop the current watcher.
 func (a *App) StopFileWatcher() error {
-	runtime.LogInfo(a.ctx, "StopFileWatcher called")
+	runtime.LogInfo(a.ctx, "stopfilewatcher called")
 	if a.fileWatcher == nil {
 		return fmt.Errorf("file watcher not initialized")
 	}
@@ -557,7 +566,7 @@ func (w *Watchman) Start(newRootDir string) error {
 	w.rootDir = newRootDir
 	if w.rootDir == "" {
 		w.mu.Unlock()
-		runtime.LogInfo(w.app.ctx, "Watchman: Root directory is empty, not starting.")
+		runtime.LogInfo(w.app.ctx, "watchman: root directory is empty, not starting.")
 		return nil
 	}
 	w.mu.Unlock()
@@ -584,12 +593,12 @@ func (w *Watchman) Start(newRootDir string) error {
 	var err error
 	w.fsWatcher, err = fsnotify.NewWatcher()
 	if err != nil {
-		runtime.LogErrorf(w.app.ctx, "Watchman: Error creating fsnotify watcher: %v", err)
+		runtime.LogErrorf(w.app.ctx, "watchman: error creating fsnotify watcher: %v", err)
 		return fmt.Errorf("failed to create fsnotify watcher: %w", err)
 	}
 	w.watchedDirs = make(map[string]bool) // Initialize/clear
 
-	runtime.LogInfof(w.app.ctx, "Watchman: Starting for directory %s", newRootDir)
+	runtime.LogInfof(w.app.ctx, "watchman: starting for directory %s", newRootDir)
 	w.addPathsToWatcherRecursive(newRootDir) // Add initial paths
 
 	go w.run(ctx)
@@ -601,14 +610,14 @@ func (w *Watchman) Stop() {
 	defer w.mu.Unlock()
 
 	if w.cancelFunc != nil {
-		runtime.LogInfo(w.app.ctx, "Watchman: Stopping...")
+		runtime.LogInfo(w.app.ctx, "watchman: stopping...")
 		w.cancelFunc()
 		w.cancelFunc = nil // Allow GC and prevent double-cancel
 	}
 	if w.fsWatcher != nil {
 		err := w.fsWatcher.Close()
 		if err != nil {
-			runtime.LogWarningf(w.app.ctx, "Watchman: Error closing fsnotify watcher: %v", err)
+			runtime.LogWarningf(w.app.ctx, "watchman: error closing fsnotify watcher: %v", err)
 		}
 		w.fsWatcher = nil
 	}
@@ -622,13 +631,13 @@ func (w *Watchman) run(ctx context.Context) {
 			// This close is a safeguard; Stop() should ideally be called.
 			w.fsWatcher.Close()
 		}
-		runtime.LogInfo(w.app.ctx, "Watchman: Goroutine stopped.")
+		runtime.LogInfo(w.app.ctx, "watchman: goroutine stopped.")
 	}()
 
 	w.mu.Lock()
 	currentRootDir := w.rootDir
 	w.mu.Unlock()
-	runtime.LogInfof(w.app.ctx, "Watchman: Monitoring goroutine started for %s", currentRootDir)
+	runtime.LogInfof(w.app.ctx, "watchman: monitoring goroutine started for %s", currentRootDir)
 
 	for {
 		select {
@@ -636,15 +645,15 @@ func (w *Watchman) run(ctx context.Context) {
 			w.mu.Lock()
 			shutdownRootDir := w.rootDir // Re-fetch rootDir under lock as it might have changed
 			w.mu.Unlock()
-			runtime.LogInfof(w.app.ctx, "Watchman: Context cancelled, shutting down watcher for %s.", shutdownRootDir)
+			runtime.LogInfof(w.app.ctx, "watchman: context cancelled, shutting down watcher for %s.", shutdownRootDir)
 			return
 
 		case event, ok := <-w.fsWatcher.Events:
 			if !ok {
-				runtime.LogInfo(w.app.ctx, "Watchman: fsnotify events channel closed.")
+				runtime.LogInfo(w.app.ctx, "watchman: fsnotify events channel closed.")
 				return
 			}
-			runtime.LogDebugf(w.app.ctx, "Watchman: fsnotify event: %s", event)
+			runtime.LogDebugf(w.app.ctx, "watchman: fsnotify event: %s", event)
 
 			w.mu.Lock()
 			currentRootDir = w.rootDir // Update currentRootDir under lock
@@ -659,7 +668,7 @@ func (w *Watchman) run(ctx context.Context) {
 
 			relEventPath, err := filepath.Rel(currentRootDir, event.Name)
 			if err != nil {
-				runtime.LogWarningf(w.app.ctx, "Watchman: Could not get relative path for event %s (root: %s): %v", event.Name, currentRootDir, err)
+				runtime.LogWarningf(w.app.ctx, "watchman: could not get relative path for event %s (root: %s): %v", event.Name, currentRootDir, err)
 				continue
 			}
 
@@ -668,13 +677,13 @@ func (w *Watchman) run(ctx context.Context) {
 			isIgnoredByCustom := custIgn != nil && custIgn.MatchesPath(relEventPath)
 
 			if isIgnoredByGit || isIgnoredByCustom {
-				runtime.LogDebugf(w.app.ctx, "Watchman: Ignoring event for %s as it's an ignored path.", event.Name)
+				runtime.LogDebugf(w.app.ctx, "watchman: ignoring event for %s as it's an ignored path.", event.Name)
 				continue
 			}
 
 			// Handle relevant events (excluding Chmod)
 			if event.Op&fsnotify.Chmod == 0 {
-				runtime.LogInfof(w.app.ctx, "Watchman: Relevant change detected for %s in %s", event.Name, currentRootDir)
+				runtime.LogInfof(w.app.ctx, "watchman: relevant change detected for %s in %s", event.Name, currentRootDir)
 				w.app.notifyFileChange(currentRootDir)
 			}
 
@@ -686,10 +695,10 @@ func (w *Watchman) run(ctx context.Context) {
 					isNewDirIgnoredByGit := projIgn != nil && projIgn.MatchesPath(relEventPath)
 					isNewDirIgnoredByCustom := custIgn != nil && custIgn.MatchesPath(relEventPath)
 					if !isNewDirIgnoredByGit && !isNewDirIgnoredByCustom {
-						runtime.LogDebugf(w.app.ctx, "Watchman: New directory created %s, adding to watcher.", event.Name)
+						runtime.LogDebugf(w.app.ctx, "watchman: new directory created %s, adding to watcher.", event.Name)
 						w.addPathsToWatcherRecursive(event.Name) // This will add event.Name and its children
 					} else {
-						runtime.LogDebugf(w.app.ctx, "Watchman: New directory %s is ignored, not adding to watcher.", event.Name)
+						runtime.LogDebugf(w.app.ctx, "watchman: new directory %s is ignored, not adding to watcher.", event.Name)
 					}
 				}
 			}
@@ -697,12 +706,12 @@ func (w *Watchman) run(ctx context.Context) {
 			if event.Op&fsnotify.Remove != 0 || event.Op&fsnotify.Rename != 0 {
 				w.mu.Lock()
 				if w.watchedDirs[event.Name] {
-					runtime.LogDebugf(w.app.ctx, "Watchman: Watched directory %s removed/renamed, removing from watcher.", event.Name)
+					runtime.LogDebugf(w.app.ctx, "watchman: watched directory %s removed/renamed, removing from watcher.", event.Name)
 					// fsnotify might remove it automatically, but explicit removal is safer for our tracking
 					if w.fsWatcher != nil { // Check fsWatcher as it might be closed by Stop()
 						err := w.fsWatcher.Remove(event.Name)
 						if err != nil {
-							runtime.LogWarningf(w.app.ctx, "Watchman: Error removing path %s from fsnotify: %v", event.Name, err)
+							runtime.LogWarningf(w.app.ctx, "watchman: error removing path %s from fsnotify: %v", event.Name, err)
 						}
 					}
 					delete(w.watchedDirs, event.Name)
@@ -712,10 +721,10 @@ func (w *Watchman) run(ctx context.Context) {
 
 		case err, ok := <-w.fsWatcher.Errors:
 			if !ok {
-				runtime.LogInfo(w.app.ctx, "Watchman: fsnotify errors channel closed.")
+				runtime.LogInfo(w.app.ctx, "watchman: fsnotify errors channel closed.")
 				return
 			}
-			runtime.LogErrorf(w.app.ctx, "Watchman: fsnotify error: %v", err)
+			runtime.LogErrorf(w.app.ctx, "watchman: fsnotify error: %v", err)
 		}
 	}
 }
@@ -729,13 +738,13 @@ func (w *Watchman) addPathsToWatcherRecursive(baseDirToAdd string) {
 	w.mu.Unlock()
 
 	if fsW == nil || overallRoot == "" {
-		runtime.LogWarningf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: fsWatcher is nil or rootDir is empty. Skipping add for %s.", baseDirToAdd)
+		runtime.LogWarningf(w.app.ctx, "watchman.addpathstowatcherrecursive: fswatcher is nil or rootdir is empty. skipping add for %s.", baseDirToAdd)
 		return
 	}
 
 	filepath.WalkDir(baseDirToAdd, func(path string, d fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
-			runtime.LogWarningf(w.app.ctx, "Watchman scan error accessing %s: %v", path, walkErr)
+			runtime.LogWarningf(w.app.ctx, "watchman scan error accessing %s: %v", path, walkErr)
 			if d != nil && d.IsDir() && path != overallRoot { // Changed scanRootDir to overallRoot for clarity
 				return filepath.SkipDir
 			}
@@ -748,7 +757,7 @@ func (w *Watchman) addPathsToWatcherRecursive(baseDirToAdd string) {
 
 		relPath, errRel := filepath.Rel(overallRoot, path)
 		if errRel != nil {
-			runtime.LogWarningf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: Could not get relative path for %s (root: %s): %v", path, overallRoot, errRel)
+			runtime.LogWarningf(w.app.ctx, "watchman.addpathstowatcherrecursive: could not get relative path for %s (root: %s): %v", path, overallRoot, errRel)
 			return nil // Continue with other paths
 		}
 
@@ -756,7 +765,7 @@ func (w *Watchman) addPathsToWatcherRecursive(baseDirToAdd string) {
 		if d.IsDir() && d.Name() == ".git" {
 			parentDir := filepath.Dir(path)
 			if parentDir == overallRoot {
-				runtime.LogDebugf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: Skipping .git directory: %s", path)
+				runtime.LogDebugf(w.app.ctx, "watchman.addpathstowatcherrecursive: skipping .git directory: %s", path)
 				return filepath.SkipDir
 			}
 		}
@@ -765,15 +774,15 @@ func (w *Watchman) addPathsToWatcherRecursive(baseDirToAdd string) {
 		isIgnoredByCustom := custIgn != nil && custIgn.MatchesPath(relPath)
 
 		if isIgnoredByGit || isIgnoredByCustom {
-			runtime.LogDebugf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: Skipping ignored directory: %s", path)
+			runtime.LogDebugf(w.app.ctx, "watchman.addpathstowatcherrecursive: skipping ignored directory: %s", path)
 			return filepath.SkipDir
 		}
 
 		errAdd := fsW.Add(path)
 		if errAdd != nil {
-			runtime.LogWarningf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: Error adding path %s to fsnotify: %v", path, errAdd)
+			runtime.LogWarningf(w.app.ctx, "watchman.addpathstowatcherrecursive: error adding path %s to fsnotify: %v", path, errAdd)
 		} else {
-			runtime.LogDebugf(w.app.ctx, "Watchman.addPathsToWatcherRecursive: Added to watcher: %s", path)
+			runtime.LogDebugf(w.app.ctx, "watchman.addpathstowatcherrecursive: added to watcher: %s", path)
 			w.mu.Lock()
 			w.watchedDirs[path] = true
 			w.mu.Unlock()
@@ -792,10 +801,10 @@ func (w *Watchman) RefreshIgnoresAndRescan() error {
 	w.mu.Lock()
 	if w.rootDir == "" {
 		w.mu.Unlock()
-		runtime.LogInfo(w.app.ctx, "Watchman.RefreshIgnoresAndRescan: No rootDir, skipping.")
+		runtime.LogInfo(w.app.ctx, "watchman.refreshignoresandrescan: no rootdir, skipping.")
 		return nil
 	}
-	runtime.LogInfo(w.app.ctx, "Watchman.RefreshIgnoresAndRescan: Refreshing ignore patterns and re-scanning.")
+	runtime.LogInfo(w.app.ctx, "watchman.refreshignoresandrescan: refreshing ignore patterns and re-scanning.")
 
 	// Update patterns based on App's current state
 	if w.app.useGitignore {
@@ -824,7 +833,7 @@ func (w *Watchman) RefreshIgnoresAndRescan() error {
 	var err error
 	w.fsWatcher, err = fsnotify.NewWatcher()
 	if err != nil {
-		runtime.LogErrorf(w.app.ctx, "Watchman.RefreshIgnoresAndRescan: Error creating new fsnotify watcher: %v", err)
+		runtime.LogErrorf(w.app.ctx, "watchman.refreshignoresandrescan: error creating new fsnotify watcher: %v", err)
 		return fmt.Errorf("failed to create new fsnotify watcher: %w", err)
 	}
 
@@ -839,7 +848,7 @@ func (w *Watchman) RefreshIgnoresAndRescan() error {
 func (a *App) compileCustomIgnorePatterns() error {
 	if strings.TrimSpace(a.settings.CustomIgnoreRules) == "" {
 		a.currentCustomIgnorePatterns = nil
-		runtime.LogDebug(a.ctx, "Custom ignore rules are empty, no patterns compiled.")
+		runtime.LogDebug(a.ctx, "custom ignore rules are empty, no patterns compiled.")
 		return nil
 	}
 	lines := strings.Split(strings.ReplaceAll(a.settings.CustomIgnoreRules, "\r\n", "\n"), "\n")
@@ -855,7 +864,7 @@ func (a *App) compileCustomIgnorePatterns() error {
 	// Если ign будет nil (например, если все строки были пустыми или комментариями,
 	// и библиотека так обрабатывает), то это будет корректно обработано ниже.
 	a.currentCustomIgnorePatterns = ign
-	runtime.LogInfo(a.ctx, "Successfully compiled custom ignore patterns.")
+	runtime.LogInfo(a.ctx, "successfully compiled custom ignore patterns.")
 	return nil
 }
 
@@ -864,7 +873,7 @@ func (a *App) loadSettings() {
 	a.settings.CustomIgnoreRules = defaultCustomIgnoreRulesContent
 
 	if a.configPath == "" {
-		runtime.LogWarningf(a.ctx, "Config path is empty, using default custom ignore rules (embedded).")
+		runtime.LogWarningf(a.ctx, "config path is empty, using default custom ignore rules (embedded).")
 		if err := a.compileCustomIgnorePatterns(); err != nil {
 			// Error already logged in compileCustomIgnorePatterns
 		}
@@ -874,36 +883,41 @@ func (a *App) loadSettings() {
 	data, err := os.ReadFile(a.configPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			runtime.LogInfo(a.ctx, "Settings file not found. Using default custom ignore rules (embedded) and attempting to save them.")
+			runtime.LogInfo(a.ctx, "settings file not found. using default custom ignore rules (embedded) and attempting to save them.")
 			// Save default settings to create the file. compileCustomIgnorePatterns will be called after this.
 			if errSave := a.saveSettings(); errSave != nil { // saveSettings will use a.settings.CustomIgnoreRules which is currently default
-				runtime.LogErrorf(a.ctx, "Failed to save default settings: %v", errSave)
+				runtime.LogErrorf(a.ctx, "failed to save default settings: %v", errSave)
 			}
 		} else {
-			runtime.LogErrorf(a.ctx, "Error reading settings file %s: %v. Using default custom ignore rules (embedded).", a.configPath, err)
+			runtime.LogErrorf(a.ctx, "error reading settings file %s: %v. using default custom ignore rules (embedded).", a.configPath, err)
 		}
 	} else {
-		err = json.Unmarshal(data, &a.settings)
+		var loadedSettings AppSettings
+		err = json.Unmarshal(data, &loadedSettings)
 		if err != nil {
-			runtime.LogErrorf(a.ctx, "Error unmarshalling settings from %s: %v. Using default custom ignore rules (embedded).", a.configPath, err)
+			runtime.LogErrorf(a.ctx, "error unmarshalling settings from %s: %v. using default custom ignore rules (embedded).", a.configPath, err)
 			a.settings.CustomIgnoreRules = defaultCustomIgnoreRulesContent // Reset to default on unmarshal error
 		} else {
-			runtime.LogInfo(a.ctx, "Successfully loaded custom ignore rules from config.")
-			// If loaded rules are empty but default embedded rules are not, use default.
-			if strings.TrimSpace(a.settings.CustomIgnoreRules) == "" && strings.TrimSpace(defaultCustomIgnoreRulesContent) != "" {
-				runtime.LogInfo(a.ctx, "Loaded custom ignore rules are empty, falling back to default embedded rules.")
-				a.settings.CustomIgnoreRules = defaultCustomIgnoreRulesContent
-			}
-			// Handle CustomPromptRules similarly
-			if strings.TrimSpace(a.settings.CustomPromptRules) == "" {
-				runtime.LogInfo(a.ctx, "Custom prompt rules are empty or missing, using default.")
+			runtime.LogInfo(a.ctx, "successfully loaded custom rules from config. they will be combined with the embedded defaults.")
+			// always start with the fresh embedded defaults, then append any user rules that are not already in the default.
+			// this ensures that updates to the embedded ignore.glob are always included.
+			baseRules := defaultCustomIgnoreRulesContent
+			userRules := loadedSettings.CustomIgnoreRules
+
+			// a simple model: combine and let the gitignore logic handle duplicates. last pattern wins.
+			a.settings.CustomIgnoreRules = baseRules + "\n\n#--- user rules ---\n" + userRules
+
+			// handle custompromptrules separately as it's a replacement, not an addition.
+			if strings.TrimSpace(loadedSettings.CustomPromptRules) != "" {
+				a.settings.CustomPromptRules = loadedSettings.CustomPromptRules
+			} else {
 				a.settings.CustomPromptRules = defaultCustomPromptRulesContent
 			}
 		}
 	}
 
 	if errCompile := a.compileCustomIgnorePatterns(); errCompile != nil {
-		// Error already logged in compileCustomIgnorePatterns
+		// error already logged in compilecustomignorepatterns
 	}
 }
 
@@ -916,22 +930,22 @@ func (a *App) saveSettings() error {
 
 	data, err := json.MarshalIndent(a.settings, "", "  ")
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error marshalling settings: %v", err)
+		runtime.LogErrorf(a.ctx, "error marshalling settings: %v", err)
 		return err
 	}
 
 	configDir := filepath.Dir(a.configPath)
 	if err := os.MkdirAll(configDir, os.ModePerm); err != nil {
-		runtime.LogErrorf(a.ctx, "Error creating config directory %s: %v", configDir, err)
+		runtime.LogErrorf(a.ctx, "error creating config directory %s: %v", configDir, err)
 		return err
 	}
 
 	err = os.WriteFile(a.configPath, data, 0644)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error writing settings to %s: %v", a.configPath, err)
+		runtime.LogErrorf(a.ctx, "error writing settings to %s: %v", a.configPath, err)
 		return err
 	}
-	runtime.LogInfo(a.ctx, "Settings saved successfully.")
+	runtime.LogInfo(a.ctx, "settings saved successfully.")
 	return nil
 }
 
@@ -979,14 +993,14 @@ func (a *App) SetCustomPromptRules(rules string) error {
 	if err != nil {
 		return fmt.Errorf("failed to save custom prompt rules: %w", err)
 	}
-	runtime.LogInfo(a.ctx, "Custom prompt rules saved successfully.")
+	runtime.LogInfo(a.ctx, "custom prompt rules saved successfully.")
 	return nil
 }
 
 // SetUseGitignore updates the app's setting for using .gitignore and informs the watcher.
 func (a *App) SetUseGitignore(enabled bool) error {
 	a.useGitignore = enabled
-	runtime.LogInfof(a.ctx, "App setting useGitignore changed to: %v", enabled)
+	runtime.LogInfof(a.ctx, "app setting usegitignore changed to: %v", enabled)
 	if a.fileWatcher != nil && a.fileWatcher.rootDir != "" {
 		// Assuming watcher is for the current project if active.
 		return a.fileWatcher.RefreshIgnoresAndRescan()
@@ -997,7 +1011,7 @@ func (a *App) SetUseGitignore(enabled bool) error {
 // SetUseCustomIgnore updates the app's setting for using custom ignore rules and informs the watcher.
 func (a *App) SetUseCustomIgnore(enabled bool) error {
 	a.useCustomIgnore = enabled
-	runtime.LogInfof(a.ctx, "App setting useCustomIgnore changed to: %v", enabled)
+	runtime.LogInfof(a.ctx, "app setting usecustomignore changed to: %v", enabled)
 	if a.fileWatcher != nil && a.fileWatcher.rootDir != "" {
 		// Assuming watcher is for the current project if active.
 		return a.fileWatcher.RefreshIgnoresAndRescan()

@@ -1,0 +1,137 @@
+/* Global font variables */
+:root {
+    --pst-font-family-base-system: "Geist" !important;
+    --font-sans: "Geist" !important;
+}
+
+/* Ensure these are applied to the highest level elements */
+html,
+body {
+    font-family: "Geist", "Inter" !important;
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+* {
+    -ms-overflow-style: none !important;
+}
+
+strong * {
+    font-family: "Geist", "Inter" !important;
+    font-weight: 600 !important;
+}
+
+*:not(
+        textarea,
+        textarea *,
+        code,
+        code *,
+        [aria-labelledby="file-name-id-wide file-name-id-mobile"] *,
+        .file-header *,
+        .code-wrap *,
+        .js-file-content *,
+        #app-command *,
+        #bucket-command *,
+        .monaco-editor *,
+        [class*="Xterm-"] *,
+        #playground *,
+        .SVELTE_HYDRATER *,
+        .code-view *,
+        .cm-editor *,
+        .js-gist-file-update-container *,
+        .syntaxhighlighter *,
+        [id*="codecell"] *,
+        .js-comment-container *,
+        .plain *,
+        [id*="editor-container"] *:not([class*="glyphicon "]),
+        [id*="textareawrapper"] *,
+        table.code *,
+        [class*="Code"] *,
+        [class*="xterm-screen"] *,
+        #jsonFormatterParsed *,
+        pre,
+        pre *,
+        [class*="icon"],
+        [class*="material-"],
+        [class*="fa"],
+        .ace_editor *,
+        md-icon,
+        [data-icon-name],
+        [class*="docon docon-"],
+        [class*="devsite-nav-toggle"],
+        [class*="google-symbols"],
+        span[aria-hidden="true"],
+        [class*="bwi"]
+    ) {
+    font-family: "Geist", "Inter" !important;
+}
+
+/* More specific rules for code elements */
+textarea,
+textarea *,
+code,
+code *,
+[aria-labelledby="file-name-id-wide file-name-id-mobile"] *,
+.file-header *,
+.code-wrap *,
+.js-file-content *,
+#app-command *,
+#bucket-command *,
+.monaco-editor *,
+[class*="Xterm-"] *,
+#playground *,
+.code-view *,
+.cm-editor *,
+.js-gist-file-update-container *,
+.syntaxhighlighter *,
+[id*="codecell"] *,
+.js-comment-container *,
+.plain *,
+[id*="editor-container"] *:not([class*="glyphicon "]),
+[id*="textareawrapper"] *,
+table.code *,
+[class*="Code"] *,
+[class*="xterm-screen"] *,
+#jsonFormatterParsed *,
+pre,
+pre *,
+.ace_editor * {
+    font-family: "GeistMono Nerd Font Mono", "Inter" !important;
+    font-style: normal !important;
+    font-weight: 500 !important;
+}
+
+.ace_editor * {
+    font-size: 15px !important;
+    font-family: monospace !important;
+}
+
+ms-code-block *:not(button *) {
+    font-family: "GeistMono Nerd Font Mono" !important;
+    font-size: 16px !important;
+}
+
+/* hide all scrollbars from all elements - universal userstyle */
+/* for webkit-based browsers (chrome, safari, new opera, etc.) */
+*::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    /* for some versions */
+    height: 0 !important;
+    /* for some versions */
+}
+
+/* for firefox */
+* {
+    scrollbar-width: none !important;
+}
+
+/* for internet explorer and edge (older versions) */
+* {
+    -ms-overflow-style: none !important;
+}
+
+/* Force font settings on all Vue components */
+.v-application *:not(i):not(.fa):not(.material-icons) {
+    font-family: "Geist", "Inter" !important;
+}

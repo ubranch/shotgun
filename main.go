@@ -42,7 +42,7 @@ func main() {
 
 	iconPNG, errPNG := os.ReadFile("appicon.png") // Changed from ioutil.ReadFile
 	if errPNG != nil {
-		log.Println("Warning: Could not load appicon.png:", errPNG)
+		log.Println("warning: could not load appicon.png:", errPNG)
 	}
 
 	appMenu := menu.NewMenu() // Create an empty menu
@@ -53,7 +53,7 @@ func main() {
 	}
 
 	err := wails.Run(&options.App{
-		Title:  "Shotgun App",
+		Title:  "shotgun",
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{
