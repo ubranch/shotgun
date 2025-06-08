@@ -1,4 +1,4 @@
-![](https://github.com/user-attachments/assets/058bf4a2-9f81-406c-96ea-795cd4eaf118)
+![](./appimage.png)
 
 **tired of cursor cutting off context, missing your files and folders, and spitting out empty responses?**
 
