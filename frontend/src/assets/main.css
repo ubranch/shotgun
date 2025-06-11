@@ -2,23 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Basic Reset */
+/* basic Reset */
 body,
 html {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* Tailwind will provide background/color, so these can be removed or overridden */
-    /* background-color: #f4f4f4; */
-    /* color: #333; */
 }
 
 #app {
     height: 100vh;
     width: 100vw;
-    overflow: hidden; /* Prevent scrollbars on body if content fits */
+    overflow: hidden;
 }
-
-/* Remove button and input styles, Tailwind will handle them */
-/* Default browser styles for buttons, inputs, textareas will be reset by Tailwind's preflight */
-/* Customizations should be done with Tailwind classes or specific component styles */

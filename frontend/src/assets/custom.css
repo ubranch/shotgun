@@ -1,23 +1,24 @@
-/* Global font variables */
+/* global font variables */
 :root {
     --pst-font-family-base-system: "Geist" !important;
     --font-sans: "Geist" !important;
 }
 
-/* Ensure these are applied to the highest level elements */
+/* ensure these are applied to the highest level elements */
 html,
 body {
-    font-family: "Geist", "Inter" !important;
+    font-family: "Geist", sans-serif !important;
     -ms-overflow-style: none !important;
     scrollbar-width: none !important;
 }
 
 * {
     -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
 }
 
 strong * {
-    font-family: "Geist", "Inter" !important;
+    font-family: "Geist", sans-serif !important;
     font-weight: 600 !important;
 }
 
@@ -63,10 +64,10 @@ strong * {
         span[aria-hidden="true"],
         [class*="bwi"]
     ) {
-    font-family: "Geist", "Inter" !important;
+    font-family: "Geist", sans-serif !important;
 }
 
-/* More specific rules for code elements */
+/* more specific rules for code elements */
 textarea,
 textarea *,
 code,
@@ -96,7 +97,7 @@ table.code *,
 pre,
 pre *,
 .ace_editor * {
-    font-family: "GeistMono Nerd Font Mono", "Inter" !important;
+    font-family: "GeistMono Nerd Font Mono", monospace !important;
     font-style: normal !important;
     font-weight: 500 !important;
 }
@@ -107,7 +108,7 @@ pre *,
 }
 
 ms-code-block *:not(button *) {
-    font-family: "GeistMono Nerd Font Mono" !important;
+    font-family: "GeistMono Nerd Font Mono", monospace !important;
     font-size: 16px !important;
 }
 
@@ -121,17 +122,7 @@ ms-code-block *:not(button *) {
     /* for some versions */
 }
 
-/* for firefox */
-* {
-    scrollbar-width: none !important;
-}
-
-/* for internet explorer and edge (older versions) */
-* {
-    -ms-overflow-style: none !important;
-}
-
-/* Force font settings on all Vue components */
+/* force font settings on all Vue components */
 .v-application *:not(i):not(.fa):not(.material-icons) {
-    font-family: "Geist", "Inter" !important;
+    font-family: "Geist", sans-serif !important;
 }

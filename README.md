@@ -221,19 +221,3 @@ package main
     -   **watch token limits** – even million‑token models have practical caps. use shotgun scopes (root folder vs subfolder) to stay under budget.
 
 ---
-
-## 11. contributing
-
-prs and issues are welcome!
-please format go code with `go fmt` and follow vue 3 style guidelines.
-
----
-
-## 12. license
-
-custom mit-like – see `license.md` file.
-
----
-
-shotgun – load, aim, blast your code straight into the mind of an llm.
-iterate faster. ship better.
