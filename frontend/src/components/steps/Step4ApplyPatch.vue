@@ -41,12 +41,12 @@
                         split {{ index + 1 }} of {{ splitDiffs.length }}
                     </h3>
                     <div class="flex items-center space-x-2">
-                        <!-- SOON: add a feature to apply the diff automatically -->
+                        <!-- soon: add a feature to apply the diff automatically -->
                         <!-- <button
               class="px-3 py-1 bg-gray-100 text-gray-300 text-xs font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
               disabled
             >
-              Apply Diff
+              apply diff
             </button> -->
                         <button
                             @click="copyDiffToClipboard(diff, index)"
@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <div class="text-gray-600 dark:text-gray-400 text-xs mb-2">
-                    <!-- the lines metric will be orange if it's greater than props.splitLineLimit + 5%, red if it's greater than props.splitLineLimit + 20%, green if it's less than props.splitLineLimit + 5% -->
+                    <!-- the lines metric will be orange if it's greater than props.splitlinelimit + 5%, red if it's greater than props.splitlinelimit + 20%, green if it's less than props.splitlinelimit + 5% -->
                     <!-- calculate this in the vue script below, to simplify the code -->
                     <div
                         class="inline-block px-2 py-1 rounded-full text-xs"
@@ -116,9 +116,9 @@
             </div>
             <!--
       <button
-      @click="$emit('action', 'finishSplitting'), finishButtonText = 'Hooray! 🎉'"
+      @click="$emit('action', 'finishSplitting'), finishButtonText = 'hooray! 🎉'"
       class="px-6 py-2 bg-blue-500 dark:bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-      :class="finishButtonText === 'Hooray! 🎉' ? 'bg-green-200 dark:bg-green-700 text-black dark:text-white hover:bg-green-200 dark:hover:bg-green-600' : ''"
+      :class="finishButtonText === 'hooray! 🎉' ? 'bg-green-200 dark:bg-green-700 text-black dark:text-white hover:bg-green-200 dark:hover:bg-green-600' : ''"
       >
         {{ finishButtonText }}
       </button>
@@ -130,7 +130,7 @@
 <script setup>
 const finishButtonText = ref("finish");
 import { ref, defineProps, watch } from "vue";
-// import { ClipboardSetText as WailsClipboardSetText } from '../../../wailsjs/runtime/runtime'; // If needed for specific platforms
+// import { clipboardsettext as wailsclipboardsettext } from '../../../wailsjs/runtime/runtime'; // if needed for specific platforms
 
 const props = defineProps({
     splitDiffs: {
@@ -138,7 +138,7 @@ const props = defineProps({
         default: () => [],
     },
     isLoading: {
-        // To indicate if MainLayout is fetching/processing splits
+        // to indicate if mainlayout is fetching/processing splits
         type: Boolean,
         default: false,
     },
@@ -147,16 +147,16 @@ const props = defineProps({
         default: "unknown",
     },
     splitLineLimit: {
-        // Add the new prop
+        // add the new prop
         type: Number,
-        default: 500, // Provide a default value if the prop is not passed
+        default: 500, // provide a default value if the prop is not passed
     },
 });
 
 defineEmits(["action"]);
 
 const copyButtonTexts = ref({});
-const isCopied = ref({}); // Tracks if a split has been successfully copied at least once
+const isCopied = ref({}); // tracks if a split has been successfully copied at least once
 
 function getLineMetricClass(lineCount) {
     const limit = props.splitLineLimit;
@@ -176,41 +176,41 @@ function getLineMetricClass(lineCount) {
 watch(
     () => props.splitDiffs,
     (newVal) => {
-        // Reset copy button texts and copied states when diffs change
+        // reset copy button texts and copied states when diffs change
         const newTexts = {};
         const newCopiedStates = {};
         if (newVal) {
             newVal.forEach((_, index) => {
                 newTexts[index] = "copy";
-                newCopiedStates[index] = false; // Initialize as not copied
+                newCopiedStates[index] = false; // initialize as not copied
             });
         }
         copyButtonTexts.value = newTexts;
         isCopied.value = newCopiedStates;
     },
     { immediate: true, deep: true }
-); // Use deep: true if splitDiffs could be mutated internally, though usually props are replaced.
+); // use deep: true if splitdiffs could be mutated internally, though usually props are replaced.
 
 async function copyDiffToClipboard(diffContent, index) {
     if (!diffContent) return;
     try {
         await navigator.clipboard.writeText(diffContent);
 
-        isCopied.value[index] = true; // Mark as successfully copied
+        isCopied.value[index] = true; // mark as successfully copied
         copyButtonTexts.value[index] = "copied! ✅";
 
         setTimeout(() => {
-            copyButtonTexts.value[index] = "copy ✅"; // Persistent "copied" state text
+            copyButtonTexts.value[index] = "copy ✅"; // persistent "copied" state text
         }, 2000);
     } catch (err) {
         console.error(`failed to copy diff split ${index + 1}: `, err);
 
-        // Temporarily show "Failed!"
+        // temporarily show "failed!"
         const originalText = isCopied.value[index] ? "copy ✅" : "copy";
         copyButtonTexts.value[index] = "failed!";
 
         setTimeout(() => {
-            copyButtonTexts.value[index] = originalText; // Revert to previous state ("Copy" or "Copy ✅")
+            copyButtonTexts.value[index] = originalText; // revert to previous state ("copy" or "copy ✅")
         }, 2000);
     }
 }

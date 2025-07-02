@@ -99,14 +99,24 @@
                     </div>
                     <div class="flex items-center space-x-3">
                         <span
-                            v-show="!isLoadingFinalPrompt"
-                            :class="[
-                                'text-xs font-medium',
-                                charCountColorClass,
-                            ]"
+                            v-if="isCountingTokens"
+                            class="text-xs text-gray-500"
+                        >
+                            counting...
+                        </span>
+                        <span
+                            v-else-if="tokenCountError"
+                            class="text-xs text-red-500"
+                            :title="tokenCountError"
+                        >
+                            error
+                        </span>
+                        <span
+                            v-else
+                            :class="['text-xs font-medium', charCountColorClass]"
                             :title="tooltipText"
                         >
-                            ~{{ approximateTokens }} tokens
+                            {{ geminiTokenCount.toLocaleString() }} tokens
                         </span>
                         <button
                             @click="copyFinalPromptToClipboard"
@@ -152,6 +162,7 @@ import { ClipboardSetText as WailsClipboardSetText } from "../../../wailsjs/runt
 import {
     GetCustomPromptRules,
     SetCustomPromptRules,
+    CountGeminiTokens,
 } from "../../../wailsjs/go/main/App";
 import {
     LogInfo as LogInfoRuntime,
@@ -163,6 +174,7 @@ import devTemplateContentFromFile from "../../../../design/prompts/prompt_makeDi
 import architectTemplateContentFromFile from "../../../../design/prompts/prompt_makePlan.md?raw";
 import findBugTemplateContentFromFile from "../../../../design/prompts/prompt_analyzeBug.md?raw";
 import projectManagerTemplateContentFromFile from "../../../../design/prompts/prompt_projectManager.md?raw";
+import promptEnhancerTemplateContentFromFile from "../../../../design/prompts/prompt_enhancer.md?raw";
 
 const props = defineProps({
     fileListContext: {
@@ -170,7 +182,7 @@ const props = defineProps({
         default: "",
     },
     platform: {
-        // To know if we are on macOS
+        // to know if we are on macos
         type: String,
         default: "unknown",
     },
@@ -202,17 +214,25 @@ const promptTemplates = {
         name: "project: update tasks",
         content: projectManagerTemplateContentFromFile,
     },
+    promptEnhancer: {
+        name: "prompt enhancer",
+        content: promptEnhancerTemplateContentFromFile,
+    },
 };
 
-const selectedPromptTemplateKey = ref("dev"); // Default template
+const selectedPromptTemplateKey = ref("dev"); // default template
 
 const isLoadingFinalPrompt = ref(false);
 const copyButtonText = ref("copy all");
+const geminiTokenCount = ref(0);
+const isCountingTokens = ref(false);
+const tokenCountError = ref("");
+let tokenDebounceTimer = null;
 
 let finalPromptDebounceTimer = null;
 let userTaskInputDebounceTimer = null;
 
-// Modal state for prompt rules
+// modal state for prompt rules
 const isPromptRulesModalVisible = ref(false);
 const currentPromptRulesForModal = ref("");
 
@@ -220,33 +240,27 @@ const isFirstMount = ref(true);
 
 const localUserTask = ref(props.userTask);
 
-// Character count and related computed properties
+// character count and related computed properties
 const charCount = computed(() => {
     return (props.finalPrompt || "").length;
 });
 
-const approximateTokens = computed(() => {
-    const tokens = Math.round(charCount.value / 3);
-    return tokens.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-});
-
 const charCountColorClass = computed(() => {
-    const count = charCount.value;
+    const count = geminiTokenCount.value;
     if (count < 1000000) {
         return "text-green-600";
     } else if (count <= 4000000) {
-        return "text-yellow-500"; // Using 500 for better visibility on white bg
+        return "text-yellow-500"; // using 500 for better visibility on white bg
     } else {
         return "text-red-600";
     }
 });
 
 const tooltipText = computed(() => {
-    if (isLoadingFinalPrompt.value) return "calculating...";
+    if (isCountingTokens.value) return "calculating tokens...";
+    if (tokenCountError.value) return `error: ${tokenCountError.value}`;
 
-    const count = charCount.value;
-    const tokens = Math.round(count / 3);
-    return `your text contains ${count} symbols which is roughly equivalent to ${tokens} tokens`;
+    return `prompt contains ${geminiTokenCount.value.toLocaleString()} gemini tokens`;
 });
 
 const DEFAULT_RULES = `no additional rules`;
@@ -254,7 +268,7 @@ const DEFAULT_RULES = `no additional rules`;
 onMounted(async () => {
     try {
         localUserTask.value = props.userTask;
-        // Load rules from the backend only on the first mount
+        // load rules from the backend only on the first mount
         if (isFirstMount.value) {
             const fetchedRules = await GetCustomPromptRules();
             if (!props.rulesContent) {
@@ -295,7 +309,7 @@ async function updateFinalPrompt() {
         props.fileListContext || "no file structure context provided."
     );
 
-    // Insert current date in YYYY-MM-DD format
+    // insert current date in yyyy-mm-dd format
     const now = new Date();
     const yyyy = now.getFullYear();
     const mm = String(now.getMonth() + 1).padStart(2, "0");
@@ -352,6 +366,31 @@ watch(selectedPromptTemplateKey, () => {
         }. updating final prompt.`
     );
     debouncedUpdateFinalPrompt();
+});
+
+watch(() => props.finalPrompt, (newPrompt) => {
+    clearTimeout(tokenDebounceTimer);
+    if (!newPrompt) {
+        geminiTokenCount.value = 0;
+        tokenCountError.value = "";
+        return;
+    }
+
+    isCountingTokens.value = true;
+    tokenCountError.value = "";
+
+    tokenDebounceTimer = setTimeout(async () => {
+        try {
+            const count = await CountGeminiTokens(newPrompt);
+            geminiTokenCount.value = count;
+        } catch (err) {
+            console.error("token counting error:", err);
+            tokenCountError.value = err.message || "token count failed";
+            geminiTokenCount.value = 0;
+        } finally {
+            isCountingTokens.value = false;
+        }
+    }, 500); // 500ms debounce
 });
 
 async function copyFinalPromptToClipboard() {

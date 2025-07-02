@@ -1,0 +1,190 @@
+---
+description: streamlined workflow for level 1 quick bug fix tasks
+globs: "**/level1/**", "**/workflow/**"
+alwaysapply: false
+---
+# streamlined workflow for level 1 tasks
+
+> **tldr:** this document outlines a streamlined workflow for level 1 (quick bug fix) tasks, focusing on efficient problem resolution with minimal overhead while maintaining adequate documentation.
+
+## 🔍 level 1 workflow overview
+
+```mermaid
+graph lr
+    init["1. initialization"] --> impl["2. implementation"]
+    impl --> doc["3. documentation"]
+    
+    %% document connections for each phase
+    init -.-> initdocs["quick setup<br>issue understanding"]
+    impl -.-> impldocs["focused fix<br>verify resolution"]
+    doc -.-> docdocs["document solution<br>update tracking"]
+```
+
+## 📋 workflow phases
+
+### phase 1: initialization
+
+```mermaid
+graph td
+    start["start level 1 task"] --> identify["identify<br>issue"]
+    identify --> understand["understand<br>problem"]
+    understand --> setup["quick<br>environment setup"]
+    setup --> taskentry["create quick<br>task entry"]
+    taskentry --> initcomplete["initialization<br>complete"]
+```
+
+**steps:**
+1. identify the specific issue to fix
+2. understand the problem and its impact
+3. set up environment for quick fix
+4. create minimal task entry in tasks.md
+
+**milestone checkpoint:**
+```
+✓ initialization checkpoint
+- issue clearly identified? [yes/no]
+- problem understood? [yes/no]
+- environment set up? [yes/no]
+- task entry created? [yes/no]
+
+→ if all yes: proceed to implementation
+→ if any no: complete initialization steps
+```
+
+### phase 2: implementation
+
+```mermaid
+graph td
+    start["begin<br>implementation"] --> locate["locate<br>issue source"]
+    locate --> develop["develop<br>fix"]
+    develop --> test["test<br>solution"]
+    test --> verify["verify<br>resolution"]
+    verify --> implcomplete["implementation<br>complete"]
+```
+
+**steps:**
+1. locate the source of the issue
+2. develop a targeted fix
+3. test the solution thoroughly
+4. verify that the issue is resolved
+
+**milestone checkpoint:**
+```
+✓ implementation checkpoint
+- issue source located? [yes/no]
+- fix developed? [yes/no]
+- solution tested? [yes/no]
+- resolution verified? [yes/no]
+
+→ if all yes: proceed to documentation
+→ if any no: complete implementation steps
+```
+
+### phase 3: documentation
+
+```mermaid
+graph td
+    start["begin<br>documentation"] --> update["update<br>tasks.md"]
+    update --> solution["document<br>solution"]
+    solution --> references["create minimal<br>cross-references"]
+    references --> notifystakeholders["notify<br>stakeholders"]
+    notifystakeholders --> doccomplete["documentation<br>complete"]
+```
+
+**steps:**
+1. update tasks.md with fix details
+2. document the solution concisely
+3. create minimal cross-references
+4. notify stakeholders as needed
+
+**milestone checkpoint:**
+```
+✓ documentation checkpoint
+- tasks.md updated? [yes/no]
+- solution documented? [yes/no]
+- cross-references created? [yes/no]
+- stakeholders notified? [yes/no]
+
+→ if all yes: task complete
+→ if any no: complete documentation steps
+```
+
+## 📋 task structure in tasks.md
+
+for level 1 tasks, use this minimal structure:
+
+```markdown
+## bug fixes in progress
+- [ ] [level 1] fix: [bug description] (est: xx mins)
+
+## completed bug fixes
+- [x] [level 1] fixed: [bug description] (completed: yyyy-mm-dd)
+  - issue: [brief issue description]
+  - solution: [brief solution description]
+  - files changed: [file paths]
+```
+
+## 📋 memory bank updates
+
+for level 1 tasks, make minimal memory bank updates:
+
+1. **tasks.md**: update with fix details
+2. **activecontext.md**: brief mention of fix if relevant
+3. **progress.md**: add to list of completed fixes
+
+## 📋 workflow verification checklist
+
+```
+✓ final workflow verification
+- issue identified and understood? [yes/no]
+- fix implemented and verified? [yes/no]
+- tasks.md updated? [yes/no]
+- solution documented? [yes/no]
+- memory bank minimally updated? [yes/no]
+
+→ if all yes: level 1 task successfully completed
+→ if any no: address outstanding items
+```
+
+## 📋 task escalation
+
+if during the level 1 process you discover the task is more complex:
+
+```
+⚠️ task escalation needed
+current level: level 1
+recommended level: level [2/3/4]
+reason: [brief explanation]
+
+would you like me to escalate this task to level [2/3/4]?
+```
+
+escalation indicators:
+1. fix requires changes to multiple components
+2. solution requires design decisions
+3. testing reveals broader issues
+4. fix impacts core functionality
+
+## 🔄 integration with memory bank
+
+```mermaid
+graph td
+    workflow["level 1<br>workflow"] --> tm["update<br>tasks.md"]
+    workflow --> ac["minimal update<br>activecontext.md"]
+    workflow --> pm["brief update<br>progress.md"]
+    
+    tm & ac & pm --> mb["memory bank<br>integration"]
+    mb --> nexttask["transition to<br>next task"]
+```
+
+## 🚨 efficiency principle
+
+remember:
+
+```
+┌─────────────────────────────────────────────────────┐
+│ level 1 workflow prioritizes speed and efficiency.  │
+│ minimize process overhead while ensuring adequate   │
+│ documentation of the solution.                     │
+└─────────────────────────────────────────────────────┘
+```

@@ -3,6 +3,8 @@
 import {main} from '../models';
 import {context} from '../models';
 
+export function CountGeminiTokens(arg1:string):Promise<number>;
+
 export function GetCustomIgnoreRules():Promise<string>;
 
 export function GetCustomPromptRules():Promise<string>;

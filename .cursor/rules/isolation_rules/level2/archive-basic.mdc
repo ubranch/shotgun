@@ -1,0 +1,181 @@
+---
+description: basic archiving approach for level 2 simple enhancement tasks
+globs: "**/level2/**", "**/archive/**", "**/completion/**"
+alwaysapply: false
+---
+
+# basic archiving for level 2 tasks
+
+> **tldr:** this document outlines a basic archiving approach for level 2 (simple enhancement) tasks, ensuring that completed work is properly documented and knowledge is preserved with minimal overhead.
+
+## 🔍 archiving overview
+
+even for level 2 tasks, proper archiving ensures that completed work is documented and knowledge is preserved. this basic archiving approach provides sufficient structure while maintaining efficiency.
+
+## 📋 archiving principles
+
+1. **completion**: clearly document what was completed
+2. **context**: preserve the context of the enhancement
+3. **knowledge**: capture key insights and lessons
+4. **findability**: make archived information easy to find
+5. **references**: create cross-references to related work
+
+## 📋 basic archive structure
+
+```markdown
+# enhancement archive: [feature name]
+
+## summary
+[brief summary of the enhancement]
+
+## date completed
+yyyy-mm-dd
+
+## key files modified
+- [file path 1]
+- [file path 2]
+- [file path 3]
+
+## requirements addressed
+- [requirement 1]
+- [requirement 2]
+- [requirement 3]
+
+## implementation details
+[brief description of how the enhancement was implemented]
+
+## testing performed
+- [test 1]
+- [test 2]
+- [test 3]
+
+## lessons learned
+- [lesson 1]
+- [lesson 2]
+- [lesson 3]
+
+## related work
+- [link to related task/enhancement 1]
+- [link to related task/enhancement 2]
+
+## notes
+[any additional information or context]
+```
+
+## 📋 archive location
+
+store archives in an organized structure:
+
+```
+docs/
+└── archive/
+    └── enhancements/
+        └── yyyy-mm/
+            ├── feature-name-1.md
+            └── feature-name-2.md
+```
+
+## 📋 archiving process
+
+follow these steps to archive a level 2 task:
+
+1. **prepare archive content**:
+   - gather all relevant information
+   - fill in the archive template
+   - include all key implementation details
+
+2. **cross-reference creation**:
+   - update tasks.md with link to archive
+   - add reference in progress.md
+   - update activecontext.md with next focus
+
+3. **file creation and storage**:
+   - create appropriate directory if needed
+   - save archive file with descriptive name
+   - ensure file follows naming convention
+
+4. **final verification**:
+   - check archive for completeness
+   - verify all cross-references
+   - ensure all links are working
+
+## 📋 cross-reference format
+
+when creating cross-references:
+
+1. **in tasks.md**:
+   ```markdown
+   ## completed enhancements
+   - [x] [feature name] (yyyy-mm-dd) - [archive link](../docs/archive/enhancements/yyyy-mm/feature-name.md)
+   ```
+
+2. **in progress.md**:
+   ```markdown
+   ## completed milestones
+   - [feature name] enhancement completed on yyyy-mm-dd. see [archive entry](../docs/archive/enhancements/yyyy-mm/feature-name.md).
+   ```
+
+3. **in activecontext.md**:
+   ```markdown
+   ## recently completed
+   - [feature name] enhancement is now complete. archive: [link](../docs/archive/enhancements/yyyy-mm/feature-name.md)
+   
+   ## current focus
+   - moving to [next task name]
+   ```
+
+## 📋 archiving verification checklist
+
+```
+✓ archive verification
+- archive content complete? [yes/no]
+- archive properly stored? [yes/no]
+- cross-references created? [yes/no]
+- tasks.md updated? [yes/no]
+- progress.md updated? [yes/no]
+- activecontext.md updated? [yes/no]
+
+→ if all yes: archiving complete
+→ if any no: complete archiving process
+```
+
+## 📋 minimal mode archiving
+
+for minimal mode, use this format:
+
+```
+✓ archive: [feature name]
+✓ date: yyyy-mm-dd
+✓ files: [key files changed]
+✓ summary: [one-sentence summary]
+✓ lessons: [key takeaway]
+✓ refs: [tasks.md, progress.md, activecontext.md]
+```
+
+## 🔄 integration with memory bank
+
+archiving integrates with memory bank:
+
+```mermaid
+graph td
+    archive["enhancement<br>archive"] --> tasksupdate["update<br>tasks.md"]
+    archive --> progressupdate["update<br>progress.md"]
+    archive --> contextupdate["update<br>activecontext.md"]
+    
+    tasksupdate & progressupdate & contextupdate --> crosslinks["create<br>cross-links"]
+    crosslinks --> verify["verify<br>references"]
+```
+
+## 🚨 knowledge preservation principle
+
+remember:
+
+```
+┌─────────────────────────────────────────────────────┐
+│ archive files are a valuable knowledge resource.    │
+│ take care to preserve insights and lessons that     │
+│ will benefit future work.                           │
+└─────────────────────────────────────────────────────┘
+```
+
+this ensures that knowledge is preserved and can be referenced in the future.

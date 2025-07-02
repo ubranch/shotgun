@@ -1,0 +1,71 @@
+---
+description: platform detection and command adaptation for isolation-focused memory bank
+globs: platform-awareness.mdc
+alwaysapply: false
+---
+
+
+# platform awareness system
+
+> **tldr:** this system detects the operating system, path format, and shell environment, then adapts commands accordingly to ensure cross-platform compatibility.
+
+## 🔍 platform detection process
+
+```mermaid
+graph td
+    start["start platform<br>detection"] --> detectos["detect os<br>environment"]
+    detectos --> windows["windows<br>detection"]
+    detectos --> mac["macos<br>detection"]
+    detectos --> linux["linux<br>detection"]
+    
+    windows & mac & linux --> pathcheck["path separator<br>detection"]
+    pathcheck --> cmdadapt["command<br>adaptation"]
+    cmdadapt --> shellcheck["shell type<br>detection"]
+    shellcheck --> complete["platform detection<br>complete"]
+```
+
+## 📋 platform detection implementation
+
+for reliable platform detection:
+
+```
+## platform detection results
+operating system: [windows/macos/linux]
+path separator: [\ or /]
+shell environment: [powershell/bash/zsh/cmd]
+command adaptation: [required/not required]
+
+adapting commands for [detected platform]...
+```
+
+## 🔍 path format conversion
+
+when converting paths between formats:
+
+```mermaid
+sequencediagram
+    participant input as path input
+    participant detector as format detector
+    participant converter as format converter
+    participant output as adapted path
+    
+    input->>detector: raw path
+    detector->>detector: detect current format
+    detector->>converter: path + current format
+    converter->>converter: apply target format
+    converter->>output: platform-specific path
+```
+
+## 📝 platform verification checklist
+
+```
+✓ platform verification
+- operating system correctly identified? [yes/no]
+- path separator format detected? [yes/no]
+- shell environment identified? [yes/no]
+- command set adapted appropriately? [yes/no]
+- path format handling configured? [yes/no]
+
+→ if all yes: platform adaptation complete
+→ if any no: run additional detection steps
+```

@@ -36,7 +36,7 @@ const props = defineProps({
     },
     height: {
         type: Number,
-        default: 150, // Default height if not provided
+        default: 150, // default height if not provided
     },
 });
 
@@ -62,7 +62,7 @@ watch(
     () => {
         nextTick(() => {
             if (consoleRootRef.value) {
-                // Scroll to the bottom (which is top due to flex-col-reverse)
+                // scroll to the bottom (which is top due to flex-col-reverse)
                 consoleRootRef.value.scrollTop = 0;
             }
         });
@@ -75,5 +75,5 @@ watch(
 .select-text {
     user-select: text;
 }
-/* Removed custom scrollbar styling to use global styles from custom.css */
+/* removed custom scrollbar styling to use global styles from custom.css */
 </style>

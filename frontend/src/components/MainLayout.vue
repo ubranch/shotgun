@@ -151,18 +151,18 @@ const manuallyToggledNodes = reactive(new Map());
 const isGeneratingContext = ref(false);
 const generationProgressData = ref({ current: 0, total: 0 });
 const isFileTreeLoading = ref(false);
-const composedLlmPrompt = ref(""); // To store the prompt from Step 2
-const platform = ref("unknown"); // To store OS platform (e.g., 'darwin', 'windows', 'linux')
+const composedLlmPrompt = ref(""); // to store the prompt from step 2
+const platform = ref("unknown"); // to store os platform (e.g., 'darwin', 'windows', 'linux')
 const userTask = ref("");
 const rulesContent = ref("");
 const finalPrompt = ref("");
 const isLoadingSplitDiffs = ref(false);
 const splitDiffs = ref([]);
 const shotgunGitDiff = ref("");
-const splitLineLimitValue = ref(0); // Add new state variable
+const splitLineLimitValue = ref(0); // add new state variable
 let debounceTimer = null;
 
-// Watcher related
+// watcher related
 const projectFilesChangedPendingReload = ref(false);
 let unlistenProjectFilesChanged = null;
 
@@ -180,7 +180,7 @@ async function selectProjectFolderHandler() {
 
             await loadFileTree(selectedDir);
 
-            splitDiffs.value = []; // Clear any previous splits when new project selected
+            splitDiffs.value = []; // clear any previous splits when new project selected
 
             if (!isFileTreeLoading.value && projectRoot.value) {
                 debouncedTriggerShotgunContextGeneration();
@@ -271,12 +271,12 @@ function isAnyParentVisuallyExcluded(node) {
 }
 
 function toggleExcludeNode(nodeToToggle) {
-    // If the node is under an unselected parent and is currently unselected itself (nodeToToggle.excluded is true),
-    // the first click should select it (set nodeToToggle.excluded to false).
+    // if the node is under an unselected parent and is currently unselected itself (nodetotoggle.excluded is true),
+    // the first click should select it (set nodetotoggle.excluded to false).
     if (isAnyParentVisuallyExcluded(nodeToToggle) && nodeToToggle.excluded) {
         nodeToToggle.excluded = false;
     } else {
-        // Otherwise, normal toggle behavior.
+        // otherwise, normal toggle behavior.
         nodeToToggle.excluded = !nodeToToggle.excluded;
     }
     manuallyToggledNodes.set(nodeToToggle.relPath, nodeToToggle.excluded);
@@ -288,8 +288,8 @@ function toggleExcludeNode(nodeToToggle) {
 }
 
 function updateAllNodesExcludedState(nodesToUpdate) {
-    // This is the public-facing function
-    // It calls the recursive helper, starting with parentIsVisuallyExcluded = false for root nodes.
+    // this is the public-facing function
+    // it calls the recursive helper, starting with parentisvisuallyexcluded = false for root nodes.
     _updateAllNodesExcludedStateRecursive(nodesToUpdate, false);
 }
 
@@ -306,16 +306,16 @@ function _updateAllNodesExcludedStateRecursive(
             isExcludedByRule = true;
 
         if (manualToggle !== undefined) {
-            // If there's a manual toggle, it dictates the state.
+            // if there's a manual toggle, it dictates the state.
             node.excluded = manualToggle;
         } else {
-            // If not manually toggled, it's excluded if a rule matches OR if its parent is visually excluded.
-            // This establishes the default inherited exclusion for visual purposes.
+            // if not manually toggled, it's excluded if a rule matches or if its parent is visually excluded.
+            // this establishes the default inherited exclusion for visual purposes.
             node.excluded = isExcludedByRule || parentIsVisuallyExcluded;
         }
 
         if (node.children && node.children.length > 0) {
-            _updateAllNodesExcludedStateRecursive(node.children, node.excluded); // Pass current node's new visual excluded state
+            _updateAllNodesExcludedStateRecursive(node.children, node.excluded); // pass current node's new visual excluded state
         }
     });
 }
@@ -334,8 +334,8 @@ function toggleGitignoreHandler(value) {
         .catch((err) =>
             addLog(`error setting usegitignore in backend: ${err}`, "error")
         );
-    // Context regeneration is handled by the watch on [fileTree, useGitignore, useCustomIgnore]
-    // which calls updateAllNodesExcludedState and debouncedTriggerShotgunContextGeneration.
+    // context regeneration is handled by the watch on [filetree, usegitignore, usecustomignore]
+    // which calls updateallnodesexcludedstate and debouncedtriggershotguncontextgeneration.
 }
 
 function toggleCustomIgnoreHandler(value) {
@@ -359,10 +359,10 @@ function toggleCustomIgnoreHandler(value) {
 
 function debouncedTriggerShotgunContextGeneration() {
     if (!projectRoot.value) {
-        // Clear context and stop loading if no project root
-        shotgunPromptContext.value = ""; // Clear previous context
-        generationProgressData.value = { current: 0, total: 0 }; // Reset progress
-        // isGeneratingContext will be set to false by the return or by the timeout if it runs
+        // clear context and stop loading if no project root
+        shotgunPromptContext.value = ""; // clear previous context
+        generationProgressData.value = { current: 0, total: 0 }; // reset progress
+        // isgeneratingcontext will be set to false by the return or by the timeout if it runs
         isGeneratingContext.value = false;
         return;
     }
@@ -402,22 +402,22 @@ function debouncedTriggerShotgunContextGeneration() {
         );
 
         updateAllNodesExcludedState(fileTree.value);
-        generationProgressData.value = { current: 0, total: 0 }; // Reset progress before new request
+        generationProgressData.value = { current: 0, total: 0 }; // reset progress before new request
 
         const excludedPathsArray = [];
 
-        // Helper to determine if a node has any visually included (checkbox checked) descendants
+        // helper to determine if a node has any visually included (checkbox checked) descendants
         function hasVisuallyIncludedDescendant(node) {
             if (!node.isDir || !node.children || node.children.length === 0) {
                 return false;
             }
             for (const child of node.children) {
                 if (!child.excluded) {
-                    // If child itself is visually included (checkbox is checked)
+                    // if child itself is visually included (checkbox is checked)
                     return true;
                 }
                 if (hasVisuallyIncludedDescendant(child)) {
-                    // Or if any of its descendants are
+                    // or if any of its descendants are
                     return true;
                 }
             }
@@ -427,14 +427,14 @@ function debouncedTriggerShotgunContextGeneration() {
         function collectTrulyExcludedPaths(nodes) {
             if (!nodes) return;
             nodes.forEach((node) => {
-                // A node is TRULY excluded if its checkbox is unchecked (node.excluded is true)
-                // AND it does not have any descendant that is checked (visually included).
+                // a node is truly excluded if its checkbox is unchecked (node.excluded is true)
+                // and it does not have any descendant that is checked (visually included).
                 if (node.excluded && !hasVisuallyIncludedDescendant(node)) {
                     excludedPathsArray.push(node.relPath);
-                    // If a node is truly excluded, its children are implicitly excluded from generation,
+                    // if a node is truly excluded, its children are implicitly excluded from generation,
                     // so no need to recurse further for collecting excluded paths under this node.
                 } else {
-                    // If the node is visually included OR it's visually excluded but has an included descendant
+                    // if the node is visually included or it's visually excluded but has an included descendant
                     // (meaning this node's path needs to be in the tree structure for its descendant),
                     // then we must check its children for their own exclusion status.
                     if (node.children && node.children.length > 0) {
@@ -454,7 +454,7 @@ function debouncedTriggerShotgunContextGeneration() {
                 shotgunPromptContext.value = "error: " + errorMsg;
             })
             .finally(() => {
-                // isGeneratingContext.value = false;
+                // isgeneratingcontext.value = false;
             });
     }, 750);
 }
@@ -464,7 +464,7 @@ function navigateToStep(stepId) {
     if (!targetStep) return;
 
     if (targetStep.completed || stepId === currentStep.value) {
-        // When navigating to previous steps, mark any later steps as incomplete
+        // when navigating to previous steps, mark any later steps as incomplete
         if (stepId < currentStep.value) {
             for (let i = stepId; i < steps.value.length; i++) {
                 if (steps.value[i].id > stepId) {
@@ -495,7 +495,7 @@ function handleComposedPromptUpdate(prompt) {
         "debug",
         "bottom"
     );
-    // Logic to mark step 2 as complete can go here
+    // logic to mark step 2 as complete can go here
     if (currentStep.value === 2 && prompt && steps.value[0].completed) {
         const step2 = steps.value.find((s) => s.id === 2);
         if (step2 && !step2.completed) {
@@ -539,7 +539,7 @@ async function handleStepAction(actionName, payload) {
                 "info",
                 "step"
             );
-            // Here, you would actually send composedLlmPrompt.value to an LLM
+            // here, you would actually send composedllmprompt.value to an llm
             await new Promise((resolve) => setTimeout(resolve, 1000));
             addLog(
                 "backend: llm call simulated. (mocked response/diff would be processed here).",
@@ -547,11 +547,11 @@ async function handleStepAction(actionName, payload) {
                 "step"
             );
             if (currentStepObj) currentStepObj.completed = true;
-            // For now, just navigate to Step 4, as Step 3's "execution" is conceptual.
-            // In a real app, Step 3 might display LLM output before proceeding.
+            // for now, just navigate to step 4, as step 3's "execution" is conceptual.
+            // in a real app, step 3 might display llm output before proceeding.
             navigateToStep(4);
             break;
-        case "executePromptAndSplitDiff": // Handle the actual splitting action
+        case "executePromptAndSplitDiff": // handle the actual splitting action
             if (!payload || !payload.gitDiff || payload.lineLimit <= 0) {
                 addLog(
                     "invalid payload for splitting diff.",
@@ -566,9 +566,9 @@ async function handleStepAction(actionName, payload) {
                 "bottom"
             );
             isLoadingSplitDiffs.value = true;
-            splitDiffs.value = []; // Clear previous splits
+            splitDiffs.value = []; // clear previous splits
             shotgunGitDiff.value = payload.gitDiff;
-            splitLineLimitValue.value = payload.lineLimit; // Store the line limit
+            splitLineLimitValue.value = payload.lineLimit; // store the line limit
             try {
                 const result = await SplitShotgunDiff(
                     payload.gitDiff,
@@ -634,7 +634,7 @@ onMounted(() => {
         ) {
             centralPanelRef.value.updateStep2ShotgunContext(output);
         }
-        checkAndProcessPendingFileTreeReload(); // Check after context generation
+        checkAndProcessPendingFileTreeReload(); // check after context generation
     });
 
     EventsOn("shotgunContextError", (errorMsg) => {
@@ -646,15 +646,15 @@ onMounted(() => {
         shotgunPromptContext.value = "error: " + errorMsg;
         isGeneratingContext.value = false;
         addLog(`error generating context: ${errorMsg}`, "error");
-        checkAndProcessPendingFileTreeReload(); // Check after context generation error
+        checkAndProcessPendingFileTreeReload(); // check after context generation error
     });
 
     EventsOn("shotgunContextGenerationProgress", (progress) => {
-        // console.log("FE: Progress event:", progress); // For debugging in Browser console
+        // console.log("fe: progress event:", progress); // for debugging in browser console
         generationProgressData.value = progress;
     });
 
-    // Get platform information
+    // get platform information
     (async () => {
         try {
             const envInfo = await Environment();
@@ -691,8 +691,8 @@ onMounted(() => {
                     "watchman: file change detected, reloading tree immediately.",
                     "info"
                 );
-                loadFileTree(projectRoot.value); // This will set isFileTreeLoading = true
-                // debouncedTriggerShotgunContextGeneration will be called by the watcher on fileTree if projectRoot is set
+                loadFileTree(projectRoot.value); // this will set isfiletreeloading = true
+                // debouncedtriggershotguncontextgeneration will be called by the watcher on filetree if projectroot is set
             }
         }
     );
@@ -712,7 +712,7 @@ onBeforeUnmount(async () => {
     if (unlistenProjectFilesChanged) {
         unlistenProjectFilesChanged();
     }
-    // Remember to unlisten other events if they return unlistener functions
+    // remember to unlisten other events if they return unlistener functions
 });
 
 watch(
@@ -751,26 +751,26 @@ watch(
             addLog(`file watcher stopped for ${oldRoot}`, "debug");
         }
         if (newRoot) {
-            // Existing logic to loadFileTree, clear errors, etc., happens in selectProjectFolderHandler
-            // which sets projectRoot. Here we just ensure the watcher starts for the new root.
+            // existing logic to loadfiletree, clear errors, etc., happens in selectprojectfolderhandler
+            // which sets projectroot. here we just ensure the watcher starts for the new root.
             await StartFileWatcher(newRoot).catch((err) =>
                 addLog(`error starting watcher for ${newRoot}: ${err}`, "error")
             );
             addLog(`file watcher started for ${newRoot}`, "debug");
         } else {
-            // Project root cleared, ensure watcher is stopped (already handled by oldRoot check if it was set)
+            // project root cleared, ensure watcher is stopped (already handled by oldroot check if it was set)
             fileTree.value = [];
             shotgunPromptContext.value = "";
             loadingError.value = "";
             manuallyToggledNodes.clear();
-            isGeneratingContext.value = false; // Reset generation state
-            projectFilesChangedPendingReload.value = false; // Reset pending reload
+            isGeneratingContext.value = false; // reset generation state
+            projectFilesChangedPendingReload.value = false; // reset pending reload
         }
     },
     { immediate: false }
 ); // 'immediate: false' to avoid running on initial undefined -> '' or '' -> initial value if set by default
 
-// Helper function to process pending reloads
+// helper function to process pending reloads
 function checkAndProcessPendingFileTreeReload() {
     if (
         projectFilesChangedPendingReload.value &&
@@ -779,7 +779,7 @@ function checkAndProcessPendingFileTreeReload() {
     ) {
         projectFilesChangedPendingReload.value = false;
         addLog("watchman: processing queued file tree reload.", "info");
-        // It's important that loadFileTree correctly sets isFileTreeLoading to true at its start
+        // it's important that loadfiletree correctly sets isfiletreeloading to true at its start
         // and that subsequent context generation is also handled.
         loadFileTree(projectRoot.value);
     }
@@ -788,9 +788,9 @@ function checkAndProcessPendingFileTreeReload() {
 function handleCustomRulesUpdated() {
     addLog("custom ignore rules updated by user. reloading file tree.", "info");
     if (projectRoot.value) {
-        // This will call ListFiles in Go, which will use the new custom rules from app.settings.
-        // The new tree will have updated IsCustomIgnored flags.
-        // The watch on fileTree (and its subsequent call to debouncedTriggerShotgunContextGeneration)
+        // this will call listfiles in go, which will use the new custom rules from app.settings.
+        // the new tree will have updated iscustomignored flags.
+        // the watch on filetree (and its subsequent call to debouncedtriggershotguncontextgeneration)
         // will then handle regenerating the context.
         loadFileTree(projectRoot.value);
     }
@@ -804,7 +804,7 @@ function handleRulesContentUpdate(val) {
     rulesContent.value = val;
 }
 
-// Add handlers for the new updates
+// add handlers for the new updates
 function handleShotgunGitDiffUpdate(val) {
     shotgunGitDiff.value = val;
 }

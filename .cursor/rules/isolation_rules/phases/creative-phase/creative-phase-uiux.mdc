@@ -1,0 +1,97 @@
+---
+description: creative phase uiux
+globs: creative-phase-uiux.md
+alwaysapply: false
+---
+# 🎨 creative phase: ui/ux design
+
+> **tldr:** this document guides the ui/ux design process, ensuring that design decisions are user-centric, well-documented, and aligned with project requirements.
+
+## 🖌️ ui/ux design workflow
+
+```mermaid
+graph td
+    start["start<br>ui/ux design"] --> research["1️⃣ user<br>research"]
+    research --> wireframe["2️⃣ wireframing"]
+    wireframe --> prototype["3️⃣ prototyping"]
+    prototype --> test["4️⃣ user<br>testing"]
+    test --> refine["5️⃣ refinement"]
+    refine --> document["6️⃣ document<br>design"]
+    
+    style start fill:#4da6ff,stroke:#0066cc,color:white
+    style research fill:#ffa64d,stroke:#cc7a30,color:white
+    style wireframe fill:#4dbb5f,stroke:#36873f,color:white
+    style prototype fill:#d94dbb,stroke:#a3378a,color:white
+    style test fill:#4dbbbb,stroke:#368787,color:white
+    style refine fill:#d971ff,stroke:#a33bc2,color:white
+    style document fill:#ff71c2,stroke:#c23b8a,color:white
+```
+
+## 📋 ui/ux design template
+
+```markdown
+# ui/ux design: [feature name]
+
+## 1. user personas
+- persona 1: [description]
+- persona 2: [description]
+
+## 2. user stories
+- as a [user type], i want to [action] so that [benefit].
+- as a [user type], i want to [action] so that [benefit].
+
+## 3. wireframes
+```mermaid
+[wireframe diagram]
+```
+
+## 4. prototypes
+- [link to interactive prototype]
+
+## 5. user testing feedback
+- feedback 1: [summary of feedback]
+- feedback 2: [summary of feedback]
+
+## 6. design decisions
+- decision 1: [description and rationale]
+- decision 2: [description and rationale]
+
+## 7. final design
+```mermaid
+[final design diagram]
+```
+
+## 8. verification
+- [ ] user stories met
+- [ ] accessibility standards followed
+- [ ] design consistent with style guide
+```
+
+## ✅ verification checklist
+
+```mermaid
+graph td
+    subgraph "ui/ux verification"
+    stories["user stories<br>met"]
+    access["accessibility<br>standards"]
+    style["style guide<br>consistency"]
+    end
+    
+    stories --> access --> style
+    
+    style stories fill:#4dbb5f,stroke:#36873f,color:white
+    style access fill:#ffa64d,stroke:#cc7a30,color:white
+    style style fill:#d94dbb,stroke:#a3378a,color:white
+```
+
+## 🔄 document management
+
+```mermaid
+graph td
+    current["current document"] --> active["active:<br>- creative-phase-uiux.md"]
+    current --> related["related:<br>- creative-phase-enforcement.md<br>- task-tracking-intermediate.md"]
+    
+    style current fill:#4da6ff,stroke:#0066cc,color:white
+    style active fill:#4dbb5f,stroke:#36873f,color:white
+    style related fill:#ffa64d,stroke:#cc7a30,color:white
+```

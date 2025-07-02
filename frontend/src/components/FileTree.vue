@@ -53,7 +53,7 @@ const props = defineProps({
         default: 0,
     },
     parentExcluded: {
-        // Whether an ancestor is excluded
+        // whether an ancestor is excluded
         type: Boolean,
         default: false,
     },
@@ -68,16 +68,16 @@ function toggleExpand(node) {
 }
 
 function handleCheckboxChange(node) {
-    // Emit an event with the node to toggle its exclusion status in the parent (App.vue)
+    // emit an event with the node to toggle its exclusion status in the parent (app.vue)
     emit("toggle-exclude", node);
 }
 
 function emitToggleExclude(node) {
-    emit("toggle-exclude", node); // Bubble up the event
+    emit("toggle-exclude", node); // bubble up the event
 }
 
-// A node is effectively excluded if one of its PARENTS is.
-// This is mainly for UI state (e.g., disabling checkbox), backend handles true exclusion.
+// a node is effectively excluded if one of its parents is.
+// this is mainly for ui state (e.g., disabling checkbox), backend handles true exclusion.
 function isEffectivelyExcludedByParent(node) {
     let current = node.parent;
     while (current) {
@@ -91,7 +91,7 @@ function isEffectivelyExcludedByParent(node) {
 <style scoped>
 .file-tree {
     list-style-type: none;
-    padding-left: 0; /* Remove default ul padding */
+    padding-left: 0; /* remove default ul padding */
 }
 .file-tree li {
     margin: 2px 0;
@@ -112,11 +112,11 @@ function isEffectivelyExcludedByParent(node) {
     text-align: center;
 }
 .item-spacer {
-    width: 20px; /* Space for non-folders to align with folder togglers */
+    width: 20px; /* space for non-folders to align with folder togglers */
     display: inline-block;
 }
 .folder-name {
-    cursor: pointer; /* To indicate it's clickable for expanding */
+    cursor: pointer; /* to indicate it's clickable for expanding */
     font-weight: bold;
 }
 .exclude-checkbox {
@@ -127,15 +127,15 @@ function isEffectivelyExcludedByParent(node) {
     text-decoration: line-through;
     color: #999;
 }
-/* Style for checkbox of an effectively excluded item (e.g. parent excluded) */
+/* style for checkbox of an effectively excluded item (e.g. parent excluded) */
 .exclude-checkbox:disabled + span {
-    color: #bbb; /* Lighter text for items under an excluded parent */
+    color: #bbb; /* lighter text for items under an excluded parent */
 }
 .exclude-checkbox:disabled {
     cursor: not-allowed;
 }
 
-/* Dark mode styles */
+/* dark mode styles */
 :global(.dark) .node-item:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }

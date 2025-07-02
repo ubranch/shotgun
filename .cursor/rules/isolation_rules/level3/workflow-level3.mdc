@@ -1,0 +1,326 @@
+---
+description: defines the standard workflow for level 3 (intermediate feature) tasks, guiding through comprehensive planning, targeted creative design, structured implementation, detailed reflection, and feature-specific archiving.
+globs: workflow-level3.mdc
+alwaysapply: false
+---
+
+# level 3 workflow: intermediate feature development
+
+> **tldr:** this document outlines a structured workflow for level 3 (intermediate feature) tasks. these tasks involve developing significant new functionality that may span multiple components, requiring comprehensive planning, often necessitating targeted creative design phases, followed by systematic implementation, in-depth reflection, and feature-specific archiving. this workflow balances detailed process with efficiency for moderately complex features.
+
+## 🔍 level 3 workflow overview
+
+level 3 tasks represent a significant development effort, building a complete feature. the workflow ensures adequate planning, design for key aspects, and methodical execution.
+
+```mermaid
+graph lr
+    init["1. initialization<br>(van mode output)"] -->
+    docsetup["2. documentation setup"] -->
+    plan["3. feature planning (plan mode)"] -->
+    creative["4. creative phases (creative mode)"] -->
+    impl["5. implementation (implement mode)"] -->
+    reflect["6. reflection (reflect mode)"] -->
+    archive["7. archiving (archive mode)"]
+
+    %% document connections for each phase (conceptual links to mode guidance)
+    init -.-> initdocs["core rules & l3 confirmation"]
+    docsetup -.-> docsetupdocs["memory bank setup for l3"]
+    plan -.-> plandocs["comprehensive feature plan"]
+    creative -.-> creativedocs["targeted design documents"]
+    impl -.-> impldocs["feature implementation & testing"]
+    reflect -.-> reflectdocs["in-depth feature reflection"]
+    archive -.-> archivedocs["feature archive package"]
+
+    style init fill:#a1c4fd,stroke:#669df6
+    style docsetup fill:#b3e5fc,stroke:#81d4fa
+    style plan fill:#c8e6c9,stroke:#a5d6a7
+    style creative fill:#ffd8b2,stroke:#ffcc80
+    style impl fill:#ffcdd2,stroke:#ef9a9a
+    style reflect fill:#d1c4e9,stroke:#b39ddb
+    style archive fill:#cfd8dc,stroke:#b0bec5
+````
+
+level 3 tasks typically involve creating a new, distinct feature or making substantial modifications to an existing one that affects multiple parts of the application.
+
+## 🔄 level transition handling (within level 3 workflow)
+
+```mermaid
+graph td
+    l3["level 3 task in progress"] --> assess["continuous assessment<br>during plan or early implement"]
+
+    assess --> up["upgrade to<br>level 4?"]
+    assess --> down["downgrade to<br>level 2?"]
+    assess --> maintainl3["maintain<br>level 3"]
+
+    up --> l4trigger["triggers:<br>- unforeseen system-wide impact<br>- requires deep architectural changes<br>- scope significantly larger than planned"]
+    down --> l2trigger["triggers:<br>- feature simpler than anticipated<br>- very limited component interaction<br>- no complex design decisions emerge"]
+
+    l4trigger --> l4switch["stop l3 workflow.<br>re-initialize task as level 4 (van).<br>preserve existing docs as input."]
+    l2trigger --> l2switch["adapt l3 workflow:<br>simplify remaining phases,<br>use l2 reflection/archive rules."]
+    
+    style assess fill:#ffe082,stroke:#ffca28
+    style up fill:#ef9a9a,stroke:#e57373
+    style down fill:#a5d6a7,stroke:#81c784
+    style maintainl3 fill:#b3e5fc,stroke:#81d4fa
+```
+
+## 📋 workflow phases
+
+### phase 1: initialization (output from van mode)
+
+this phase is largely completed in van mode, which identifies the task as level 3.
+
+  * **input:** user request leading to an "intermediate feature" classification.
+  * **key existing files (from van):**
+      * `memory-bank/tasks.md`: entry created, complexity set to level 3.
+      * `memory-bank/activecontext.md`: initial context set.
+      * relevant core rules loaded (e.g., `core/memory-bank-paths.mdc`, `core/main-optimized.mdc`).
+  * **steps within this workflow file (confirmation):**
+    1.  confirm task is level 3 by checking `memory-bank/tasks.md`.
+    2.  ensure core memory bank structure and paths are known (ai should have internalized from `main` rule).
+  * **milestone checkpoint:**
+    ```
+    ✓ initialization confirmed (l3)
+    - task correctly identified as level 3 in tasks.md? [yes/no]
+    - core memory bank files (tasks.md, activecontext.md) accessible via canonical paths? [yes/no]
+
+    → if all yes: proceed to documentation setup for l3.
+    → if any no: revisit van mode or core file setup.
+    ```
+
+### phase 2: documentation setup (l3 specific)
+
+prepare the memory bank for a level 3 feature.
+
+```mermaid
+graph td
+    startdoc["begin l3 documentation<br>setup"] --> loadl3plantrack["load l3 planning & tracking rules<br>level3/planning-comprehensive.mdc<br>level3/task-tracking-intermediate.mdc"]
+    loadl3plantrack --> updatebrief["review/update `projectbrief.md`<br>ensure feature aligns with overall project goals"]
+    updatebrief --> updateactivectx["update `activecontext.md`<br>set focus to l3 feature planning"]
+    updateactivectx --> preptaskfile["prepare `tasks.md` for<br>comprehensive feature plan sections"]
+    preptaskfile --> docsetupcomplete["l3 documentation<br>setup complete"]
+
+    style startdoc fill:#b3e5fc,stroke:#81d4fa
+    style docsetupcomplete fill:#81d4fa,stroke:#4fc3f7
+```
+
+  * **steps:**
+    1.  load level 3 specific planning (`level3/planning-comprehensive.mdc`) and task tracking (`level3/task-tracking-intermediate.mdc`) rules.
+    2.  review `memory-bank/projectbrief.md`: briefly note the new feature if it impacts the overall brief.
+    3.  update `memory-bank/activecontext.md`: set current focus to "level 3 feature planning: [feature name]".
+    4.  ensure `memory-bank/tasks.md` is ready for the detailed planning sections outlined in `level3/planning-comprehensive.mdc`.
+  * **milestone checkpoint:**
+    ```
+    ✓ l3 documentation setup checkpoint
+    - l3 planning & tracking rules loaded? [yes/no]
+    - projectbrief.md reviewed/updated for feature context? [yes/no]
+    - activecontext.md reflects focus on l3 feature planning? [yes/no]
+    - tasks.md prepared for detailed l3 plan? [yes/no]
+
+    → if all yes: proceed to feature planning.
+    → if any no: complete documentation setup steps.
+    ```
+
+### phase 3: feature planning (plan mode)
+
+guided by `visual-maps/plan-mode-map.mdc` and using `level3/planning-comprehensive.mdc` and `level3/task-tracking-intermediate.mdc`.
+
+```mermaid
+graph td
+    startplan["begin l3 feature<br>planning"] --> reqdef["define detailed<br>requirements (functional & non-functional)"]
+    reqdef --> companalysis["component analysis<br>(new & affected components, interactions)"]
+    companalysis --> implstrategy["develop implementation<br>strategy & high-level steps"]
+    implstrategy --> depriskmgmt["identify dependencies,<br>risks, & mitigations"]
+    depriskmgmt --> creativeflag["flag aspects for<br>creative mode (ui, arch, algo)"]
+    creativeflag --> updatetasks["update `tasks.md` with<br>full l3 feature plan"]
+    updatetasks --> plancomplete["l3 feature planning<br>complete"]
+
+    style startplan fill:#c8e6c9,stroke:#a5d6a7
+    style plancomplete fill:#a5d6a7,stroke:#81c784
+```
+
+  * **steps:**
+    1.  define detailed functional and non-functional requirements for the feature.
+    2.  perform component analysis: identify new components to build and existing ones that will be modified. map their interactions.
+    3.  develop an implementation strategy: outline the main steps or stages for building the feature.
+    4.  identify dependencies (technical, data, other features) and potential risks, along with mitigation ideas.
+    5.  **critical for l3:** explicitly identify and flag parts of the feature that require creative mode (e.g., specific ui/ux challenges, new architectural patterns for the feature, complex algorithms).
+    6.  document the complete plan (requirements, components, strategy, dependencies, risks, creative flags) in `memory-bank/tasks.md` under the level 3 feature task entry.
+  * **milestone checkpoint:**
+    ```
+    ✓ l3 feature planning checkpoint
+    - detailed requirements documented in tasks.md? [yes/no]
+    - component analysis (new/affected, interactions) complete? [yes/no]
+    - implementation strategy outlined? [yes/no]
+    - dependencies and risks documented? [yes/no]
+    - aspects needing creative mode explicitly flagged in tasks.md? [yes/no]
+    - tasks.md comprehensively updated with the feature plan? [yes/no]
+
+    → if all yes: proceed to creative phases (if flagged) or implementation.
+    → if any no: complete planning steps.
+    ```
+
+### phase 4: creative phases (creative mode)
+
+triggered if aspects were flagged in the plan phase. guided by `visual-maps/creative-mode-map.mdc` and `phases/creativephase/*.mdc` rules.
+
+```mermaid
+graph td
+    startcreative["begin l3 creative<br>phases (if needed)"] --> selectaspect["select flagged aspect<br>from `tasks.md`"]
+    selectaspect --> designexplore["explore design/arch options<br>(use relevant creative-phase-*.mdc rules)"]
+    designexplore --> decidedocument["make & document decision<br>in `creative-[aspect_name].md`"]
+    decidedocument --> updatetaskscreative["update `tasks.md` with<br>decision summary & link"]
+    updatetaskscreative --> moreaspects{"more flagged<br>aspects?"}
+    moreaspects -- yes --> selectaspect
+    moreaspects -- no --> creativecomplete["l3 creative phases<br>complete"]
+
+    style startcreative fill:#ffd8b2,stroke:#ffcc80
+    style creativecomplete fill:#ffcc80,stroke:#ffb74d
+```
+
+  * **steps:**
+    1.  for each aspect flagged in `tasks.md` for creative exploration:
+        a.  load relevant `creative-phase-*.mdc` rule (e.g., ui/ux, architecture).
+        b.  define the problem, explore options, analyze trade-offs.
+        c.  make a design decision and document it with rationale in a new `memory-bank/creative-[aspect_name].md` file.
+        d.  update `tasks.md`: mark the creative sub-task as complete and link to the decision document.
+  * **milestone checkpoint:**
+    ```
+    ✓ l3 creative phases checkpoint
+    - all flagged aspects from plan phase addressed? [yes/no]
+    - design decisions documented in respective `memory-bank/creative-*.md` files? [yes/no]
+    - rationale for decisions clearly stated? [yes/no]
+    - tasks.md updated to reflect completion of creative sub-tasks and links to decision docs? [yes/no]
+
+    → if all yes: proceed to implementation.
+    → if any no: complete creative phase work.
+    ```
+
+### phase 5: implementation (implement mode)
+
+guided by `visual-maps/implement-mode-map.mdc` and `level3/implementation-l3.mdc`.
+
+```mermaid
+graph td
+    startimpl["begin l3 feature<br>implementation"] --> reviewplandesign["review plan (`tasks.md`)<br>& creative docs (`creative-*.md`)"]
+    reviewplandesign --> setupdevenv["setup dev environment<br>(branch, dependencies, tools)"]
+    setupdevenv --> buildmodules["implement feature modules/components<br>iteratively or sequentially"]
+    buildmodules --> unitintegrationtests["conduct unit & integration tests<br>for each module/feature part"]
+    unitintegrationtests --> styleadherence["ensure adherence to<br>`memory-bank/style-guide.md`"]
+    styleadherence --> updateprogressdocs["regularly update `tasks.md` (sub-tasks)<br>& `progress.md` (milestones)"]
+    updateprogressdocs --> e2efeaturetest["end-to-end feature testing<br>against requirements"]
+    e2efeaturetest --> implcomplete["l3 feature implementation<br>complete"]
+
+    style startimpl fill:#ffcdd2,stroke:#ef9a9a
+    style implcomplete fill:#ef9a9a,stroke:#e57373
+```
+
+  * **steps:**
+    1.  thoroughly review the feature plan in `memory-bank/tasks.md` and all relevant `memory-bank/creative-*.md` decision documents.
+    2.  set up the development environment (new branch, install any new dependencies, configure tools).
+    3.  implement the feature, building out modules/components as planned. prioritize clean code and adherence to design specifications.
+    4.  perform unit tests for new logic and integration tests as components are assembled.
+    5.  ensure all ui elements strictly follow `memory-bank/style-guide.md`.
+    6.  update `memory-bank/tasks.md` with progress on sub-tasks, and `memory-bank/progress.md` with details of implemented parts, commands used, and any significant findings.
+    7.  conduct end-to-end testing of the completed feature against its requirements.
+  * **milestone checkpoint:**
+    ```
+    ✓ l3 implementation checkpoint
+    - feature fully implemented as per plan and creative designs? [yes/no]
+    - all ui elements adhere to `memory-bank/style-guide.md`? [yes/no]
+    - unit and integration tests performed and passing? [yes/no]
+    - end-to-end feature testing successful? [yes/no]
+    - `tasks.md` and `progress.md` updated with implementation status? [yes/no]
+
+    → if all yes: proceed to reflection.
+    → if any no: complete implementation and testing.
+    ```
+
+### phase 6: reflection (reflect mode)
+
+guided by `visual-maps/reflect-mode-map.mdc` and `level3/reflection-l3.mdc`.
+
+```mermaid
+graph td
+    startreflect["begin l3 feature<br>reflection"] --> reviewcompleted["review completed feature<br>(code, plan, design docs, test results)"]
+    reviewcompleted --> analyzeprocess["analyze development process<br>(successes, challenges, deviations)"]
+    analyzeprocess --> documentlessons["document key lessons learned<br>(technical & process)"]
+    documentlessons --> assessdesignchoices["assess effectiveness of<br>creative phase decisions"]
+    assessdesignchoices --> createreflectdoc["create `reflection-[feature_id].md`"]
+    createreflectdoc --> updatetasksreflect["update `tasks.md` (reflection complete)"]
+    updatetasksreflect --> reflectcomplete["l3 feature reflection<br>complete"]
+
+    style startreflect fill:#d1c4e9,stroke:#b39ddb
+    style reflectcomplete fill:#b39ddb,stroke:#9575cd
+```
+
+  * **steps:**
+    1.  review the entire feature development lifecycle: initial requirements, plan, creative designs, implementation, and testing outcomes.
+    2.  analyze what went well, what was challenging, and any deviations from the original plan or design.
+    3.  document key lessons learned regarding technology, architecture, process, or team collaboration relevant to this feature.
+    4.  specifically assess how effective the creative phase decisions were during actual implementation.
+    5.  create the `memory-bank/reflection-[feature_id].md` document.
+    6.  update `memory-bank/tasks.md` to mark the reflection stage for the feature as complete.
+  * **milestone checkpoint:**
+    ```
+    ✓ l3 reflection checkpoint
+    - feature development lifecycle thoroughly reviewed? [yes/no]
+    - successes, challenges, and lessons learned documented in `reflection-[feature_id].md`? [yes/no]
+    - effectiveness of creative/design decisions assessed? [yes/no]
+    - `tasks.md` updated to reflect reflection completion? [yes/no]
+
+    → if all yes: proceed to archiving.
+    → if any no: complete reflection documentation.
+    ```
+
+### phase 7: archiving (archive mode - highly recommended for l3)
+
+guided by `visual-maps/archive-mode-map.mdc` and `level3/archive-l3.mdc`.
+
+```mermaid
+graph td
+    startarchive["begin l3 feature<br>archiving"] --> consolidatedocs["consolidate all feature docs<br>(plan, creative, reflection, key progress notes)"]
+    consolidatedocs --> createarchivesummary["create archive summary document<br>`archive/feature-[feature_id]_yyyymmdd.md`"]
+    createarchivesummary --> linkdocs["link to detailed docs<br>within archive summary"]
+    linkdocs --> finalupdatetasks["final update to `tasks.md`<br>(mark feature completed & archived)"]
+    finalupdatetasks --> resetactivectx["clear `activecontext.md`<br>prepare for next task"]
+    resetactivectx --> archivecomplete["l3 feature archiving<br>complete"]
+
+    style startarchive fill:#cfd8dc,stroke:#b0bec5
+    style archivecomplete fill:#b0bec5,stroke:#90a4ae
+```
+
+  * **steps:**
+    1.  consolidate all documentation related to the feature: the plan section from `tasks.md`, all `creative-*.md` files, the `reflection-*.md` file, and relevant summaries from `progress.md`.
+    2.  create a dedicated feature archive summary document in `memory-bank/archive/feature-[feature_id]_yyyymmdd.md`. this summary should briefly describe the feature, its purpose, key decisions, and link to the more detailed documents.
+    3.  update `memory-bank/tasks.md` to mark the entire level 3 feature task as "completed" and "archived," providing a link to the new archive summary.
+    4.  update `memory-bank/activecontext.md` to clear information related to the completed feature, preparing for the next task.
+  * **milestone checkpoint:**
+    ```
+    ✓ l3 archiving checkpoint
+    - feature archive summary created in `memory-bank/archive/`? [yes/no]
+    - archive summary links to all relevant planning, creative, and reflection docs? [yes/no]
+    - `tasks.md` shows the feature as completed and archived with a link to the archive? [yes/no]
+    - `activecontext.md` cleared and ready for a new task? [yes/no]
+
+    → if all yes: level 3 task fully completed. suggest van mode for next task.
+    → if any no: complete archiving steps.
+    ```
+
+## 🚨 level 3 governance principle
+
+remember:
+
+```
+┌─────────────────────────────────────────────────────┐
+│ level 3 tasks build significant features. balance   │
+│ detailed planning and targeted design with efficient│
+│ execution. document key decisions and outcomes to   │
+│ ensure the feature is understandable and maintainable.│
+└─────────────────────────────────────────────────────┘
+```
+
+this ensures that intermediate features are developed with an appropriate level of rigor, bridging the gap between simple enhancements and full-scale system development.
+
+```
+```

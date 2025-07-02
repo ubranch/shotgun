@@ -1,0 +1,178 @@
+---
+description: basic reflection format for level 2 simple enhancement tasks
+globs: "**/level2/**", "**/reflection/**"
+alwaysapply: false
+---
+
+# basic reflection for level 2 tasks
+
+> **tldr:** this document outlines a basic reflection approach for level 2 (simple enhancement) tasks, ensuring that key insights and lessons are captured without unnecessary overhead.
+
+## 🔍 reflection overview
+
+reflection is essential for improving future work, even for simpler level 2 enhancements. this basic reflection approach focuses on key outcomes, challenges, and lessons learned while maintaining efficiency.
+
+## 📋 reflection principles
+
+1. **honesty**: accurately represent successes and challenges
+2. **specificity**: include concrete examples and observations
+3. **insight**: go beyond surface observations to derive useful insights
+4. **improvement**: focus on actionable takeaways for future work
+5. **efficiency**: keep reflection concise and focused on key learnings
+
+## 📋 basic reflection structure
+
+```markdown
+# level 2 enhancement reflection: [feature name]
+
+## enhancement summary
+[brief one-paragraph summary of the enhancement]
+
+## what went well
+- [specific success point 1]
+- [specific success point 2]
+- [specific success point 3]
+
+## challenges encountered
+- [specific challenge 1]
+- [specific challenge 2]
+- [specific challenge 3]
+
+## solutions applied
+- [solution to challenge 1]
+- [solution to challenge 2]
+- [solution to challenge 3]
+
+## key technical insights
+- [technical insight 1]
+- [technical insight 2]
+- [technical insight 3]
+
+## process insights
+- [process insight 1]
+- [process insight 2]
+- [process insight 3]
+
+## action items for future work
+- [specific action item 1]
+- [specific action item 2]
+- [specific action item 3]
+
+## time estimation accuracy
+- estimated time: [x hours/days]
+- actual time: [y hours/days]
+- variance: [z%]
+- reason for variance: [brief explanation]
+```
+
+## 📋 reflection quality
+
+high-quality reflections for level 2 tasks should:
+
+1. **provide specific examples** rather than vague statements
+2. **identify concrete takeaways** not general observations
+3. **connect challenges to solutions** with clear reasoning
+4. **analyze estimation accuracy** to improve future planning
+5. **generate actionable improvements** for future work
+
+## 📋 reflection process
+
+follow these steps for effective level 2 task reflection:
+
+1. **schedule reflection**:
+   - allocate dedicated time for reflection
+   - complete reflection within 24 hours of task completion
+
+2. **gather information**:
+   - review the original task requirements
+   - examine implementation details
+   - consider challenges encountered
+   - review time tracking data
+
+3. **complete template**:
+   - fill in all sections of the reflection template
+   - include specific, concrete examples
+   - be honest about challenges
+
+4. **extract insights**:
+   - identify patterns in challenges
+   - connect challenges to potential future improvements
+   - consider process improvements
+
+5. **document action items**:
+   - create specific, actionable improvements
+   - link these to future tasks where applicable
+
+6. **store reflection**:
+   - save reflection with the task archive
+   - add cross-references to relevant documents
+
+## 📋 examples: vague vs. specific entries
+
+### ❌ vague entries (insufficient)
+
+- "the implementation went well."
+- "we had some challenges with the code."
+- "the feature works as expected."
+
+### ✅ specific entries (sufficient)
+
+- "the modular approach allowed for easy integration with the existing codebase, specifically the clean separation between the ui layer and data processing logic."
+- "challenge: the state management became complex when handling multiple user interactions. solution: implemented a more structured reducer pattern with clear actions and state transitions."
+- "action item: create a reusable component for file selection that handles all the edge cases we encountered in this implementation."
+
+## 📋 reflection verification checklist
+
+```
+✓ reflection verification
+- all template sections completed? [yes/no]
+- specific examples provided? [yes/no]
+- challenges honestly addressed? [yes/no]
+- concrete solutions documented? [yes/no]
+- actionable insights generated? [yes/no]
+- time estimation analyzed? [yes/no]
+
+→ if all yes: reflection complete
+→ if any no: improve reflection quality
+```
+
+## 📋 minimal mode reflection
+
+for minimal mode, use this format:
+
+```
+✓ reflection: [feature name]
+✓ went well: [key success]
+✓ challenge: [key challenge]
+✓ solution: [key solution]
+✓ insight: [most important takeaway]
+✓ action: [top priority action item]
+✓ time: est [x] vs. actual [y] ([z%] variance)
+```
+
+## 🔄 integration with memory bank
+
+reflection integrates with memory bank:
+
+```mermaid
+graph td
+    reflection["enhancement<br>reflection"] --> archive["add to<br>archive"]
+    reflection --> progressupdate["update<br>progress.md"]
+    reflection --> actionitems["document<br>action items"]
+    
+    actionitems --> tasks["add to<br>tasks.md"]
+    archive & progressupdate & tasks --> crosslinks["create<br>cross-links"]
+```
+
+## 🚨 continuous improvement principle
+
+remember:
+
+```
+┌─────────────────────────────────────────────────────┐
+│ every reflection should produce at least one        │
+│ actionable improvement for future work.             │
+└─────────────────────────────────────────────────────┘
+```
+
+this ensures that reflection directly contributes to ongoing improvement of both the product and the process.

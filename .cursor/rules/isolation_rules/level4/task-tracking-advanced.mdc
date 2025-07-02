@@ -1,0 +1,466 @@
+---
+description: advanced task tracking for level 4 complex system tasks
+globs: "**/level4/**", "**/task-tracking/**"
+alwaysapply: false
+---
+
+# advanced task tracking for level 4 tasks
+
+> **tldr:** this document outlines a comprehensive task tracking approach for level 4 (complex system) tasks, ensuring detailed tracking of complex, multi-phase work with clear dependencies, progress tracking, and architectural alignment.
+
+## 🔍 advanced task tracking overview
+
+level 4 complex system tasks require sophisticated task tracking to manage the complexity of system development, coordinate multiple team members, track dependencies, and ensure alignment with architectural principles. this document outlines a comprehensive task tracking approach for such complex endeavors.
+
+```mermaid
+flowchart td
+    classdef phase fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+    classdef verification fill:#c5e8b7,stroke:#a5c897,color:#000
+    
+    start([begin task<br>tracking]) --> framework[establish task<br>framework]
+    framework --> hierarchy[define task<br>hierarchy]
+    hierarchy --> breakdown[create work<br>breakdown structure]
+    breakdown --> dependencies[document<br>dependencies]
+    dependencies --> milestones[define key<br>milestones]
+    milestones --> schedule[create<br>schedule]
+    schedule --> resources[define resource<br>allocation]
+    resources --> risks[document<br>risks]
+    risks --> quality[define quality<br>metrics]
+    quality --> progress[track<br>progress]
+    progress --> adaptations[document<br>adaptations]
+    adaptations --> verification{task tracking<br>verification}
+    verification -->|pass| complete([task tracking<br>complete])
+    verification -->|fail| revise[revise task<br>tracking]
+    revise --> verification
+    
+    framework -.-> tf((task<br>framework))
+    hierarchy -.-> th((task<br>hierarchy))
+    breakdown -.-> wbs((work breakdown<br>structure))
+    dependencies -.-> dp((dependency<br>matrix))
+    milestones -.-> ms((milestone<br>document))
+    schedule -.-> sc((schedule<br>document))
+    resources -.-> ra((resource<br>allocation))
+    risks -.-> rm((risk<br>management))
+    quality -.-> qm((quality<br>metrics))
+    progress -.-> pt((progress<br>tracking))
+    adaptations -.-> ad((adaptation<br>document))
+    
+    class start,complete milestone
+    class framework,hierarchy,breakdown,dependencies,milestones,schedule,resources,risks,quality,progress,adaptations,revise step
+    class verification verification
+    class tf,th,wbs,dp,ms,sc,ra,rm,qm,pt,ad artifact
+```
+
+## 📋 task tracking principles
+
+1. **architectural alignment**: all tasks must align with the established architectural principles and patterns.
+2. **hierarchical organization**: tasks are organized in a hierarchical structure with clear parent-child relationships.
+3. **dependency management**: all task dependencies are explicitly documented and tracked.
+4. **progression transparency**: task status and progress are clearly documented and visible to all stakeholders.
+5. **quality integration**: quality metrics and verification are integrated into task definitions.
+6. **resource allocation**: tasks include clear allocation of resources required for completion.
+7. **risk awareness**: each significant task includes risk assessment and mitigation strategies.
+8. **adaptive planning**: task tracking accommodates changes and adaptations while maintaining system integrity.
+9. **milestone tracking**: clear milestones are defined and used to track overall progress.
+10. **comprehensive documentation**: all aspects of the task lifecycle are documented thoroughly.
+
+## 📋 task hierarchy structure
+
+level 4 tasks follow a hierarchical structure:
+
+```mermaid
+flowchart td
+    classdef system fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef component fill:#a8d5ff,stroke:#88b5e0,color:#000
+    classdef feature fill:#c5e8b7,stroke:#a5c897,color:#000
+    classdef task fill:#f4b8c4,stroke:#d498a4,color:#000
+    classdef subtask fill:#d8c1f7,stroke:#b8a1d7,color:#000
+    
+    system[system-level work] --> component1[component 1]
+    system --> component2[component 2]
+    system --> component3[component 3]
+    
+    component1 --> feature1[feature 1.1]
+    component1 --> feature2[feature 1.2]
+    
+    feature1 --> task1[task 1.1.1]
+    feature1 --> task2[task 1.1.2]
+    
+    task1 --> subtask1[subtask 1.1.1.1]
+    task1 --> subtask2[subtask 1.1.1.2]
+    task1 --> subtask3[subtask 1.1.1.3]
+    
+    class system system
+    class component1,component2,component3 component
+    class feature1,feature2 feature
+    class task1,task2 task
+    class subtask1,subtask2,subtask3 subtask
+```
+
+### levels of hierarchy:
+
+1. **system level**: the overall system being built or modified.
+2. **component level**: major components or subsystems of the system.
+3. **feature level**: specific features within each component.
+4. **task level**: concrete tasks required to implement a feature.
+5. **subtask level**: detailed subtasks for complex tasks.
+
+## 📋 comprehensive task structure
+
+each level 4 task in `tasks.md` follows this comprehensive structure:
+
+```markdown
+## [system-id]: system name
+
+### system overview
+- **purpose**: [brief description of system purpose]
+- **architectural alignment**: [how the system aligns with architectural principles]
+- **status**: [planning/in progress/review/complete]
+- **milestones**: 
+  - milestone 1: [date] - [status]
+  - milestone 2: [date] - [status]
+  - milestone 3: [date] - [status]
+
+### components
+#### [comp-id]: component name
+- **purpose**: [brief description of component purpose]
+- **status**: [planning/in progress/review/complete]
+- **dependencies**: [list of dependencies]
+- **responsible**: [team or individual responsible]
+
+##### [feat-id]: feature name
+- **description**: [feature description]
+- **status**: [planning/in progress/review/complete]
+- **priority**: [critical/high/medium/low]
+- **related requirements**: [list of requirements ids this feature addresses]
+- **quality criteria**: [measurable criteria for completion]
+- **progress**: [0-100%]
+
+###### [task-id]: task name
+- **description**: [task description]
+- **status**: [todo/in progress/review/done]
+- **assigned to**: [assignee]
+- **estimated effort**: [effort estimate]
+- **actual effort**: [actual effort]
+- **dependencies**: [tasks this depends on]
+- **blocks**: [tasks blocked by this]
+- **risk assessment**: [risk level and description]
+- **quality gates**: [quality gates this must pass]
+- **implementation notes**: [key implementation notes]
+
+**subtasks**:
+- [ ] [sub-id]: [subtask description] - [status]
+- [ ] [sub-id]: [subtask description] - [status]
+- [ ] [sub-id]: [subtask description] - [status]
+
+### system-wide tasks
+- [ ] [sys-task-id]: [system-wide task description] - [status]
+- [ ] [sys-task-id]: [system-wide task description] - [status]
+
+### risks and mitigations
+- **risk 1**: [description] - **mitigation**: [mitigation strategy]
+- **risk 2**: [description] - **mitigation**: [mitigation strategy]
+
+### progress summary
+- **overall progress**: [0-100%]
+- **component 1**: [0-100%]
+- **component 2**: [0-100%]
+- **component 3**: [0-100%]
+
+### latest updates
+- [date]: [update description]
+- [date]: [update description]
+```
+
+## 📋 task tracking organization in tasks.md
+
+for level 4 complex system tasks, organize `tasks.md` as follows:
+
+```markdown
+# task tracking
+
+## active systems
+- [system-id]: [system name] - [status]
+- [system-id]: [system name] - [status]
+
+## system details
+
+[detailed task structure for each system as per the template above]
+
+## completed systems
+- [system-id]: [system name] - completed [date]
+- [system-id]: [system name] - completed [date]
+
+## system dependencies
+```mermaid
+graph td
+    system1 --> system2
+    system1 --> system3
+    system2 --> system4
+```
+
+## risk register
+| risk id | description | probability | impact | mitigation |
+|---------|-------------|-------------|--------|------------|
+| risk-01 | [description] | high/med/low | high/med/low | [strategy] |
+| risk-02 | [description] | high/med/low | high/med/low | [strategy] |
+
+## resource allocation
+| resource | system | allocation % | time period |
+|----------|--------|--------------|------------|
+| [name/team] | [system-id] | [%] | [start-end] |
+| [name/team] | [system-id] | [%] | [start-end] |
+```
+
+## 📋 dependency management
+
+```mermaid
+flowchart td
+    classdef critical fill:#f8707e,stroke:#d85060,color:#000
+    classdef high fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef medium fill:#a8d5ff,stroke:#88b5e0,color:#000
+    classdef low fill:#c5e8b7,stroke:#a5c897,color:#000
+    
+    task1[task 1] --> task2[task 2]
+    task1 --> task3[task 3]
+    task2 --> task4[task 4]
+    task3 --> task4
+    task4 --> task5[task 5]
+    task4 --> task6[task 6]
+    task5 --> task7[task 7]
+    task6 --> task7
+    
+    class task1,task4,task7 critical
+    class task2,task5 high
+    class task3 medium
+    class task6 low
+```
+
+for complex systems, document dependencies in a dedicated section:
+
+```markdown
+## dependency matrix
+
+| task id | depends on | blocks | type | status |
+|---------|------------|--------|------|--------|
+| task-01 | - | task-02, task-03 | technical | completed |
+| task-02 | task-01 | task-04 | technical | in progress |
+| task-03 | task-01 | task-04 | resource | not started |
+| task-04 | task-02, task-03 | task-05, task-06 | technical | not started |
+```
+
+### dependency types:
+- **technical**: one task technically requires another to be completed first
+- **resource**: tasks compete for the same resources
+- **information**: one task requires information produced by another
+- **architectural**: tasks have architectural dependencies
+- **temporal**: tasks must be completed in a specific time sequence
+
+## 📋 milestone tracking
+
+for level 4 tasks, track milestones explicitly:
+
+```markdown
+## system milestones
+
+| milestone id | description | target date | actual date | status | deliverables |
+|--------------|-------------|-------------|-------------|--------|--------------|
+| mile-01 | architecture approved | [date] | [date] | completed | architecture document |
+| mile-02 | component design completed | [date] | - | in progress | design documents |
+| mile-03 | component 1 implementation | [date] | - | not started | code, tests |
+| mile-04 | integration complete | [date] | - | not started | integrated system |
+| mile-05 | system testing complete | [date] | - | not started | test reports |
+| mile-06 | deployment ready | [date] | - | not started | deployment package |
+```
+
+## 📋 progress visualization
+
+include visual representations of progress in `tasks.md`:
+
+```markdown
+## progress visualization
+
+### overall system progress
+```mermaid
+pie title system progress
+    "completed" : 30
+    "in progress" : 25
+    "not started" : 45
+```
+
+### component progress
+```mermaid
+graph td
+    subgraph progress
+    c1[component 1: 75%]
+    c2[component 2: 50%]
+    c3[component 3: 20%]
+    c4[component 4: 5%]
+    end
+```
+
+### timeline
+```mermaid
+gantt
+    title system timeline
+    dateformat  yyyy-mm-dd
+    
+    section architecture
+    architecture design    :done, arch, 2023-01-01, 30d
+    architecture review    :done, arch-rev, after arch, 10d
+    
+    section component 1
+    design                 :active, c1-des, after arch-rev, 20d
+    implementation         :c1-imp, after c1-des, 40d
+    testing                :c1-test, after c1-imp, 15d
+    
+    section component 2
+    design                 :active, c2-des, after arch-rev, 25d
+    implementation         :c2-imp, after c2-des, 50d
+    testing                :c2-test, after c2-imp, 20d
+```
+```
+
+## 📋 updating task status
+
+for level 4 tasks, status updates include:
+
+1. **progress updates**: update task status and progress percentage
+2. **effort tracking**: record actual effort against estimates
+3. **risk updates**: update risk assessments and mitigations
+4. **dependency status**: update status of dependencies
+5. **milestone tracking**: update milestone status
+6. **issue documentation**: document issues encountered
+7. **adaptation documentation**: document any adaptations to the original plan
+8. **quality gate status**: update status of quality gates
+
+status update cycle:
+- **daily**: update task and subtask status
+- **weekly**: update component status and progress visualization
+- **bi-weekly**: update system-level progress and milestone status
+- **monthly**: complete system review including risks and adaptations
+
+## 📋 task tracking verification checklist
+
+```
+✓ task tracking verification checklist
+
+task structure
+- system level work properly defined? [yes/no]
+- component level tasks identified? [yes/no]
+- feature level tasks specified? [yes/no]
+- task level details provided? [yes/no]
+- subtasks created for complex tasks? [yes/no]
+
+task information
+- all tasks have clear descriptions? [yes/no]
+- status accurately reflected? [yes/no]
+- proper assignments made? [yes/no]
+- effort estimates provided? [yes/no]
+- dependencies documented? [yes/no]
+
+progress tracking
+- overall progress calculated? [yes/no]
+- component progress updated? [yes/no]
+- milestone status updated? [yes/no]
+- progress visualizations current? [yes/no]
+- latest updates documented? [yes/no]
+
+risk management
+- risks identified and assessed? [yes/no]
+- mitigation strategies documented? [yes/no]
+- risk register updated? [yes/no]
+- impact on schedule assessed? [yes/no]
+- contingency plans documented? [yes/no]
+
+resource allocation
+- resources allocated to tasks? [yes/no]
+- resource conflicts identified? [yes/no]
+- resource allocation optimized? [yes/no]
+- future resource needs projected? [yes/no]
+- resource allocation documented? [yes/no]
+
+quality integration
+- quality criteria defined for tasks? [yes/no]
+- quality gates specified? [yes/no]
+- verification procedures documented? [yes/no]
+- quality metrics being tracked? [yes/no]
+- quality issues documented? [yes/no]
+
+architectural alignment
+- tasks align with architecture? [yes/no]
+- architectural dependencies tracked? [yes/no]
+- architectural constraints documented? [yes/no]
+- architecture evolution tracked? [yes/no]
+- architectural decisions documented? [yes/no]
+```
+
+## 📋 integration with memory bank
+
+level 4 task tracking is tightly integrated with the memory bank:
+
+1. **projectbrief.md**: system-level tasks are derived from and linked to the project brief
+2. **productcontext.md**: tasks are aligned with business context and objectives
+3. **systempatterns.md**: tasks respect and implement defined architectural patterns
+4. **techcontext.md**: tasks are aligned with the technology stack and constraints
+5. **activecontext.md**: current focus and status from `tasks.md` informs the active context
+6. **progress.md**: system progress from `tasks.md` is reflected in overall progress
+
+```mermaid
+flowchart td
+    classdef memfile fill:#f4b8c4,stroke:#d498a4,color:#000
+    classdef process fill:#f9d77e,stroke:#d9b95c,color:#000
+    
+    tasktracking[advanced task<br>tracking] --> pb[projectbrief.md]
+    tasktracking --> pc[productcontext.md]
+    tasktracking --> ac[activecontext.md]
+    tasktracking --> sp[systempatterns.md]
+    tasktracking --> tc[techcontext.md]
+    tasktracking --> p[progress.md]
+    
+    p --> tu[task<br>updates]
+    tu --> tasktracking
+    
+    class pb,pc,ac,sp,tc,p memfile
+    class tasktracking,tu process
+```
+
+## 📋 minimal mode task tracking
+
+for situations requiring a more compact tracking approach:
+
+```markdown
+## [system-id]: system name - [status]
+
+### key components:
+- [comp-id]: [component name] - [status] - [progress %]
+- [comp-id]: [component name] - [status] - [progress %]
+
+### active tasks:
+- [ ] [task-id]: [task description] - [assignee] - [status]
+  - dependencies: [list of task ids]
+  - risks: [brief risk description]
+- [ ] [task-id]: [task description] - [assignee] - [status]
+
+### milestones:
+- [mile-id]: [milestone description] - [target date] - [status]
+- [mile-id]: [milestone description] - [target date] - [status]
+
+### critical paths:
+- [task-id] → [task-id] → [task-id] → [task-id]
+- [task-id] → [task-id] → [task-id]
+
+### updates:
+- [date]: [brief update]
+```
+
+## 🚨 task tracking primacy principle
+
+```
+┌─────────────────────────────────────────────────────┐
+│ tasks.md is the single source of truth for all task  │
+│ tracking. all task-related decisions and status      │
+│ updates must be reflected in tasks.md.               │
+└─────────────────────────────────────────────────────┘
+```

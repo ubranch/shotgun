@@ -1,0 +1,92 @@
+---
+description: utility for van qa common validation fixes
+globs: van-qa-utils/common-fixes.mdc
+alwaysapply: false
+---
+# van qa: common validation fixes
+
+> **tldr:** this component provides common fixes for issues that may arise during the qa validation process.
+
+## 🧪 common qa validation fixes by category
+
+### dependency issues
+
+| issue | fix |
+|-------|-----|
+| **missing node.js** | download and install node.js from https://nodejs.org/ |
+| **outdated npm** | run `npm install -g npm@latest` to update |
+| **missing packages** | run `npm install` or `npm install [package-name]` |
+| **package version conflicts** | adjust versions in package.json and run `npm install` |
+| **dependency resolution issues** | run `npm cache clean -f` and try installing again |
+
+### configuration issues
+
+| issue | fix |
+|-------|-----|
+| **invalid json** | use a json validator (e.g., jsonlint) to check syntax |
+| **missing react plugin** | add `import react from '@vitejs/plugin-react'` and `plugins: [react()]` to vite.config.js |
+| **incompatible typescript config** | update `tsconfig.json` with correct react settings |
+| **mismatched version references** | ensure consistent versions across configuration files |
+| **missing entries in config files** | add required fields to configuration files |
+
+### environment issues
+
+| issue | fix |
+|-------|-----|
+| **permission denied** | run terminal as administrator (windows) or use sudo (mac/linux) |
+| **port already in use** | kill process using the port: `netstat -ano \| findstr :port` then `taskkill /f /pid pid` (windows) or `lsof -i :port` then `kill -9 pid` (mac/linux) |
+| **missing build tools** | install required command-line tools (git, node, etc.) |
+| **environment variable issues** | set required environment variables: `$env:var_name = "value"` (powershell) or `export var_name="value"` (bash) |
+| **disk space issues** | free up disk space, clean npm/package cache files |
+
+### build test issues
+
+| issue | fix |
+|-------|-----|
+| **build fails** | check console for specific error messages |
+| **test fails** | verify minimal configuration is correct |
+| **path issues** | ensure paths use correct separators for the platform (`\` for windows, `/` for mac/linux) |
+| **missing dependencies** | make sure all required dependencies are installed |
+| **script permissions** | ensure script files have execution permissions (chmod +x on unix) |
+
+## 📝 issue diagnosis procedures
+
+### 1. dependency diagnosis
+```powershell
+# find conflicting dependencies
+npm ls [package-name]
+
+# check for outdated packages
+npm outdated
+
+# check for vulnerabilities
+npm audit
+```
+
+### 2. configuration diagnosis
+```powershell
+# list all configuration files
+get-childitem -recurse -include "*.json","*.config.js" | select-object fullname
+
+# find missing references in tsconfig.json
+if (test-path "tsconfig.json") { 
+    $tsconfig = get-content "tsconfig.json" -raw | convertfrom-json
+    if (-not $tsconfig.compileroptions.jsx) {
+        write-output "missing jsx setting in tsconfig.json"
+    }
+}
+```
+
+### 3. environment diagnosis
+```powershell
+# check process using a port (windows)
+netstat -ano | findstr ":3000"
+
+# list environment variables
+get-childitem env:
+
+# check disk space
+get-psdrive c | select-object used,free
+```
+
+**next step:** return to the validation process or follow the specific fix recommendations provided above.

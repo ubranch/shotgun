@@ -1,0 +1,59 @@
+---
+description: build and test qa checks
+globs: build-test.mdc
+alwaysapply: false
+---
+# build and test qa checks
+
+> **tldr:** this document outlines the quality assurance checks for build and test processes, ensuring that the application builds correctly and all tests pass before proceeding.
+
+## 🧪 build and test workflow
+
+```mermaid
+graph td
+    start["start<br>build & test checks"] --> build["1️⃣ run<br>build process"]
+    build -->|success| test["2️⃣ run<br>all tests"]
+    build -->|failure| buildfail["🚨 build<br>failed"]
+    
+    test -->|pass| complete["✅ checks<br>complete"]
+    test -->|failure| testfail["🚨 tests<br>failed"]
+    
+    buildfail --> reportbuild["report<br>build error"]
+    testfail --> reporttest["report<br>test failures"]
+    
+    style start fill:#4da6ff,stroke:#0066cc,color:white
+    style build fill:#ffa64d,stroke:#cc7a30,color:white
+    style test fill:#4dbb5f,stroke:#36873f,color:white
+    style buildfail fill:#ff5555,stroke:#cc0000,color:white
+    style testfail fill:#ff5555,stroke:#cc0000,color:white
+    style complete fill:#4caf50,stroke:#388e3c,color:white
+```
+
+## 📋 build check commands
+
+| build tool | command | purpose |
+|------------|---------|---------|
+| **npm** | `npm run build` | build the application for production |
+| **yarn** | `yarn build` | build the application for production |
+| **maven** | `mvn clean install` | compile, test, and package the application |
+| **gradle** | `gradle build` | build the application and run tests |
+| **docker** | `docker build .` | build a docker image |
+
+## 📋 test check commands
+
+| test runner | command | purpose |
+|-------------|---------|---------|
+| **jest** | `npm test` | run all unit and integration tests |
+| **mocha** | `npm test` | run all tests |
+| **pytest** | `pytest` | run all python tests |
+| **junit** | `mvn test` | run all java tests |
+| **cypress** | `npm run cypress:run` | run all end-to-end tests |
+
+## ✅ verification complete
+
+if the build succeeds and all tests pass, the build and test qa checks are complete.
+
+```
+build and test qa checks complete.
+build successful and all tests passed.
+```

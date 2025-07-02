@@ -144,17 +144,17 @@ watch(localSplitLineLimit, (newVal) => {
 });
 
 onBeforeUnmount(() => {
-    // Clear any pending debounced updates
+    // clear any pending debounced updates
   clearTimeout(diffInputDebounceTimer);
   clearTimeout(limitDebounceTimer);
 
-  // Immediately emit the current value of localShotgunGitDiffInput if it's different from the prop
+  // immediately emit the current value of localshotgungitdiffinput if it's different from the prop
     if (localShotgunGitDiffInput.value !== props.initialGitDiff) {
         emit('update:shotgunGitDiff', localShotgunGitDiffInput.value);
   } else {
        }
 
-  // Immediately emit the current value of localSplitLineLimit if it's valid and different from the prop
+  // immediately emit the current value of localsplitlinelimit if it's valid and different from the prop
     if (localSplitLineLimit.value > 0 && localSplitLineLimit.value !== props.initialSplitLineLimit) {
         emit('update:splitLineLimit', localSplitLineLimit.value);
   } else {

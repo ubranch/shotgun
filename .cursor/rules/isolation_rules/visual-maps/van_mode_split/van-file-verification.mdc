@@ -1,0 +1,74 @@
+---
+description: van file verification
+globs: van-file-verification.mdc
+alwaysapply: false
+---
+# van file verification
+
+> **tldr:** this document outlines the file verification process during the van (verify, analyze, narrate) mode, ensuring that the memory bank and critical project files are in place before proceeding.
+
+## 📂 file verification workflow
+
+```mermaid
+graph td
+    start["start<br>file verification"] --> checkmb["1️⃣ check for<br>memory bank"]
+    checkmb -->|exists| checkcrit["2️⃣ check for<br>critical files"]
+    checkmb -->|missing| createmb["🚨 create<br>memory bank"]
+    createmb --> checkcrit
+    
+    checkcrit -->|exists| complete["✅ verification<br>complete"]
+    checkcrit -->|missing| createcrit["🚨 create<br>critical files"]
+    createcrit --> complete
+    
+    style start fill:#4da6ff,stroke:#0066cc,color:white
+    style checkmb fill:#ffa64d,stroke:#cc7a30,color:white
+    style createmb fill:#ff5555,stroke:#cc0000,color:white
+    style checkcrit fill:#4dbb5f,stroke:#36873f,color:white
+    style createcrit fill:#ff5555,stroke:#cc0000,color:white
+    style complete fill:#4caf50,stroke:#388e3c,color:white
+```
+
+## 📋 critical file checklist
+
+| file/directory | purpose | action if missing |
+|----------------|---------|-------------------|
+| `memory-bank/` | core directory for all memory bank files | create directory |
+| `memory-bank/tasks.md` | tracks all tasks and their status | create file |
+| `memory-bank/activecontext.md` | holds current focus and context | create file |
+| `memory-bank/progress.md` | logs progress and key events | create file |
+| `memory-bank/projectbrief.md` | contains project overview | create file |
+| `memory-bank/productcontext.md` | details product context | create file |
+| `memory-bank/systempatterns.md` | documents system patterns | create file |
+| `memory-bank/techcontext.md` | describes technical context | create file |
+| `.cursorrules` | defines cursor ide rules | create file |
+
+## 🔄 file creation process
+
+```mermaid
+sequenceDiagram
+    participant verifier as file verifier
+    participant filesystem as file system
+    
+    verifier->>filesystem: check for memory-bank/
+    filesystem-->>verifier: not found
+    verifier->>filesystem: create memory-bank/
+    
+    verifier->>filesystem: check for tasks.md
+    filesystem-->>verifier: not found
+    verifier->>filesystem: create tasks.md
+    
+    verifier->>filesystem: check for activecontext.md
+    filesystem-->>verifier: not found
+    verifier->>filesystem: create activecontext.md
+    
+    verifier->>verifier: repeat for all critical files
+```
+
+## ✅ verification complete
+
+once all critical files and directories are verified or created, the system can proceed to the next step in the van mode.
+
+```
+file verification complete.
+all required memory bank files are in place.
+```

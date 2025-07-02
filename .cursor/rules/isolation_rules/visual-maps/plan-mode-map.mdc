@@ -1,0 +1,115 @@
+---
+description: Visual map for PLAN mode
+globs: "**/plan-mode-map.mdc"
+alwaysApply: false
+---
+
+# 🗺️ PLAN MODE VISUAL MAP
+
+> **TL;DR:** This document provides a visual map of the PLAN mode, outlining the process for breaking down tasks, defining requirements, and creating a clear implementation strategy.
+
+## 📝 PLAN MODE WORKFLOW
+
+```mermaid
+graph TD
+    Start["Start<br>PLAN Mode"] --> Define["1. Define<br>Task & Scope"]
+    Define --> Requirements["2. Gather<br>Requirements"]
+    Requirements --> Breakdown["3. Break Down<br>into Subtasks"]
+    Breakdown --> Dependencies["4. Identify<br>Dependencies"]
+    Dependencies --> Estimate["5. Estimate<br>Effort"]
+    Estimate --> Strategy["6. Create<br>Implementation Strategy"]
+    Strategy --> Verify["7. Verify<br>Plan"]
+    Verify --> Complete["PLAN Mode<br>Complete"]
+    
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style Define fill:#ffa64d,stroke:#cc7a30,color:white
+    style Requirements fill:#4dbb5f,stroke:#36873f,color:white
+    style Breakdown fill:#d94dbb,stroke:#a3378a,color:white
+    style Dependencies fill:#4dbbbb,stroke:#368787,color:white
+    style Estimate fill:#d971ff,stroke:#a33bc2,color:white
+    style Strategy fill:#ff71c2,stroke:#c23b8a,color:white
+    style Verify fill:#4da6ff,stroke:#0066cc,color:white
+    style Complete fill:#4da6ff,stroke:#0066cc,color:white
+```
+
+## 📋 PLAN DOCUMENT STRUCTURE
+
+```mermaid
+graph TD
+    subgraph "Plan Document"
+        Task["Task Definition"]
+        Requirements["Requirements List"]
+        Subtasks["Subtask Breakdown"]
+        Dependencies["Dependency Map"]
+        Estimates["Effort Estimates"]
+        Strategy["Implementation Strategy"]
+    end
+    
+    Task --> Requirements
+    Requirements --> Subtasks
+    Subtasks --> Dependencies
+    Dependencies --> Estimates
+    Estimates --> Strategy
+    
+    style Task fill:#4dbb5f,stroke:#36873f,color:white
+    style Requirements fill:#ffa64d,stroke:#cc7a30,color:white
+    style Subtasks fill:#d94dbb,stroke:#a3378a,color:white
+    style Dependencies fill:#4dbbbb,stroke:#368787,color:white
+    style Estimates fill:#d971ff,stroke:#a33bc2,color:white
+    style Strategy fill:#ff71c2,stroke:#c23b8a,color:white
+```
+
+## 🔄 MEMORY BANK INTEGRATION
+
+```mermaid
+graph TD
+    Plan["Plan<br>Document"] --> Tasks["Update<br>tasks.md"]
+    Plan --> Progress["Update<br>progress.md"]
+    Plan --> Active["Update<br>activeContext.md"]
+    
+    Tasks --> MB["Memory Bank"]
+    Progress --> MB
+    Active --> MB
+    
+    style Plan fill:#4da6ff,stroke:#0066cc,color:white
+    style Tasks fill:#ffa64d,stroke:#cc7a30,color:white
+    style Progress fill:#4dbb5f,stroke:#36873f,color:white
+    style Active fill:#d94dbb,stroke:#a3378a,color:white
+    style MB fill:#4dbbbb,stroke:#368787,color:white
+```
+
+## ✅ PLAN VERIFICATION CHECKLIST
+
+```mermaid
+graph TD
+    subgraph "Verification Checklist"
+        Clarity["Clarity of Scope"]
+        Completeness["Completeness of Requirements"]
+        Feasibility["Feasibility of Plan"]
+        Dependencies["Dependencies Identified"]
+        Estimates["Realistic Estimates"]
+    end
+    
+    Clarity --> Completeness
+    Completeness --> Feasibility
+    Feasibility --> Dependencies
+    Dependencies --> Estimates
+    
+    style Clarity fill:#4dbb5f,stroke:#36873f,color:white
+    style Completeness fill:#ffa64d,stroke:#cc7a30,color:white
+    style Feasibility fill:#d94dbb,stroke:#a3378a,color:white
+    style Dependencies fill:#4dbbbb,stroke:#368787,color:white
+    style Estimates fill:#d971ff,stroke:#a33bc2,color:white
+```
+
+## 🚨 PLANNING PRINCIPLE
+
+```
+┌─────────────────────────────────────────────────────┐
+│ A good plan is a map, not a script. It provides     │
+│ direction and structure, but allows for flexibility │
+│ and adaptation as new information emerges.          │
+└─────────────────────────────────────────────────────┘
+```
+
+This visual map provides a clear overview of the PLAN mode, ensuring that all tasks are well-defined, properly structured, and ready for implementation.

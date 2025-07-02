@@ -1,0 +1,74 @@
+---
+description: 
+globs: reflection-intermediate.mdc
+alwaysapply: false
+---
+# level 3 reflection: intermediate feature review
+
+> **tldr:** this guide structures the reflection process for a completed level 3 intermediate feature. the focus is on a detailed review of the entire feature development lifecycle, from planning and design through implementation and testing, to extract meaningful lessons and identify improvements for future feature work.
+
+## 🔍 level 3 reflection process
+
+the goal is to create a comprehensive `memory-bank/reflection/reflection-[feature_id].md` document.
+
+```mermaid
+graph td
+    startreflect["start l3 reflection"] -->
+    reviewdocs["1. review all gathered documentation"] -->
+    assessoutcome["2. assess overall feature outcome<br>did it meet all requirements from tasks.md? was it successful?"] -->
+    analyzeplan["3. analyze planning phase effectiveness<br>was planning-comprehensive.mdc guidance effective? was the plan accurate? scope creep?"] -->
+    analyzecreative["4. analyze creative phase(s) effectiveness<br>were design decisions sound? did they translate well to implementation? issues?"] -->
+    analyzeimpl["5. analyze implementation phase<br>what went well? challenges? bottlenecks? adherence to design/style guide?"] -->
+    analyzetesting["6. analyze testing phase<br>were tests adequate? bugs found post-release (if applicable)? test coverage feel right?"] -->
+    identifylessons["7. identify key lessons learned<br>(technical, process, teamwork, estimation)"] -->
+    proposeimprovements["8. propose actionable improvements<br>for future l3 feature development"] -->
+    draftreflectiondoc["9. draft `reflection-[feature_id].md`<br>using structured template"] -->
+    finalizereflection["10. finalize & save reflection document"] -->
+    updatetasksstatus["11. update `tasks.md`<br>mark l3 reflection complete"] -->
+    reflectiondone["l3 reflection complete<br>ready for archive mode"]
+
+    style startreflect fill:#ba68c8,stroke:#9c27b0
+    style reflectiondone fill:#d1c4e9,stroke:#b39ddb
+````
+
+## 📝 structure for `memory-bank/reflection-[feature_id].md`
+
+  * **feature name & id:**
+  * **date of reflection:**
+  * **brief feature summary:** (what was built?)
+  * **1. overall outcome & requirements alignment:**
+      * how well did the final feature meet the initial requirements?
+      * were there any deviations from the original scope? if so, why?
+      * what is the overall assessment of the feature's success?
+  * **2. planning phase review:**
+      * how effective was the guidance from `level3/planning-comprehensive.mdc`?
+      * was the initial plan in `tasks.md` (component breakdown, strategy, risks) accurate and helpful?
+      * what could have been planned better? were estimations (if made) accurate?
+  * **3. creative phase(s) review (if applicable):**
+      * were the right aspects flagged for creative mode?
+      * how effective were the design decisions made in `creative-*.md` documents?
+      * did these designs translate well into practical implementation? any friction points?
+      * was `memory-bank/style-guide.md` clear and sufficient for ui aspects?
+  * **4. implementation phase review:**
+      * what were the major successes during implementation? (e.g., efficient module development, good use of libraries)
+      * what were the biggest challenges or roadblocks? how were they overcome?
+      * were there any unexpected technical difficulties or complexities?
+      * how was adherence to the style guide and coding standards?
+  * **5. testing phase review:**
+      * was the testing strategy (unit, integration, e2e for the feature) effective?
+      * did testing uncover significant issues early enough?
+      * what could improve the testing process for similar features?
+  * **6. what went well? (highlight 3-5 key positives across all phases for this feature)**
+  * **7. what could have been done differently? (identify 3-5 areas for improvement)**
+  * **8. key lessons learned:**
+      * **technical:** new insights about technologies, patterns, or architecture used for this feature.
+      * **process:** insights about the l3 workflow, communication, task management.
+      * **estimation (if applicable):** lessons about estimating work for features of this scale.
+  * **9. actionable improvements for future l3 features:** (specific suggestions)
+
+## 🎯 focus areas for l3 reflection
+
+  * **feature scope management:** was the scope well-defined and managed?
+  * **integration complexity:** challenges or successes in integrating the feature with the existing application.
+  * **design-to-implementation fidelity:** how closely did the final product match the designs?
+  * **cross-component impact:** understanding the ripple effects of the feature.

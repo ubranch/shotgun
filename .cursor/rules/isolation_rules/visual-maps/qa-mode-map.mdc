@@ -1,0 +1,110 @@
+---
+description: Visual map for QA mode
+globs: "**/qa-mode-map.mdc"
+alwaysApply: false
+---
+
+#  QA MODE VISUAL MAP
+
+> **TL;DR:** This document provides a visual map of the QA mode, outlining the process for verifying system quality, identifying issues, and ensuring that the final product meets all requirements.
+
+## 🧪 QA MODE WORKFLOW
+
+```mermaid
+graph TD
+    Start["Start<br>QA Mode"] --> Plan["1. Create<br>Test Plan"]
+    Plan --> Execute["2. Execute<br>Tests"]
+    Execute --> Identify["3. Identify &<br>Log Issues"]
+    Identify --> Triage["4. Triage &<br>Prioritize Issues"]
+    Triage --> Retest["5. Retest &<br>Verify Fixes"]
+    Retest --> Report["6. Generate<br>QA Report"]
+    Report --> Complete["QA Mode<br>Complete"]
+    
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style Plan fill:#ffa64d,stroke:#cc7a30,color:white
+    style Execute fill:#4dbb5f,stroke:#36873f,color:white
+    style Identify fill:#d94dbb,stroke:#a3378a,color:white
+    style Triage fill:#4dbbbb,stroke:#368787,color:white
+    style Retest fill:#d971ff,stroke:#a33bc2,color:white
+    style Report fill:#ff71c2,stroke:#c23b8a,color:white
+    style Complete fill:#4da6ff,stroke:#0066cc,color:white
+```
+
+## 📋 QA DOCUMENT STRUCTURE
+
+```mermaid
+graph TD
+    subgraph "QA Documentation"
+        Plan["Test Plan"]
+        Cases["Test Cases"]
+        Results["Test Results"]
+        Issues["Issue Log"]
+        Report["QA Summary Report"]
+    end
+    
+    Plan --> Cases
+    Cases --> Results
+    Results --> Issues
+    Issues --> Report
+    
+    style Plan fill:#4dbb5f,stroke:#36873f,color:white
+    style Cases fill:#ffa64d,stroke:#cc7a30,color:white
+    style Results fill:#d94dbb,stroke:#a3378a,color:white
+    style Issues fill:#4dbbbb,stroke:#368787,color:white
+    style Report fill:#d971ff,stroke:#a33bc2,color:white
+```
+
+## 🔄 MEMORY BANK INTEGRATION
+
+```mermaid
+graph TD
+    QA["QA<br>Artifacts"] --> Tasks["Update<br>tasks.md"]
+    QA --> Progress["Update<br>progress.md"]
+    QA --> Active["Update<br>activeContext.md"]
+    
+    Tasks --> MB["Memory Bank"]
+    Progress --> MB
+    Active --> MB
+    
+    style QA fill:#4da6ff,stroke:#0066cc,color:white
+    style Tasks fill:#ffa64d,stroke:#cc7a30,color:white
+    style Progress fill:#4dbb5f,stroke:#36873f,color:white
+    style Active fill:#d94dbb,stroke:#a3378a,color:white
+    style MB fill:#4dbbbb,stroke:#368787,color:white
+```
+
+## ✅ QA VERIFICATION CHECKLIST
+
+```mermaid
+graph TD
+    subgraph "Verification Checklist"
+        Coverage["Test Coverage"]
+        Execution["Test Execution"]
+        Issues["Issue Tracking"]
+        Fixes["Fix Verification"]
+        Requirements["Requirements Met"]
+    end
+    
+    Coverage --> Execution
+    Execution --> Issues
+    Issues --> Fixes
+    Fixes --> Requirements
+    
+    style Coverage fill:#4dbb5f,stroke:#36873f,color:white
+    style Execution fill:#ffa64d,stroke:#cc7a30,color:white
+    style Issues fill:#d94dbb,stroke:#a3378a,color:white
+    style Fixes fill:#4dbbbb,stroke:#368787,color:white
+    style Requirements fill:#d971ff,stroke:#a33bc2,color:white
+```
+
+## 🚨 QA PRINCIPLE
+
+```
+┌────────────────────────────────────────────────────��┐
+│ Quality is not an act, it is a habit. QA is not     │
+│ just about finding bugs, but about ensuring the     │
+│ entire system meets the highest standards.          │
+└─────────────────────────────────────────────────────┘
+```
+
+This visual map provides a clear overview of the QA mode, ensuring that system quality is systematically verified and all issues are properly managed.

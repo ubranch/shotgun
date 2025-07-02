@@ -1,0 +1,113 @@
+---
+description: Visual map for ARCHIVE mode
+globs: "**/archive-mode-map.mdc"
+alwaysApply: false
+---
+
+# 🗺️ ARCHIVE MODE VISUAL MAP
+
+> **TL;DR:** This document provides a visual map of the ARCHIVE mode, outlining the process for documenting and archiving completed tasks to preserve knowledge and ensure future reference.
+
+## 📥 ARCHIVE MODE WORKFLOW
+
+```mermaid
+graph TD
+    Start["Start<br>ARCHIVE Mode"] --> Gather["1. Gather<br>All Task Artifacts"]
+    Gather --> Consolidate["2. Consolidate<br>Information"]
+    Consolidate --> Create["3. Create<br>Archive Document"]
+    Create --> CrossRef["4. Create<br>Cross-References"]
+    CrossRef --> UpdateMB["5. Update<br>Memory Bank"]
+    UpdateMB --> Verify["6. Verify<br>Archive Integrity"]
+    Verify --> Complete["ARCHIVE Mode<br>Complete"]
+    
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style Gather fill:#ffa64d,stroke:#cc7a30,color:white
+    style Consolidate fill:#4dbb5f,stroke:#36873f,color:white
+    style Create fill:#d94dbb,stroke:#a3378a,color:white
+    style CrossRef fill:#4dbbbb,stroke:#368787,color:white
+    style UpdateMB fill:#d971ff,stroke:#a33bc2,color:white
+    style Verify fill:#ff71c2,stroke:#c23b8a,color:white
+    style Complete fill:#4da6ff,stroke:#0066cc,color:white
+```
+
+## 📋 ARCHIVE DOCUMENT STRUCTURE
+
+```mermaid
+graph TD
+    subgraph "Archive Document"
+        Summary["Summary"]
+        Requirements["Requirements"]
+        Design["Design Decisions"]
+        Implementation["Implementation Details"]
+        Testing["Testing Results"]
+        Reflection["Reflection & Lessons"]
+    end
+    
+    Summary --> Requirements
+    Requirements --> Design
+    Design --> Implementation
+    Implementation --> Testing
+    Testing --> Reflection
+    
+    style Summary fill:#4dbb5f,stroke:#36873f,color:white
+    style Requirements fill:#ffa64d,stroke:#cc7a30,color:white
+    style Design fill:#d94dbb,stroke:#a3378a,color:white
+    style Implementation fill:#4dbbbb,stroke:#368787,color:white
+    style Testing fill:#d971ff,stroke:#a33bc2,color:white
+    style Reflection fill:#ff71c2,stroke:#c23b8a,color:white
+```
+
+## 🔄 MEMORY BANK INTEGRATION
+
+```mermaid
+graph TD
+    Archive["Archive<br>Document"] --> Tasks["Update<br>tasks.md"]
+    Archive --> Progress["Update<br>progress.md"]
+    Archive --> Active["Clear<br>activeContext.md"]
+    
+    Tasks --> MB["Memory Bank"]
+    Progress --> MB
+    Active --> MB
+    
+    style Archive fill:#4da6ff,stroke:#0066cc,color:white
+    style Tasks fill:#ffa64d,stroke:#cc7a30,color:white
+    style Progress fill:#4dbb5f,stroke:#36873f,color:white
+    style Active fill:#d94dbb,stroke:#a3378a,color:white
+    style MB fill:#4dbbbb,stroke:#368787,color:white
+```
+
+## ✅ ARCHIVE VERIFICATION CHECKLIST
+
+```mermaid
+graph TD
+    subgraph "Verification Checklist"
+        Completeness["Completeness"]
+        Accuracy["Accuracy"]
+        Clarity["Clarity"]
+        Findability["Findability"]
+        CrossLinks["Cross-Links"]
+    end
+    
+    Completeness --> Accuracy
+    Accuracy --> Clarity
+    Clarity --> Findability
+    Findability --> CrossLinks
+    
+    style Completeness fill:#4dbb5f,stroke:#36873f,color:white
+    style Accuracy fill:#ffa64d,stroke:#cc7a30,color:white
+    style Clarity fill:#d94dbb,stroke:#a3378a,color:white
+    style Findability fill:#4dbbbb,stroke:#368787,color:white
+    style CrossLinks fill:#d971ff,stroke:#a33bc2,color:white
+```
+
+## 🚨 ARCHIVING PRINCIPLE
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Archive for the future. Document with enough detail │
+│ that someone with no context can understand the     │
+│ what, why, and how of the completed task.           │
+└─────────────────────────────────────────────────────┘
+```
+
+This visual map provides a clear overview of the ARCHIVE mode, ensuring that all completed work is properly documented and preserved for future reference.

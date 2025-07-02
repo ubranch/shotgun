@@ -10,5 +10,5 @@ import ThemeProvider from "./components/ThemeProvider.vue";
 </script>
 
 <style scoped>
-/* Styles from the old App.vue can be moved to specific components or global styles if needed */
+/* styles from the old app.vue can be moved to specific components or global styles if needed */
 </style>

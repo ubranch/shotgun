@@ -1,0 +1,655 @@
+---
+description: phased implementation for level 4 complex system tasks
+globs: "**/level4/**", "**/implementation/**"
+alwaysapply: false
+---
+
+# phased implementation for level 4 tasks
+
+> **tldr:** this document outlines a structured phased implementation approach for level 4 (complex system) tasks, ensuring controlled, incremental delivery of complex systems with appropriate verification at each phase.
+
+## 🔍 phased implementation overview
+
+level 4 complex system tasks require a controlled, incremental approach to implementation to manage complexity, reduce risk, and ensure quality. this document outlines a phased implementation methodology that divides complex system development into discrete, verifiable phases with clear entry and exit criteria.
+
+```mermaid
+flowchart td
+    classdef phase fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+    classdef verification fill:#c5e8b7,stroke:#a5c897,color:#000
+    
+    start([begin implementation<br>process]) --> framework[establish implementation<br>framework]
+    framework --> plan[create phasing<br>plan]
+    plan --> foundation[implement<br>foundation phase]
+    foundation --> verifyf{foundation<br>verification}
+    verifyf -->|pass| core[implement<br>core phase]
+    verifyf -->|fail| revisef[revise<br>foundation]
+    revisef --> verifyf
+    
+    core --> verifyc{core<br>verification}
+    verifyc -->|pass| extension[implement<br>extension phase]
+    verifyc -->|fail| revisec[revise<br>core]
+    revisec --> verifyc
+    
+    extension --> verifye{extension<br>verification}
+    verifye -->|pass| integration[implement<br>integration phase]
+    verifye -->|fail| revisee[revise<br>extension]
+    revisee --> verifye
+    
+    integration --> verifyi{integration<br>verification}
+    verifyi -->|pass| finalization[implement<br>finalization phase]
+    verifyi -->|fail| revisei[revise<br>integration]
+    revisei --> verifyi
+    
+    finalization --> verifyfin{finalization<br>verification}
+    verifyfin -->|pass| complete([implementation<br>complete])
+    verifyfin -->|fail| revisefin[revise<br>finalization]
+    revisefin --> verifyfin
+    
+    framework -.-> if((implementation<br>framework))
+    plan -.-> pp((phasing<br>plan))
+    foundation -.-> fp((foundation<br>phase))
+    core -.-> cp((core<br>phase))
+    extension -.-> ep((extension<br>phase))
+    integration -.-> ip((integration<br>phase))
+    finalization -.-> fip((finalization<br>phase))
+    
+    class start,complete milestone
+    class framework,plan,foundation,core,extension,integration,finalization,revisef,revisec,revisee,revisei,revisefin step
+    class verifyf,verifyc,verifye,verifyi,verifyfin verification
+    class if,pp,fp,cp,ep,ip,fip artifact
+```
+
+## 📋 implementation phasing principles
+
+1. **incremental value delivery**: each phase delivers tangible, verifiable value.
+2. **progressive complexity**: complexity increases gradually across phases.
+3. **risk mitigation**: early phases address high-risk elements to fail fast if needed.
+4. **verification gates**: each phase has explicit entry and exit criteria.
+5. **business alignment**: phases align with business priorities and user needs.
+6. **technical integrity**: each phase maintains architectural and technical integrity.
+7. **continuous integration**: work is continuously integrated and tested.
+8. **knowledge building**: each phase builds upon knowledge gained in previous phases.
+9. **explicit dependencies**: dependencies between phases are clearly documented.
+10. **adaptability**: the phasing plan can adapt to new information while maintaining structure.
+
+## 📋 standard implementation phases
+
+level 4 complex system tasks typically follow a five-phase implementation approach:
+
+```mermaid
+flowchart lr
+    classdef phase fill:#f9d77e,stroke:#d9b95c,color:#000
+    
+    p1[1. foundation<br>phase] --> p2[2. core<br>phase]
+    p2 --> p3[3. extension<br>phase]
+    p3 --> p4[4. integration<br>phase]
+    p4 --> p5[5. finalization<br>phase]
+    
+    class p1,p2,p3,p4,p5 phase
+```
+
+### phase 1: foundation phase
+
+the foundation phase establishes the basic architecture and infrastructure required for the system.
+
+**key activities:**
+- set up development, testing, and deployment environments
+- establish core architectural components and patterns
+- implement database schema and basic data access
+- create skeleton application structure
+- implement authentication and authorization framework
+- establish logging, monitoring, and error handling
+- create basic ci/cd pipeline
+
+**exit criteria:**
+- basic architectural framework is functional
+- environment setup is complete and documented
+- core infrastructure components are in place
+- basic ci/cd pipeline is operational
+- architecture review confirms alignment with design
+
+### phase 2: core phase
+
+the core phase implements the essential functionality that provides the minimum viable system.
+
+**key activities:**
+- implement core business logic
+- develop primary user flows and interfaces
+- create essential system services
+- implement critical api endpoints
+- develop basic reporting capabilities
+- establish primary integration points
+- create automated tests for core functionality
+
+**exit criteria:**
+- core business functionality is implemented
+- essential user flows are working
+- primary apis are functional
+- core automated tests are passing
+- business stakeholders verify core functionality
+
+### phase 3: extension phase
+
+the extension phase adds additional features and capabilities to the core system.
+
+**key activities:**
+- implement secondary business processes
+- add additional user interfaces and features
+- enhance existing functionality based on feedback
+- implement advanced features
+- extend integration capabilities
+- enhance error handling and edge cases
+- expand test coverage
+
+**exit criteria:**
+- all planned features are implemented
+- extended functionality is working correctly
+- secondary business processes are functional
+- enhanced features have been validated
+- test coverage meets defined thresholds
+
+### phase 4: integration phase
+
+the integration phase ensures all components work together properly and integrates with external systems.
+
+**key activities:**
+- perform deep integration testing
+- implement all external system integrations
+- conduct end-to-end testing
+- perform performance and load testing
+- conduct security testing
+- implement any required data migrations
+- verify system behavior under various conditions
+
+**exit criteria:**
+- all integrations are working correctly
+- end-to-end tests are passing
+- performance meets defined requirements
+- security tests show no critical vulnerabilities
+- system handles error conditions gracefully
+
+### phase 5: finalization phase
+
+the finalization phase prepares the system for production release.
+
+**key activities:**
+- optimize performance
+- conduct user acceptance testing
+- finalize documentation
+- conduct final security review
+- create production deployment plan
+- prepare support materials and training
+- conduct final system review
+
+**exit criteria:**
+- all acceptance criteria are met
+- documentation is complete
+- user acceptance testing is successful
+- production deployment plan is approved
+- support and maintenance procedures are established
+
+## 📋 phase planning template
+
+for each implementation phase, create a detailed plan using this template:
+
+```markdown
+## [phase name] implementation plan
+
+### phase overview
+- **purpose**: [brief description of phase purpose]
+- **timeline**: [start and end dates]
+- **dependencies**: [dependencies on other phases or external factors]
+- **key stakeholders**: [list of key stakeholders for this phase]
+
+### entry criteria
+- [ ] [criterion 1]
+- [ ] [criterion 2]
+- [ ] [criterion 3]
+
+### implementation components
+- **component 1**: [description]
+  - [ ] task 1.1: [description]
+  - [ ] task 1.2: [description]
+  
+- **component 2**: [description]
+  - [ ] task 2.1: [description]
+  - [ ] task 2.2: [description]
+
+### technical considerations
+- [key technical considerations for this phase]
+
+### risk assessment
+- **risk 1**: [description]
+  - impact: [high/medium/low]
+  - mitigation: [strategy]
+  
+- **risk 2**: [description]
+  - impact: [high/medium/low]
+  - mitigation: [strategy]
+
+### quality assurance
+- [qa approach for this phase]
+- [testing requirements]
+
+### exit criteria
+- [ ] [criterion 1]
+- [ ] [criterion 2]
+- [ ] [criterion 3]
+
+### deliverables
+- [list of deliverables for this phase]
+```
+
+## 📋 phase verification
+
+each phase requires formal verification before proceeding to the next phase.
+
+```mermaid
+flowchart td
+    classdef activity fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+    classdef decision fill:#c5e8b7,stroke:#a5c897,color:#000
+    
+    start([begin phase<br>verification]) --> codereview[conduct code<br>review]
+    codereview --> testexecution[execute automated<br>tests]
+    testexecution --> qaverification[perform qa<br>verification]
+    qaverification --> archreview[conduct architecture<br>review]
+    archreview --> stakeholderreview[conduct stakeholder<br>review]
+    stakeholderreview --> checklist[complete verification<br>checklist]
+    checklist --> exitcriteria{all exit<br>criteria met?}
+    exitcriteria -->|yes| approval[obtain phase<br>approval]
+    exitcriteria -->|no| issues[document<br>issues]
+    issues --> remediation[implement<br>remediation]
+    remediation --> retest[verify<br>fixes]
+    retest --> exitcriteria
+    approval --> complete([verification<br>complete])
+    
+    codereview -.-> codereport((code review<br>report))
+    testexecution -.-> testreport((test<br>report))
+    qaverification -.-> qareport((qa<br>report))
+    archreview -.-> archreport((architecture<br>report))
+    stakeholderreview -.-> stakereport((stakeholder<br>report))
+    checklist -.-> checkdoc((verification<br>checklist))
+    
+    class start,complete milestone
+    class codereview,testexecution,qaverification,archreview,stakeholderreview,checklist,approval,issues,remediation,retest activity
+    class exitcriteria decision
+    class codereport,testreport,qareport,archreport,stakereport,checkdoc artifact
+```
+
+### phase verification checklist template
+
+```markdown
+## phase verification checklist
+
+### implementation completeness
+- [ ] all planned components implemented
+- [ ] all tasks marked as complete
+- [ ] no outstanding todos in code
+- [ ] all documentation updated
+
+### code quality
+- [ ] code review completed
+- [ ] no critical issues found in static analysis
+- [ ] code meets established standards
+- [ ] technical debt documented
+
+### testing
+- [ ] unit tests completed and passing
+- [ ] integration tests completed and passing
+- [ ] end-to-end tests completed and passing
+- [ ] performance testing completed (if applicable)
+- [ ] security testing completed (if applicable)
+- [ ] test coverage meets requirements
+
+### architecture
+- [ ] implementation follows architectural design
+- [ ] no architectural violations introduced
+- [ ] technical patterns correctly implemented
+- [ ] non-functional requirements met
+
+### stakeholder verification
+- [ ] business requirements met
+- [ ] stakeholder demo completed
+- [ ] feedback incorporated
+- [ ] acceptance criteria verified
+
+### risk assessment
+- [ ] all identified risks addressed
+- [ ] no new risks introduced
+- [ ] contingency plans in place for known issues
+
+### exit criteria
+- [ ] all exit criteria met
+- [ ] any exceptions documented and approved
+- [ ] phase signoff obtained from required parties
+```
+
+## 📋 handling phase dependencies
+
+```mermaid
+flowchart td
+    classdef solid fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef partial fill:#a8d5ff,stroke:#88b5e0,color:#000
+    
+    f[foundation<br>phase] --> c[core<br>phase]
+    f --> e[extension<br>phase]
+    f --> i[integration<br>phase]
+    f --> fn[finalization<br>phase]
+    
+    c --> e
+    c --> i
+    c --> fn
+    
+    e --> i
+    e --> fn
+    
+    i --> fn
+    
+    class f,c solid
+    class e,i,fn partial
+```
+
+### dependency management strategies
+
+1. **vertical slicing**: implement complete features across all phases for priority functionality.
+2. **stubbing and mocking**: create temporary implementations to allow progress on dependent components.
+3. **interface contracts**: define clear interfaces between components to allow parallel development.
+4. **feature toggles**: implement features but keep them disabled until dependencies are ready.
+5. **incremental integration**: gradually integrate components as they become available.
+
+### dependency documentation format
+
+```markdown
+## implementation dependencies
+
+### foundation phase dependencies
+- **external dependencies**:
+  - development environment setup
+  - access to source control
+  - access to ci/cd pipeline
+
+### core phase dependencies
+- **foundation phase dependencies**:
+  - authentication framework
+  - database schema
+  - logging infrastructure
+  - basic application skeleton
+  
+- **external dependencies**:
+  - api specifications from external systems
+  - test data
+
+### extension phase dependencies
+- **core phase dependencies**:
+  - core business logic
+  - primary user interface
+  - essential services
+  
+- **external dependencies**:
+  - [list external dependencies]
+
+### integration phase dependencies
+- **core phase dependencies**:
+  - [list core dependencies]
+  
+- **extension phase dependencies**:
+  - [list extension dependencies]
+  
+- **external dependencies**:
+  - access to integration test environments
+  - test credentials for external systems
+
+### finalization phase dependencies
+- **all previous phases must be complete**
+- **external dependencies**:
+  - user acceptance testing environment
+  - production deployment approval
+```
+
+## 📋 phase transition process
+
+```mermaid
+flowchart td
+    classdef step fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+    classdef verification fill:#c5e8b7,stroke:#a5c897,color:#000
+    
+    start([begin phase<br>transition]) --> verification[verify current<br>phase complete]
+    verification --> checkpoint{phase<br>verified?}
+    checkpoint -->|no| remediation[remediate<br>issues]
+    remediation --> verification
+    checkpoint -->|yes| documentation[update<br>documentation]
+    documentation --> reflection[conduct phase<br>reflection]
+    reflection --> nextplan[finalize next<br>phase plan]
+    nextplan --> approvals[obtain<br>approvals]
+    approvals --> kickoff[conduct next<br>phase kickoff]
+    kickoff --> end([begin next<br>phase])
+    
+    verification -.-> verifdoc((verification<br>checklist))
+    documentation -.-> docs((updated<br>documentation))
+    reflection -.-> reflectdoc((reflection<br>document))
+    nextplan -.-> plandoc((phase<br>plan))
+    
+    class start,end milestone
+    class verification,remediation,documentation,reflection,nextplan,approvals,kickoff step
+    class checkpoint verification
+    class verifdoc,docs,reflectdoc,plandoc artifact
+```
+
+### phase transition checklist
+
+```markdown
+## phase transition checklist
+
+### current phase closure
+- [ ] all exit criteria met and documented
+- [ ] all verification steps completed
+- [ ] all issues resolved or documented
+- [ ] phase retrospective completed
+
+### documentation updates
+- [ ] technical documentation updated
+- [ ] user documentation updated
+- [ ] architecture documentation updated
+- [ ] test documentation updated
+
+### knowledge transfer
+- [ ] lessons learned documented
+- [ ] knowledge shared with team
+- [ ] training conducted if needed
+
+### next phase preparation
+- [ ] next phase plan reviewed and updated
+- [ ] resources aligned
+- [ ] dependencies verified
+- [ ] entry criteria confirmed
+
+### approvals
+- [ ] technical lead approval
+- [ ] business stakeholder approval
+- [ ] project management approval
+```
+
+## 📋 implementation tracking in tasks.md
+
+update `tasks.md` to track phased implementation progress:
+
+```markdown
+## [system-id]: system name
+
+### implementation phases
+#### 1. foundation phase
+- **status**: [not started/in progress/complete]
+- **progress**: [0-100%]
+- **start date**: [date]
+- **target completion**: [date]
+- **actual completion**: [date]
+
+**key components**:
+- [ ] component 1: [status] - [progress %]
+- [ ] component 2: [status] - [progress %]
+
+**verification status**:
+- [ ] code review: [status]
+- [ ] testing: [status]
+- [ ] architecture review: [status]
+- [ ] stakeholder approval: [status]
+
+**issues/blockers**:
+- [list of issues if any]
+
+#### 2. core phase
+...
+
+#### 3. extension phase
+...
+
+#### 4. integration phase
+...
+
+#### 5. finalization phase
+...
+```
+
+## 📋 memory bank integration
+
+```mermaid
+flowchart td
+    classdef memfile fill:#f4b8c4,stroke:#d498a4,color:#000
+    classdef process fill:#f9d77e,stroke:#d9b95c,color:#000
+    
+    implementation[phased<br>implementation] --> pb[projectbrief.md]
+    implementation --> pc[productcontext.md]
+    implementation --> ac[activecontext.md]
+    implementation --> sp[systempatterns.md]
+    implementation --> tc[techcontext.md]
+    implementation --> p[progress.md]
+    
+    pb & pc & ac & sp & tc & p --> mbi[memory bank<br>integration]
+    mbi --> implementation
+    
+    class pb,pc,ac,sp,tc,p memfile
+    class implementation,mbi process
+```
+
+### memory bank updates
+
+update the following memory bank files during phased implementation:
+
+1. **projectbrief.md**
+   - update implementation approach
+   - document phase-specific objectives
+   - link to phase plans
+
+2. **activecontext.md**
+   - update with current implementation phase
+   - document active implementation tasks
+   - highlight current focus areas
+
+3. **systempatterns.md**
+   - document implementation patterns used
+   - update with architectural decisions made during implementation
+   - record any pattern adaptations
+
+4. **techcontext.md**
+   - update with implementation technologies
+   - document technical constraints encountered
+   - record technical decisions made
+
+5. **progress.md**
+   - update implementation progress by phase
+   - document completed components
+   - track overall implementation status
+
+## 📋 implementation verification checklist
+
+```
+✓ implementation verification checklist
+
+planning
+- implementation framework established? [yes/no]
+- phasing plan created? [yes/no]
+- phase dependencies documented? [yes/no]
+- entry/exit criteria defined for all phases? [yes/no]
+- risk assessment performed? [yes/no]
+
+foundation phase
+- environment setup complete? [yes/no]
+- core architecture implemented? [yes/no]
+- basic infrastructure in place? [yes/no]
+- ci/cd pipeline operational? [yes/no]
+- foundation verification completed? [yes/no]
+
+core phase
+- core business logic implemented? [yes/no]
+- primary user flows working? [yes/no]
+- essential services operational? [yes/no]
+- core apis implemented? [yes/no]
+- core verification completed? [yes/no]
+
+extension phase
+- secondary features implemented? [yes/no]
+- enhanced functionality working? [yes/no]
+- additional user interfaces complete? [yes/no]
+- extended test coverage in place? [yes/no]
+- extension verification completed? [yes/no]
+
+integration phase
+- all components integrated? [yes/no]
+- external integrations working? [yes/no]
+- end-to-end testing completed? [yes/no]
+- performance testing executed? [yes/no]
+- integration verification completed? [yes/no]
+
+finalization phase
+- all optimizations complete? [yes/no]
+- user acceptance testing passed? [yes/no]
+- documentation finalized? [yes/no]
+- production deployment plan ready? [yes/no]
+- final system review completed? [yes/no]
+
+memory bank integration
+- all memory bank files updated? [yes/no]
+- implementation status reflected? [yes/no]
+- technical decisions documented? [yes/no]
+- progress tracking current? [yes/no]
+```
+
+## 📋 minimal mode implementation format
+
+for situations requiring a more compact implementation approach:
+
+```markdown
+## [system-id]: phased implementation
+
+### phase status summary
+- **foundation**: [status] - [progress %]
+- **core**: [status] - [progress %] 
+- **extension**: [status] - [progress %]
+- **integration**: [status] - [progress %]
+- **finalization**: [status] - [progress %]
+
+### current phase: [phase name]
+- **key components**: [list of key components being implemented]
+- **blockers**: [list of blockers if any]
+- **next steps**: [list of immediate next steps]
+
+### verification status
+- [list of verification steps and their status]
+
+### memory bank updates
+- [list of memory bank files that need updating]
+```
+
+## 🚨 implementation verification principle
+
+```
+┌─────────────────────────────────────────────────────┐
+│ no phase is considered complete until all            │
+│ verification steps have been passed and documented.  │
+│ phases must not be rushed to meet deadlines at the   │
+│ expense of quality or architectural integrity.       │
+└─────────────────────────────────────────────────────┘
+```

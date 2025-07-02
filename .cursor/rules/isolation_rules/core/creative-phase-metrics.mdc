@@ -1,0 +1,195 @@
+---
+description: creative phase metrics
+globs: creative-phase-metrics.md
+alwaysapply: false
+---
+
+
+
+# creative phase metrics
+
+> **tldr:** this document defines comprehensive quality metrics and measurement criteria for creative phases, ensuring that design decisions meet required standards and are properly documented.
+
+## 📊 metrics overview
+
+```mermaid
+graph td
+    subgraph "creative phase metrics"
+    m1["documentation<br>quality"]
+    m2["decision<br>coverage"]
+    m3["option<br>analysis"]
+    m4["impact<br>assessment"]
+    m5["verification<br>score"]
+    end
+    
+    m1 --> score["quality<br>score"]
+    m2 --> score
+    m3 --> score
+    m4 --> score
+    m5 --> score
+    
+    style m1 fill:#4dbb5f,stroke:#36873f,color:white
+    style m2 fill:#ffa64d,stroke:#cc7a30,color:white
+    style m3 fill:#d94dbb,stroke:#a3378a,color:white
+    style m4 fill:#4dbbbb,stroke:#368787,color:white
+    style m5 fill:#d971ff,stroke:#a33bc2,color:white
+    style score fill:#ff71c2,stroke:#c23b8a,color:white
+```
+
+## 📋 quality metrics scorecard
+
+```markdown
+# creative phase quality assessment
+
+## 1. documentation quality [0-10]
+- [ ] clear problem statement (2 points)
+- [ ] well-defined objectives (2 points)
+- [ ] comprehensive requirements list (2 points)
+- [ ] proper formatting and structure (2 points)
+- [ ] cross-references to related documents (2 points)
+
+## 2. decision coverage [0-10]
+- [ ] all required decisions identified (2 points)
+- [ ] each decision point documented (2 points)
+- [ ] dependencies mapped (2 points)
+- [ ] impact analysis included (2 points)
+- [ ] future considerations noted (2 points)
+
+## 3. option analysis [0-10]
+- [ ] multiple options considered (2 points)
+- [ ] pros/cons documented (2 points)
+- [ ] technical feasibility assessed (2 points)
+- [ ] resource requirements estimated (2 points)
+- [ ] risk factors identified (2 points)
+
+## 4. impact assessment [0-10]
+- [ ] system impact documented (2 points)
+- [ ] performance implications assessed (2 points)
+- [ ] security considerations addressed (2 points)
+- [ ] maintenance impact evaluated (2 points)
+- [ ] cost implications analyzed (2 points)
+
+## 5. verification score [0-10]
+- [ ] requirements traced (2 points)
+- [ ] constraints validated (2 points)
+- [ ] test scenarios defined (2 points)
+- [ ] review feedback incorporated (2 points)
+- [ ] final verification completed (2 points)
+
+total score: [sum of all categories] / 50
+minimum required score: 40/50 (80%)
+```
+
+## 📈 quality thresholds
+
+```mermaid
+graph td
+    subgraph "quality gates"
+    t1["minimum<br>40/50 (80%)"]
+    t2["target<br>45/50 (90%)"]
+    t3["excellent<br>48/50 (96%)"]
+    end
+    
+    score["quality<br>score"] --> check{"meets<br>threshold?"}
+    check -->|"< 80%"| block["⛔ blocked<br>improvements required"]
+    check -->|"≥ 80%"| pass["✓ passed<br>can proceed"]
+    
+    style t1 fill:#4dbb5f,stroke:#36873f,color:white
+    style t2 fill:#ffa64d,stroke:#cc7a30,color:white
+    style t3 fill:#d94dbb,stroke:#a3378a,color:white
+    style score fill:#4dbbbb,stroke:#368787,color:white
+    style check fill:#d971ff,stroke:#a33bc2,color:white
+```
+
+## 🎯 metric evaluation process
+
+```mermaid
+graph td
+    start["start<br>evaluation"] --> doc["1. score<br>documentation"]
+    doc --> dec["2. assess<br>decisions"]
+    dec --> opt["3. review<br>options"]
+    opt --> imp["4. evaluate<br>impact"]
+    imp --> ver["5. verify<br>completeness"]
+    ver --> total["calculate<br>total score"]
+    total --> check{"meets<br>threshold?"}
+    check -->|no| return["return for<br>improvements"]
+    check -->|yes| proceed["proceed to<br>next phase"]
+    
+    style start fill:#4da6ff,stroke:#0066cc,color:white
+    style doc fill:#ffa64d,stroke:#cc7a30,color:white
+    style dec fill:#4dbb5f,stroke:#36873f,color:white
+    style opt fill:#d94dbb,stroke:#a3378a,color:white
+    style imp fill:#4dbbbb,stroke:#368787,color:white
+    style ver fill:#d971ff,stroke:#a33bc2,color:white
+```
+
+## 📊 improvement recommendations
+
+for scores below threshold:
+
+```markdown
+## documentation quality improvements
+- add clear problem statements
+- include specific objectives
+- list all requirements
+- improve formatting
+- add cross-references
+
+## decision coverage improvements
+- identify missing decisions
+- document all decision points
+- map dependencies
+- add impact analysis
+- consider future implications
+
+## option analysis improvements
+- consider more alternatives
+- detail pros/cons
+- assess technical feasibility
+- estimate resource needs
+- identify risks
+
+## impact assessment improvements
+- document system impact
+- assess performance
+- address security
+- evaluate maintenance
+- analyze costs
+
+## verification improvements
+- trace requirements
+- validate constraints
+- define test scenarios
+- incorporate feedback
+- complete verification
+```
+
+## ✅ metrics verification checklist
+
+```markdown
+## pre-review verification
+- [ ] all sections scored
+- [ ] calculations verified
+- [ ] supporting evidence attached
+- [ ] improvement areas identified
+- [ ] review feedback incorporated
+
+## final metrics verification
+- [ ] minimum score achieved
+- [ ] all categories passed
+- [ ] documentation complete
+- [ ] improvements addressed
+- [ ] final approval obtained
+```
+
+## 🔄 document management
+
+```mermaid
+graph td
+    current["current document"] --> active["active:<br>- creative-phase-metrics.md"]
+    current --> related["related:<br>- creative-phase-enforcement.md<br>- creative-phase-architecture.md"]
+    
+    style current fill:#4da6ff,stroke:#0066cc,color:white
+    style active fill:#4dbb5f,stroke:#36873f,color:white
+    style related fill:#ffa64d,stroke:#cc7a30,color:white
+```

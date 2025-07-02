@@ -1,0 +1,110 @@
+---
+description: Visual map for VAN mode
+globs: "**/van-mode-map.mdc"
+alwaysApply: false
+---
+
+# 🧭 VAN MODE VISUAL MAP
+
+> **TL;DR:** This document provides a visual map of the VAN (Verify, Analyze, Narrate) mode, which is the entry point for all tasks. It ensures the environment is ready, the task is understood, and a clear plan is established.
+
+## 🚀 VAN MODE WORKFLOW
+
+```mermaid
+graph TD
+    Start["Start<br>VAN Mode"] --> Verify["1. VERIFY<br>Environment & Files"]
+    Verify --> Analyze["2. ANALYZE<br>Task & Complexity"]
+    Analyze --> Narrate["3. NARRATE<br>Plan & Next Steps"]
+    Narrate --> Complete["VAN Mode<br>Complete"]
+    
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style Verify fill:#ffa64d,stroke:#cc7a30,color:white
+    style Analyze fill:#4dbb5f,stroke:#36873f,color:white
+    style Narrate fill:#d94dbb,stroke:#a3378a,color:white
+    style Complete fill:#4da6ff,stroke:#0066cc,color:white
+```
+
+## 1️⃣ VERIFY PHASE
+
+```mermaid
+graph TD
+    subgraph "VERIFY"
+        Platform["Platform Detection"]
+        Files["Critical File Check"]
+        MemoryBank["Memory Bank Setup"]
+    end
+    
+    Platform --> Files
+    Files --> MemoryBank
+    
+    style Platform fill:#ffa64d,stroke:#cc7a30,color:white
+    style Files fill:#ffc966,stroke:#cc9a30,color:white
+    style MemoryBank fill:#ffe0b3,stroke:#ccb48c,color:white
+```
+
+## 2️⃣ ANALYZE PHASE
+
+```mermaid
+graph TD
+    subgraph "ANALYZE"
+        Task["Task Understanding"]
+        Complexity["Complexity Determination"]
+        Requirements["Initial Requirements"]
+    end
+    
+    Task --> Complexity
+    Complexity --> Requirements
+    
+    style Task fill:#4dbb5f,stroke:#36873f,color:white
+    style Complexity fill:#81c784,stroke:#66a069,color:white
+    style Requirements fill:#a5d6a7,stroke:#84ab85,color:white
+```
+
+## 3️⃣ NARRATE PHASE
+
+```mermaid
+graph TD
+    subgraph "NARRATE"
+        Plan["High-Level Plan"]
+        NextSteps["Next Steps"]
+        Mode["Mode Transition"]
+    end
+    
+    Plan --> NextSteps
+    NextSteps --> Mode
+    
+    style Plan fill:#d94dbb,stroke:#a3378a,color:white
+    style NextSteps fill:#e699d9,stroke:#d94dbb,color:white
+    style Mode fill:#f3cce6,stroke:#e699d9,color:white
+```
+
+## 🔄 MEMORY BANK INTEGRATION
+
+```mermaid
+graph TD
+    VAN["VAN Mode"] --> Tasks["Create Task<br>in tasks.md"]
+    VAN --> Active["Set Initial<br>activeContext.md"]
+    VAN --> Progress["Log VAN<br>in progress.md"]
+    
+    Tasks --> MB["Memory Bank"]
+    Active --> MB
+    Progress --> MB
+    
+    style VAN fill:#4da6ff,stroke:#0066cc,color:white
+    style Tasks fill:#ffa64d,stroke:#cc7a30,color:white
+    style Active fill:#4dbb5f,stroke:#36873f,color:white
+    style Progress fill:#d94dbb,stroke:#a3378a,color:white
+    style MB fill:#4dbbbb,stroke:#368787,color:white
+```
+
+## 🚨 VAN PRINCIPLE
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Every task, no matter how small, starts with VAN.   │
+│ A solid foundation prevents future rework and       │
+│ ensures clarity from the beginning.                 │
+└─────��───────────────────────────────────────────────┘
+```
+
+This visual map provides a clear overview of the VAN mode, ensuring a consistent and structured start to every task.

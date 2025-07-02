@@ -1,0 +1,113 @@
+---
+description: Visual map for CREATIVE mode
+globs: "**/creative-mode-map.mdc"
+alwaysApply: false
+---
+
+# 🎨 CREATIVE MODE VISUAL MAP
+
+> **TL;DR:** This document provides a visual map of the CREATIVE mode, outlining the process for exploring design options, making informed decisions, and documenting the creative process.
+
+## 💡 CREATIVE MODE WORKFLOW
+
+```mermaid
+graph TD
+    Start["Start<br>CREATIVE Mode"] --> Define["1. Define<br>Problem & Scope"]
+    Define --> Explore["2. Explore<br>Design Options"]
+    Explore --> Analyze["3. Analyze<br>Pros & Cons"]
+    Analyze --> Decide["4. Make<br>Informed Decision"]
+    Decide --> Document["5. Document<br>Decision & Rationale"]
+    Document --> Verify["6. Verify<br>Against Requirements"]
+    Verify --> Complete["CREATIVE Mode<br>Complete"]
+    
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style Define fill:#ffa64d,stroke:#cc7a30,color:white
+    style Explore fill:#4dbb5f,stroke:#36873f,color:white
+    style Analyze fill:#d94dbb,stroke:#a3378a,color:white
+    style Decide fill:#4dbbbb,stroke:#368787,color:white
+    style Document fill:#d971ff,stroke:#a33bc2,color:white
+    style Verify fill:#ff71c2,stroke:#c23b8a,color:white
+    style Complete fill:#4da6ff,stroke:#0066cc,color:white
+```
+
+## 📋 CREATIVE DOCUMENT STRUCTURE
+
+```mermaid
+graph TD
+    subgraph "Creative Document"
+        Problem["Problem Statement"]
+        Requirements["Requirements & Constraints"]
+        Options["Options Considered"]
+        Analysis["Analysis & Evaluation"]
+        Decision["Final Decision"]
+        Rationale["Rationale & Justification"]
+    end
+    
+    Problem --> Requirements
+    Requirements --> Options
+    Options --> Analysis
+    Analysis --> Decision
+    Decision --> Rationale
+    
+    style Problem fill:#4dbb5f,stroke:#36873f,color:white
+    style Requirements fill:#ffa64d,stroke:#cc7a30,color:white
+    style Options fill:#d94dbb,stroke:#a3378a,color:white
+    style Analysis fill:#4dbbbb,stroke:#368787,color:white
+    style Decision fill:#d971ff,stroke:#a33bc2,color:white
+    style Rationale fill:#ff71c2,stroke:#c23b8a,color:white
+```
+
+## 🔄 MEMORY BANK INTEGRATION
+
+```mermaid
+graph TD
+    Creative["Creative<br>Document"] --> Tasks["Update<br>tasks.md"]
+    Creative --> Progress["Update<br>progress.md"]
+    Creative --> Active["Update<br>activeContext.md"]
+    
+    Tasks --> MB["Memory Bank"]
+    Progress --> MB
+    Active --> MB
+    
+    style Creative fill:#4da6ff,stroke:#0066cc,color:white
+    style Tasks fill:#ffa64d,stroke:#cc7a30,color:white
+    style Progress fill:#4dbb5f,stroke:#36873f,color:white
+    style Active fill:#d94dbb,stroke:#a3378a,color:white
+    style MB fill:#4dbbbb,stroke:#368787,color:white
+```
+
+## ✅ CREATIVE VERIFICATION CHECKLIST
+
+```mermaid
+graph TD
+    subgraph "Verification Checklist"
+        Clarity["Clarity of Problem"]
+        Options["Multiple Options Explored"]
+        Analysis["Thorough Analysis"]
+        Rationale["Clear Rationale"]
+        Requirements["Requirements Met"]
+    end
+    
+    Clarity --> Options
+    Options --> Analysis
+    Analysis --> Rationale
+    Rationale --> Requirements
+    
+    style Clarity fill:#4dbb5f,stroke:#36873f,color:white
+    style Options fill:#ffa64d,stroke:#cc7a30,color:white
+    style Analysis fill:#d94dbb,stroke:#a3378a,color:white
+    style Rationale fill:#4dbbbb,stroke:#368787,color:white
+    style Requirements fill:#d971ff,stroke:#a33bc2,color:white
+```
+
+## 🚨 CREATIVE PRINCIPLE
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Explore broadly, decide wisely. The goal is not to  │
+│ find the perfect solution, but the best one given   │
+│ the constraints and requirements.                   │
+└─────────────────────────────────────────────────────┘
+```
+
+This visual map provides a clear overview of the CREATIVE mode, ensuring that design decisions are well-considered, documented, and aligned with project goals.

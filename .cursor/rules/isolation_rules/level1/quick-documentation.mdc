@@ -1,0 +1,225 @@
+---
+description: quick documentation approach for level 1 quick bug fix tasks
+globs: "**/level1/**", "**/documentation/**"
+alwaysapply: false
+---
+
+# quick documentation for level 1 tasks
+
+> **tldr:** this document outlines a quick documentation approach for level 1 (quick bug fix) tasks, ensuring that essential information is captured with minimal overhead.
+
+## 🔍 quick documentation overview
+
+```mermaid
+graph td
+    fixcomplete["bug fix<br>complete"] --> document["document<br>solution"]
+    document --> updatetasks["update<br>tasks.md"]
+    updatetasks --> minimalupdates["make minimal<br>memory bank updates"]
+    minimalupdates --> crossreference["create simple<br>cross-references"]
+    crossreference --> complete["documentation<br>complete"]
+```
+
+level 1 tasks require efficient documentation that captures essential information without unnecessary detail. this approach ensures that critical knowledge is preserved while maintaining speed and efficiency.
+
+## 📋 documentation principles
+
+1. **conciseness**: keep documentation brief but complete
+2. **focus**: document only what's necessary to understand the fix
+3. **context**: provide sufficient context to understand the issue
+4. **solution**: clearly describe what was changed and why
+5. **findability**: ensure the fix can be easily found later
+
+## 📋 quick fix documentation template
+
+```markdown
+# quick fix: [issue title]
+
+## issue
+[brief description of the problem - 1-2 sentences]
+
+## root cause
+[concise description of what caused the issue - 1-2 sentences]
+
+## solution
+[brief description of the fix implemented - 2-3 sentences]
+
+## files changed
+- [file path 1]
+- [file path 2]
+
+## verification
+[how the fix was tested/verified - 1-2 sentences]
+
+## notes
+[any additional information that might be helpful - optional]
+```
+
+## 📋 tasks.md updates
+
+for level 1 tasks, update tasks.md with this format:
+
+```markdown
+## completed bug fixes
+- [x] [level 1] fixed: [issue title] (completed: yyyy-mm-dd)
+  - issue: [one-line description]
+  - root cause: [one-line description]
+  - solution: [one-line description]
+  - files: [file paths]
+```
+
+for in-progress tasks:
+
+```markdown
+## bug fixes in progress
+- [ ] [level 1] fix: [issue title] (est: xx mins)
+  - issue: [one-line description]
+  - location: [component/file]
+```
+
+## 📋 memory bank updates
+
+for level 1 tasks, make these minimal memory bank updates:
+
+1. **tasks.md**:
+   - update with fix details as shown above
+   - mark task as complete
+
+2. **activecontext.md** (only if relevant):
+   ```markdown
+   ## recent fixes
+   - [yyyy-mm-dd] fixed [issue] in [component/file]. [one-line description of fix]
+   ```
+
+3. **progress.md** (only if significant):
+   ```markdown
+   ## bug fixes
+   - [yyyy-mm-dd] fixed [issue] in [component/file].
+   ```
+
+other memory bank files typically do not need updates for level 1 tasks unless the fix reveals important system information.
+
+## 📋 common bug categories
+
+categorize bugs to improve documentation consistency:
+
+1. **logic error**:
+   - example: "fixed incorrect conditional logic in user validation"
+
+2. **ui/display issue**:
+   - example: "fixed misaligned button in mobile view"
+
+3. **performance issue**:
+   - example: "fixed slow loading of user profile data"
+
+4. **data handling error**:
+   - example: "fixed incorrect parsing of date format"
+
+5. **configuration issue**:
+   - example: "fixed incorrect environment variable setting"
+
+## 📋 quick documentation process
+
+follow these steps for efficient documentation:
+
+1. **immediately after fix**:
+   - document while the fix is fresh in your mind
+   - focus on what, why, and how
+   - be specific about changes made
+
+2. **update task tracking**:
+   - update tasks.md with fix details
+   - use consistent format for easy reference
+
+3. **minimal cross-references**:
+   - create only essential cross-references
+   - ensure fix can be found in the future
+
+4. **check completeness**:
+   - verify all essential information is captured
+   - ensure another developer could understand the fix
+
+## 📋 examples: good vs. insufficient documentation
+
+### ❌ insufficient documentation
+
+```markdown
+fixed the login bug.
+```
+
+### ✅ good documentation
+
+```markdown
+# quick fix: user login failure with special characters
+
+## issue
+users with special characters in email addresses (e.g., +, %) couldn't log in.
+
+## root cause
+the email validation regex was incorrectly escaping special characters.
+
+## solution
+updated the email validation regex in authvalidator.js to properly handle special characters according to rfc 5322.
+
+## files changed
+- src/utils/authvalidator.js
+
+## verification
+tested login with various special characters in email addresses (test+user@example.com, user%123@example.com).
+```
+
+## 📋 documentation verification checklist
+
+```
+✓ documentation verification
+- issue clearly described? [yes/no]
+- root cause identified? [yes/no]
+- solution explained? [yes/no]
+- files changed listed? [yes/no]
+- verification method described? [yes/no]
+- tasks.md updated? [yes/no]
+- memory bank minimally updated? [yes/no]
+
+→ if all yes: documentation complete
+→ if any no: complete missing information
+```
+
+## 📋 minimal mode documentation
+
+for minimal mode, use this ultra-compact format:
+
+```
+✓ fix: [issue title]
+✓ cause: [one-line root cause]
+✓ solution: [one-line fix description]
+✓ files: [file paths]
+✓ verified: [how verified]
+```
+
+## 🔄 documentation integration
+
+quick documentation integrates with other systems:
+
+```mermaid
+graph td
+    quickdoc["quick fix<br>documentation"] --> tasksmd["tasks.md<br>update"]
+    quickdoc --> fixdetails["fix details<br>documentation"]
+    
+    tasksmd --> tracking["task<br>tracking"]
+    fixdetails --> knowledge["knowledge<br>preservation"]
+    
+    tracking & knowledge --> future["future<br>reference"]
+```
+
+## 🚨 documentation efficiency principle
+
+remember:
+
+```
+┌��────────────────────────────────────────────────────┐
+│ document only what's needed to understand the fix.  │
+│ focus on essential information that would help      │
+│ someone who encounters the same issue in the future.│
+└─────────────────────────────────────────────────────┘
+```
+
+this ensures that level 1 tasks are documented efficiently without unnecessary overhead while preserving critical knowledge.

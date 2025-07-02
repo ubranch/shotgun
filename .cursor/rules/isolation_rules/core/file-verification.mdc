@@ -1,0 +1,198 @@
+---
+description: optimized file verification
+globs: file-verification.mdc
+alwaysapply: false
+---
+# optimized file verification system
+
+> **tldr:** this system efficiently verifies and creates required memory bank file structures using batch operations and platform-optimized commands.
+
+## 🔍 optimized file verification workflow
+
+```mermaid
+graph td
+    start["start file<br>verification"] --> verifyall["verify all<br>required components"]
+    verifyall --> missingcheck{"missing<br>components?"}
+    missingcheck -->|"yes"| batchcreate["batch create<br>all missing items"]
+    missingcheck -->|"no"| complete["verification<br>complete"]
+    batchcreate --> report["generate<br>verification report"]
+    report --> complete
+```
+
+## 📋 optimized directory creation
+
+```mermaid
+graph td
+    start["directory<br>creation"] --> detectos["detect operating<br>system"]
+    detectos -->|"windows"| wincmd["batch create<br>windows command"]
+    detectos -->|"mac/linux"| unixcmd["batch create<br>unix command"]
+    wincmd & unixcmd --> verify["verify<br>creation success"]
+    verify --> complete["directory setup<br>complete"]
+```
+
+### platform-specific commands
+
+#### windows (powershell)
+```powershell
+# create all directories in one command
+mkdir memory-bank, docs, docs\archive -erroraction silentlycontinue
+
+# create all required files
+$files = @(".cursorrules", "tasks.md", 
+           "memory-bank\projectbrief.md", 
+           "memory-bank\productcontext.md",
+           "memory-bank\systempatterns.md",
+           "memory-bank\techcontext.md",
+           "memory-bank\activecontext.md",
+           "memory-bank\progress.md")
+
+foreach ($file in $files) {
+    if (-not (test-path $file)) {
+        new-item -path $file -itemtype file -force
+    }
+}
+```
+
+#### mac/linux (bash)
+```bash
+# create all directories in one command
+mkdir -p memory-bank docs/archive
+
+# create all required files
+touch .cursorrules tasks.md \
+      memory-bank/projectbrief.md \
+      memory-bank/productcontext.md \
+      memory-bank/systempatterns.md \
+      memory-bank/techcontext.md \
+      memory-bank/activecontext.md \
+      memory-bank/progress.md
+```
+
+## 📝 streamlined verification process
+
+instead of checking each component separately, perform batch verification:
+
+```powershell
+# windows - powershell
+$requireddirs = @("memory-bank", "docs", "docs\archive")
+$requiredfiles = @(".cursorrules", "tasks.md")
+$mbfiles = @("projectbrief.md", "productcontext.md", "systempatterns.md", 
+             "techcontext.md", "activecontext.md", "progress.md")
+
+$missingdirs = $requireddirs | where-object { -not (test-path $_) -or -not (test-path $_ -pathtype container) }
+$missingfiles = $requiredfiles | where-object { -not (test-path $_) -or (test-path $_ -pathtype container) }
+$missingmbfiles = $mbfiles | foreach-object { "memory-bank\$_" } | 
+                  where-object { -not (test-path $_) -or (test-path $_ -pathtype container) }
+
+if ($missingdirs.count -eq 0 -and $missingfiles.count -eq 0 -and $missingmbfiles.count -eq 0) {
+    write-output "✓ all required components verified"
+} else {
+    # create all missing items at once
+    if ($missingdirs.count -gt 0) {
+        $missingdirs | foreach-object { mkdir $_ -force }
+    }
+    if ($missingfiles.count -gt 0 -or $missingmbfiles.count -gt 0) {
+        $allmissingfiles = $missingfiles + $missingmbfiles
+        $allmissingfiles | foreach-object { new-item -path $_ -itemtype file -force }
+    }
+}
+```
+
+## 📝 template initialization
+
+optimize template creation with a single script:
+
+```powershell
+# windows - powershell
+$templates = @{
+    "tasks.md" = @"
+# memory bank: tasks
+
+## current task
+[task not yet defined]
+
+## status
+- [ ] task definition
+- [ ] implementation plan
+- [ ] execution
+- [ ] documentation
+
+## requirements
+[no requirements defined yet]
+"@
+
+    "memory-bank\activecontext.md" = @"
+# memory bank: active context
+
+## current focus
+[no active focus defined]
+
+## status
+[no status defined]
+
+## latest changes
+[no changes recorded]
+"@
+
+    # add other templates here
+}
+
+foreach ($file in $templates.keys) {
+    if (test-path $file) {
+        set-content -path $file -value $templates[$file]
+    }
+}
+```
+
+## 🔍 performance optimization best practices
+
+1. **batch operations**: always use batch operations instead of individual commands
+   ```
+   # good: create all directories at once
+   mkdir memory-bank docs docs\archive
+   
+   # bad: create directories one at a time
+   mkdir memory-bank
+   mkdir docs
+   mkdir docs\archive
+   ```
+
+2. **pre-check optimization**: check all requirements first, then create only what's missing
+   ```
+   # first check what's missing
+   $missingitems = ...
+   
+   # then create only what's missing
+   if ($missingitems) { ... }
+   ```
+
+3. **error handling**: include error handling in all commands
+   ```
+   mkdir memory-bank, docs, docs\archive -erroraction silentlycontinue
+   ```
+
+4. **platform adaptation**: auto-detect platform and use appropriate commands
+   ```
+   if ($iswindows) {
+       # windows commands
+   } else {
+       # unix commands
+   }
+   ```
+
+5. **one-pass verification**: verify directory structure in a single pass
+   ```
+   $requiredpaths = @("memory-bank", "docs", "docs\archive", ".cursorrules", "tasks.md")
+   $missingpaths = $requiredpaths | where-object { -not (test-path $_) }
+   ```
+
+## 📝 verification report format
+
+```
+✅ verification complete
+- created directories: [list]
+- created files: [list]
+- all components verified
+
+memory bank system ready for use.
+```

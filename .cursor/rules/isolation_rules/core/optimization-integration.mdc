@@ -1,0 +1,321 @@
+---
+description: integration hub for memory bank optimizations
+globs: "**/optimization*/**", "**/integration*/**"
+alwaysapply: false
+---
+
+# memory bank optimization integration
+
+> **tldr:** this file serves as the integration point for all memory bank optimizations, coordinating the various optimization components to work seamlessly together.
+
+## 🔄 optimization integration flow
+
+```mermaid
+graph td
+    start["memory bank<br>initialization"] --> hrl["hierarchical<br>rule loading"]
+    hrl --> acm["adaptive<br>complexity model"]
+    acm --> dcm["dynamic<br>context management"]
+    dcm --> tmo["transition<br>optimization"]
+    
+    subgraph "level-specific optimizations"
+        l1["level 1<br>optimizations"]
+        l2["level 2<br>optimizations"]
+        l3["level 3<br>optimizations"]
+        l4["level 4<br>optimizations"]
+    end
+    
+    acm --> l1 & l2 & l3 & l4
+    
+    l1 & l2 & l3 & l4 --> cpo["creative phase<br>optimization"]
+    
+    cpo --> pdo["progressive<br>documentation"]
+    tmo --> pdo
+    
+    pdo --> mbo["memory bank<br>optimization"]
+    
+    style start fill:#4da6ff,stroke:#0066cc,color:white
+    style hrl fill:#ffa64d,stroke:#cc7a30,color:white
+    style acm fill:#4dbb5f,stroke:#36873f,color:white
+    style dcm fill:#d94dbb,stroke:#a3378a,color:white
+    style tmo fill:#4dbbbb,stroke:#368787,color:white
+    style cpo fill:#e699d9,stroke:#d94dbb,color:white
+    style pdo fill:#d971ff,stroke:#a33bc2,color:white
+    style mbo fill:#ff71c2,stroke:#c23b8a,color:white
+```
+
+## 📋 optimization component registry
+
+```javascript
+// optimization component registry pseudocode
+const optimizationregistry = {
+  // core optimizations
+  hierarchicalruleloading: {
+    file: "core/hierarchical-rule-loading.mdc",
+    dependencies: [],
+    priority: 1
+  },
+  adaptivecomplexitymodel: {
+    file: "main-optimized.mdc",
+    dependencies: ["hierarchicalruleloading"],
+    priority: 2
+  },
+  modetransitionoptimization: {
+    file: "core/mode-transition-optimization.mdc",
+    dependencies: ["hierarchicalruleloading", "adaptivecomplexitymodel"],
+    priority: 3
+  },
+  
+  // level-specific optimizations
+  level1optimization: {
+    file: "level1/optimized-workflow-level1.mdc",
+    dependencies: ["adaptivecomplexitymodel"],
+    priority: 4
+  },
+  
+  // feature-specific optimizations
+  creativephaseoptimization: {
+    file: "phases/creativephase/optimized-creative-template.mdc",
+    dependencies: ["hierarchicalruleloading", "adaptivecomplexitymodel"],
+    priority: 5
+  }
+};
+```
+
+## 🔄 optimization initialization sequence
+
+```mermaid
+sequencediagram
+    participant mb as memory bank
+    participant reg as optimization registry
+    participant hrl as hierarchical rule loading
+    participant acm as adaptive complexity
+    participant tmo as transition optimization
+    participant cpo as creative phase optimization
+    
+    mb->>reg: request optimization initialization
+    reg->>reg: sort optimizations by priority & dependencies
+    reg->>hrl: initialize (priority 1)
+    hrl-->>reg: initialization complete
+    reg->>acm: initialize (priority 2)
+    acm->>hrl: request rule loading services
+    hrl-->>acm: provide rule loading
+    acm-->>reg: initialization complete
+    reg->>tmo: initialize (priority 3)
+    tmo->>hrl: request rule loading services
+    tmo->>acm: request complexity model
+    hrl-->>tmo: provide rule loading
+    acm-->>tmo: provide complexity model
+    tmo-->>reg: initialization complete
+    reg->>cpo: initialize (final)
+    cpo->>hrl: request rule loading services
+    cpo->>acm: request complexity model
+    cpo->>tmo: request transition services
+    hrl-->>cpo: provide rule loading
+    acm-->>cpo: provide complexity model
+    tmo-->>cpo: provide transition services
+    cpo-->>reg: initialization complete
+    reg-->>mb: all optimizations initialized
+```
+
+## 🔍 optimization configuration
+
+```javascript
+// optimization configuration pseudocode
+const optimizationconfig = {
+  // token optimization settings
+  tokenoptimization: {
+    enablehierarchicalloading: true,
+    enableprogressivedocumentation: true,
+    enablelazyruleloading: true,
+    enablecontextpruning: true
+  },
+  
+  // context preservation settings
+  contextpreservation: {
+    preservedesigndecisions: true,
+    preserveimplementationcontext: true,
+    preserveuserpreferences: true,
+    contextcompressionlevel: "high" // none, low, medium, high
+  },
+  
+  // documentation optimization
+  documentationoptimization: {
+    level1documentationlevel: "minimal", // minimal, standard, comprehensive
+    level2documentationlevel: "standard",
+    level3documentationlevel: "comprehensive",
+    level4documentationlevel: "comprehensive",
+    enableprogressivedisclosure: true,
+    enabletemplatecaching: true
+  }
+};
+```
+
+## 📊 optimization monitoring
+
+```mermaid
+graph td
+    monitor["optimization<br>monitor"] --> tokenusage["token usage<br>tracking"]
+    monitor --> contextefficiency["context<br>efficiency"]
+    monitor --> ruleloadingstats["rule loading<br>statistics"]
+    monitor --> documentationsize["documentation<br>size"]
+    
+    tokenusage --> dashboard["optimization<br>dashboard"]
+    contextefficiency --> dashboard
+    ruleloadingstats --> dashboard
+    documentationsize --> dashboard
+    
+    dashboard --> feedback["optimization<br>feedback loop"]
+    feedback --> config["optimization<br>configuration"]
+    config --> monitor
+    
+    style monitor fill:#4da6ff,stroke:#0066cc,color:white
+    style dashboard fill:#ffa64d,stroke:#cc7a30,color:white
+    style feedback fill:#4dbb5f,stroke:#36873f,color:white
+    style config fill:#d94dbb,stroke:#a3378a,color:white
+```
+
+## 📈 optimization metrics
+
+```markdown
+# optimization metrics
+
+## token usage
+- core rule loading: [x] tokens
+- mode-specific rules: [y] tokens
+- creative phase documentation: [z] tokens
+- overall token reduction: [p]%
+
+## context efficiency
+- context utilization: [q]%
+- context waste: [r]%
+- effective token capacity: [s] tokens
+
+## rule loading
+- rules loaded: [t] / [u] (total)
+- lazy-loaded rules: [v]
+- cached rules: [w]
+
+## documentation
+- level 1 documentation size: [x] tokens
+- level 2 documentation size: [y] tokens
+- level 3 documentation size: [z] tokens
+- level 4 documentation size: [aa] tokens
+```
+
+## 🔄 integration usage examples
+
+### initializing all optimizations
+
+```javascript
+// pseudocode for initializing all optimizations
+function initializememorybankoptimizations() {
+  // load optimization registry
+  const registry = loadoptimizationregistry();
+  
+  // sort by priority and dependencies
+  const sortedoptimizations = sortoptimizations(registry);
+  
+  // initialize each optimization in order
+  for (const opt of sortedoptimizations) {
+    initializeoptimization(opt);
+  }
+  
+  // configure optimization parameters
+  configureoptimizations(loadoptimizationconfig());
+  
+  // start monitoring
+  initializeoptimizationmonitoring();
+  
+  return "memory bank optimizations initialized";
+}
+```
+
+### using optimized creative phase
+
+```markdown
+// using the optimized creative phase with progressive documentation
+
+// initialize with minimal documentation
+📌 creative phase start: authentication system
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣ problem
+   description: design an authentication system for the application
+   requirements: secure, scalable, supports sso, easy to maintain
+   constraints: must work with existing user database, <100ms response time
+
+2️⃣ options
+   option a: jwt-based stateless auth
+   option b: session-based auth with redis
+   option c: oauth2 implementation
+
+// progressively add detail as needed
+3️⃣ analysis
+   | criterion | jwt | sessions | oauth2 |
+   |-----------|-----|----------|--------|
+   | security | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+   | scalability | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+   | complexity | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+   
+// focus on decision and implementation
+4️⃣ decision
+   selected: option a: jwt-based auth with refresh tokens
+   rationale: best balance of performance and scalability
+   
+5️⃣ implementation notes
+   - use hs256 algorithm for token signing
+   - implement short-lived access tokens (15min)
+   - store token blacklist in redis for revocation
+```
+
+## 🔄 mode transition example
+
+```markdown
+// optimized mode transition from creative to implement
+
+# mode transition: creative → implement
+
+## context summary
+- task: authentication system implementation
+- complexity: level 3
+- decision: jwt-based auth with refresh tokens
+
+## key context
+- security requirements verified
+- algorithm selection: hs256
+- token lifecycle: 15min access / 7 days refresh
+
+## next steps
+1. implement jwt generation module
+2. create token validation middleware
+3. build refresh token handling
+
+// transition happens with preserved context
+// implement mode continues with this context available
+```
+
+## 🔄 hierarchical rule loading example
+
+```javascript
+// pseudocode example of hierarchical rule loading
+
+// initial load - only core rules
+loadcorerules();
+
+// determine complexity
+const complexity = determinecomplexity();
+
+// load mode-specific essential rules
+loadmodeessentialrules("creative");
+
+// register lazy loaders for specialized rules
+registerlazyloader("architecture", () => loadrule("creative-phase-architecture.mdc"));
+registerlazyloader("algorithm", () => loadrule("creative-phase-algorithm.mdc"));
+registerlazyloader("uiux", () => loadrule("creative-phase-uiux.mdc"));
+
+// later, when architecture design is needed:
+const architecturerule = loadspecializedrule("architecture");
+// architecture rule is now loaded only when needed
+```
+
+these integrated optimizations work seamlessly together to provide a significantly more efficient memory bank system while maintaining all functionality.

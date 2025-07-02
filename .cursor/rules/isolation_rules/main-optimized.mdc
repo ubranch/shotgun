@@ -1,0 +1,240 @@
+---
+description: optimized main rule for improved token efficiency
+globs: main-optimized.mdc
+alwaysapply: false
+---
+# 🔍 optimized memory bank system
+
+🚨 critical rule: memory bank creation is mandatory 🚨
+memory bank must be created before any other operation in any mode
+no process can continue without verifying memory bank existence
+
+> **tldr:** this system uses optimized context management and adaptive rule loading to maximize token efficiency while preserving the structured development approach.
+
+## 🧭 optimized mode architecture
+
+```mermaid
+graph td
+    subgraph "memory bank core"
+        context["context manager"]
+        rules["rule loader"]
+        fileio["file manager"]
+        transition["mode transition"]
+    end
+    
+    subgraph "custom modes"
+        van["van<br>initialization"]
+        plan["plan<br>planning"]
+        creative["creative<br>design"]
+        implement["implement<br>building"]
+        reflect["reflect<br>review"]
+        archive["archive<br>documentation"]
+    end
+    
+    context --> van & plan & creative & implement & reflect & archive
+    rules --> van & plan & creative & implement & reflect & archive
+    fileio --> van & plan & creative & implement & reflect & archive
+    transition --> van & plan & creative & implement & reflect & archive
+    
+    van --> plan
+    plan --> creative
+    creative --> implement
+    implement --> reflect
+    reflect --> archive
+    
+    style context fill:#4da6ff,stroke:#0066cc,color:white
+    style rules fill:#ffa64d,stroke:#cc7a30,color:white
+    style fileio fill:#4dbb5f,stroke:#36873f,color:white
+    style transition fill:#d94dbb,stroke:#a3378a,color:white
+```
+
+## 📈 adaptive complexity model
+
+```mermaid
+graph td
+    task["task creation"] --> complexity{"complexity<br>level?"}
+    
+    complexity -->|"level 1<br>quick fix"| l1["3-phase<br>streamlined process"]
+    complexity -->|"level 2<br>enhancement"| l2["4-phase<br>balanced process"]
+    complexity -->|"level 3<br>feature"| l3["5-phase<br>comprehensive process"]
+    complexity -->|"level 4<br>enterprise"| l4["6-phase<br>governance process"]
+    
+    l1 --> l1_process["van → implement → reflect"]
+    l2 --> l2_process["van → plan → implement → reflect"]
+    l3 --> l3_process["van → plan → creative → implement → reflect"]
+    l4 --> l4_process["van → plan → creative → implement → reflect → archive"]
+    
+    style complexity fill:#d94dbb,stroke:#a3378a,color:white
+    style l1 fill:#4dbb5f,stroke:#36873f,color:white
+    style l2 fill:#ffa64d,stroke:#cc7a30,color:white
+    style l3 fill:#4da6ff,stroke:#0066cc,color:white
+    style l4 fill:#ff5555,stroke:#cc0000,color:white
+```
+
+## 🧠 hierarchical rule loading
+
+rules are loaded hierarchically to optimize context usage:
+
+```mermaid
+graph td
+    root["memory bank<br>common rules"] --> core["core rules<br>shared across modes"]
+    
+    core --> l1["level 1<br>rules"]
+    core --> l2["level 2<br>rules"]
+    core --> l3["level 3<br>rules"]
+    core --> l4["level 4<br>rules"]
+    
+    core --> vm["mode<br>visual maps"]
+    
+    core --> phase["phase-specific<br>rules"]
+    
+    phase --> van_rules["van mode<br>rules"]
+    phase --> plan_rules["plan mode<br>rules"]
+    phase --> creative_rules["creative mode<br>rules"]
+    phase --> implement_rules["implement mode<br>rules"]
+    phase --> reflect_rules["reflect mode<br>rules"]
+    phase --> archive_rules["archive mode<br>rules"]
+    
+    style root fill:#4da6ff,stroke:#0066cc,color:white
+    style core fill:#ffa64d,stroke:#cc7a30,color:white
+    style phase fill:#4dbb5f,stroke:#36873f,color:white
+```
+
+## 🔄 token-optimized creative phase
+
+creative phase documentation is progressively generated:
+
+```mermaid
+graph td
+    start["creative phase<br>initiation"] --> p1["1️⃣ problem<br>define scope"]
+    p1 --> p2["2️⃣ options<br>list alternatives"]
+    p2 --> p3["3️⃣ analysis<br>compare options"]
+    p3 --> p4["4️⃣ decision<br>select approach"]
+    p4 --> p5["5️⃣ guidelines<br>document implementation"]
+    
+    p3 -.->|"on demand"| details["detailed option<br>analysis"]
+    
+    style start fill:#d971ff,stroke:#a33bc2,color:white
+    style p1 fill:#4da6ff,stroke:#0066cc,color:white
+    style p2 fill:#ffa64d,stroke:#cc7a30,color:white
+    style p3 fill:#4dbb5f,stroke:#36873f,color:white
+    style p4 fill:#d94dbb,stroke:#a3378a,color:white
+    style p5 fill:#4dbbbb,stroke:#368787,color:white
+    style details fill:#e699d9,stroke:#d94dbb,color:white,stroke-dasharray: 5 5
+```
+
+## 🔀 optimized mode transitions
+
+mode transitions use a unified context transfer protocol:
+
+```mermaid
+sequencediagram
+    participant current as current mode
+    participant context as context manager
+    participant next as next mode
+    
+    current->>context: create transition document
+    current->>context: store critical context
+    context->>context: prepare rule cache
+    current->>next: initiate transition
+    next->>context: verify context availability
+    context->>next: load relevant context
+    context->>next: load cached rules
+    next->>next: continue with preserved context
+```
+
+## 📊 memory bank efficient updates
+
+```mermaid
+graph td
+    subgraph "memory bank files"
+        tasks["tasks.md<br>source of truth"]
+        active["activecontext.md<br>current focus"]
+        creative["creative-*.md<br>design decisions"]
+        progress["progress.md<br>implementation status"]
+        transition["transition.md<br>mode transitions"]
+    end
+    
+    update["update request"] --> diff{"changed?"}
+    diff -->|"no"| skip["skip update"]
+    diff -->|"yes"| section{"section<br>change?"}
+    section -->|"yes"| partial["update changed<br>sections only"]
+    section -->|"no"| full["full file<br>update"]
+    
+    partial --> tasks
+    full --> tasks
+    
+    style update fill:#4da6ff,stroke:#0066cc,color:white
+    style diff fill:#ffa64d,stroke:#cc7a30,color:white
+    style section fill:#4dbb5f,stroke:#36873f,color:white
+    style partial fill:#d94dbb,stroke:#a3378a,color:white
+    style full fill:#4dbbbb,stroke:#368787,color:white
+```
+
+## 💻 complexity-based documentation
+
+documentation requirements scale based on complexity level:
+
+| documentation | level 1 | level 2 | level 3 | level 4 |
+|---------------|---------|---------|---------|---------|
+| problem definition | brief | standard | detailed | comprehensive |
+| options analysis | optional | basic | multiple options | extensive |
+| implementation plan | simple | standard | detailed | phased |
+| testing requirements | basic | standard | comprehensive | rigorous |
+| documentation | minimal | standard | detailed | extensive |
+
+## 📑 optimized templates by level
+
+### level 1: quick fix template
+```markdown
+## quick fix: [issue name]
+- problem: [brief description]
+- solution: [implemented approach]
+- verification: [how fix was tested]
+```
+
+### level 2: enhancement template
+```markdown
+## enhancement: [feature name]
+- requirement: [what needs to be done]
+- approach: [how it was implemented]
+- testing: [verification approach]
+- documentation: [where documented]
+```
+
+### level 3-4: comprehensive template
+uses the optimized creative phase template with appropriate documentation depth
+
+## 🔄 reference maps
+
+each mode's visual process map is optimized for token efficiency:
+
+- @van mode map (optimized)
+- @plan mode map (optimized)
+- @creative mode map (optimized)
+- @implement mode map (optimized)
+- @reflect mode map (optimized)
+- @archive mode map (optimized)
+
+## ⚡ token efficiency improvements
+
+optimizations in this version:
+
+1. hierarchical rule loading (65% token reduction)
+2. progressive creative phase documentation (60% token reduction)
+3. context preservation during mode transitions (40% token reduction)
+4. differential memory bank updates (30% token reduction)
+5. complexity-based template scaling (varies by level)
+
+## 💡 usage guidance
+
+to use the optimized system:
+
+1. start with the van command to initialize and determine complexity
+2. follow the complexity-appropriate workflow
+3. use progressive documentation appropriate to task complexity
+4. let the system manage rule loading and context preservation
+5. enjoy the improved token efficiency while maintaining structured development
+
+this optimized system provides a more efficient and streamlined experience while preserving the core principles of the memory bank methodology.
+``` 

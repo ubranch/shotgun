@@ -32,6 +32,7 @@ vendor/
 .vscode/
 .vs/
 __pycache__/
+.next/
 
 tmp/
 cache/

@@ -1,0 +1,289 @@
+---
+description: basic workflow for level 2 simple enhancement tasks
+globs: "**/level2/**", "**/workflow/**"
+alwaysapply: false
+---
+# workflow for level 2 tasks
+
+> **tldr:** this document outlines a structured yet efficient workflow for level 2 (simple enhancement) tasks, including 6 key phases with milestone checkpoints and quality verification.
+
+## 🔍 level 2 workflow overview
+
+```mermaid
+graph lr
+    init["1. initialization"] --> doc["2. documentation<br>setup"]
+    doc --> plan["3. task<br>planning"]
+    plan --> impl["4. implementation"]
+    impl --> reflect["5. reflection"]
+    reflect --> archive["6. archiving"]
+    
+    %% document connections for each phase
+    init -.-> initdocs["initialization"]
+    doc -.-> docdocs["documentation"]
+    plan -.-> plandocs["planning"]
+    impl -.-> impldocs["implementation"]
+    reflect -.-> reflectdocs["reflection"]
+    archive -.-> archivedocs["archiving"]
+```
+
+level 2 tasks involve simple enhancements that require a structured approach with moderate planning and documentation. this workflow provides the right balance of process and efficiency.
+
+## 📋 workflow phases
+
+### phase 1: initialization
+
+```mermaid
+graph td
+    start["start level 2 task"] --> platform{"detect<br>platform"}
+    platform --> filecheck["critical file<br>verification"]
+    filecheck --> loadstructure["load memory<br>bank structure"]
+    loadstructure --> taskcreation["create task<br>in tasks.md"]
+    taskcreation --> setupcomplete["initialization<br>complete"]
+```
+
+**steps:**
+1. platform detection
+2. critical file verification
+3. memory bank structure loading
+4. task creation in tasks.md
+5. initial task scope definition
+
+**milestone checkpoint:**
+```
+✓ initialization checkpoint
+- platform detected and configured? [yes/no]
+- critical files verified? [yes/no]
+- memory bank loaded? [yes/no]
+- task created in tasks.md? [yes/no]
+- initial scope defined? [yes/no]
+
+→ if all yes: proceed to documentation setup
+→ if any no: complete initialization steps
+```
+
+### phase 2: documentation setup
+
+```mermaid
+graph td
+    start["begin documentation<br>setup"] --> loadtemplate["load basic<br>documentation templates"]
+    loadtemplate --> updateproject["update<br>projectbrief.md"]
+    updateproject --> updatecontext["update<br>activecontext.md"]
+    updatecontext --> setupcomplete["documentation<br>setup complete"]
+```
+
+**steps:**
+1. load basic documentation templates
+2. update projectbrief.md with enhancement details
+3. update activecontext.md with current focus
+4. create minimal documentation structure
+
+**milestone checkpoint:**
+```
+✓ documentation checkpoint
+- documentation templates loaded? [yes/no]
+- projectbrief.md updated? [yes/no]
+- activecontext.md updated? [yes/no]
+- documentation structure created? [yes/no]
+
+→ if all yes: proceed to task planning
+→ if any no: complete documentation setup
+```
+
+### phase 3: task planning
+
+```mermaid
+graph td
+    start["begin task<br>planning"] --> requirements["define clear<br>requirements"]
+    requirements --> subtasks["break down<br>into subtasks"]
+    subtasks --> tasksupdate["update tasks.md<br>with subtasks"]
+    tasksupdate --> timeestimate["create time<br>estimates"]
+    timeestimate --> plancomplete["planning<br>complete"]
+```
+
+**steps:**
+1. define clear requirements
+2. break down into subtasks
+3. update tasks.md with subtasks
+4. create time estimates
+5. document dependencies and constraints
+
+**milestone checkpoint:**
+```
+✓ planning checkpoint
+- requirements clearly defined? [yes/no]
+- task broken down into subtasks? [yes/no]
+- tasks.md updated with subtasks? [yes/no]
+- time estimates created? [yes/no]
+- dependencies documented? [yes/no]
+
+→ if all yes: proceed to implementation
+→ if any no: complete planning steps
+```
+
+### phase 4: implementation
+
+```mermaid
+graph td
+    start["begin<br>implementation"] --> subtask1["complete<br>subtask 1"]
+    subtask1 --> updatestatus1["update status<br>in tasks.md"]
+    updatestatus1 --> subtask2["complete<br>subtask 2"]
+    subtask2 --> updatestatus2["update status<br>in tasks.md"]
+    updatestatus2 --> finalsubtask["complete<br>final subtask"]
+    finalsubtask --> verification["perform<br>verification"]
+    verification --> implcomplete["implementation<br>complete"]
+```
+
+**steps:**
+1. implement first subtask
+2. update status in tasks.md
+3. implement remaining subtasks
+4. regular status updates after each subtask
+5. verify complete implementation
+
+**milestone checkpoint:**
+```
+✓ implementation checkpoint
+- all subtasks completed? [yes/no]
+- status updates maintained? [yes/no]
+- enhancement fully implemented? [yes/no]
+- basic verification performed? [yes/no]
+- tasks.md fully updated? [yes/no]
+
+→ if all yes: proceed to reflection
+→ if any no: complete implementation steps
+```
+
+### phase 5: reflection
+
+```mermaid
+graph td
+    start["begin<br>reflection"] --> template["load reflection<br>template"]
+    template --> review["review completed<br>enhancement"]
+    review --> document["document successes<br>and challenges"]
+    document --> insights["extract key<br>insights"]
+    insights --> actions["define action<br>items"]
+    actions --> reflectcomplete["reflection<br>complete"]
+```
+
+**steps:**
+1. load reflection template
+2. review completed enhancement
+3. document successes and challenges
+4. extract key insights
+5. define action items for future work
+
+**milestone checkpoint:**
+```
+✓ reflection checkpoint
+- reflection template loaded? [yes/no]
+- enhancement reviewed? [yes/no]
+- successes and challenges documented? [yes/no]
+- key insights extracted? [yes/no]
+- action items defined? [yes/no]
+
+→ if all yes: proceed to archiving
+→ if any no: complete reflection steps
+```
+
+### phase 6: archiving
+
+```mermaid
+graph td
+    start["begin<br>archiving"] --> template["load archive<br>template"]
+    template --> gather["gather implementation<br>details"]
+    gather --> create["create archive<br>document"]
+    create --> crossref["create cross-<br>references"]
+    crossref --> update["update memory<br>bank files"]
+    update --> archivecomplete["archiving<br>complete"]
+```
+
+**steps:**
+1. load archive template
+2. gather implementation details
+3. create archive document
+4. create cross-references
+5. update memory bank files
+
+**milestone checkpoint:**
+```
+✓ archiving checkpoint
+- archive template loaded? [yes/no]
+- implementation details gathered? [yes/no]
+- archive document created? [yes/no]
+- cross-references created? [yes/no]
+- memory bank files updated? [yes/no]
+
+→ if all yes: task complete
+→ if any no: complete archiving steps
+```
+
+## 📋 workflow verification checklist
+
+```
+✓ final workflow verification
+- all phases completed? [yes/no]
+- all milestone checkpoints passed? [yes/no]
+- tasks.md fully updated? [yes/no]
+- reflection document created? [yes/no]
+- archive document created? [yes/no]
+- memory bank fully updated? [yes/no]
+
+→ if all yes: level 2 task successfully completed
+→ if any no: address outstanding items
+```
+
+## 📋 minimal mode workflow
+
+for minimal mode, use this streamlined workflow:
+
+```
+1. init: verify environment, create task entry
+2. docs: update projectbrief and activecontext
+3. plan: define requirements, subtasks, estimates
+4. impl: complete subtasks, update status
+5. reflect: document key insights and actions
+6. archive: document completion and cross-reference
+```
+
+## 🔄 level transition handling
+
+```mermaid
+graph td
+    l2["level 2 task"] --> assess["continuous<br>assessment"]
+    
+    assess --> down["downgrade to<br>level 1"]
+    assess --> up["upgrade to<br>level 3/4"]
+    
+    down --> l1trigger["triggers:<br>- simpler than expected<br>- quick fix possible<br>- single component"]
+    
+    up --> l34trigger["triggers:<br>- more complex<br>- multiple components<br>- design needed"]
+    
+    l1trigger --> l1switch["switch to<br>level 1 workflow"]
+    l34trigger --> l34switch["switch to<br>level 3/4 workflow"]
+```
+
+## 🔄 integration with memory bank
+
+```mermaid
+graph td
+    workflow["level 2<br>workflow"] --> pb["update<br>projectbrief.md"]
+    workflow --> ac["update<br>activecontext.md"]
+    workflow --> tm["maintain<br>tasks.md"]
+    workflow --> pm["update<br>progress.md"]
+    
+    pb & ac & tm & pm --> mb["memory bank<br>integration"]
+    mb --> nexttask["transition to<br>next task"]
+```
+
+## 🚨 efficiency principle
+
+remember:
+
+```
+┌─────────────────────────────────────────────────────┐
+│ level 2 workflow balances process with efficiency.  │
+│ follow the structure but avoid unnecessary overhead. │
+└─────────────────────────────────────────────────────┘
+```
+
+this ensures that simple enhancements are implemented with the right level of documentation and process.

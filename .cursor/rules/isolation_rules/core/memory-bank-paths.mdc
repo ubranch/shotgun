@@ -1,0 +1,23 @@
+---
+description: defines canonical paths for core memory bank files.
+globs: memory-bank-paths.mdc
+alwaysapply: true
+---
+
+# core memory bank file locations
+
+**critical:** all core memory bank files reside within the `memory-bank/` directory at the project root. do not create or modify these files outside this directory unless explicitly instructed for archiving purposes.
+
+* **tasks file:** `memory-bank/tasks.md` - this file is used for active, in-progress task tracking, detailing steps, checklists, and component lists. its content, particularly the detailed checklists, is merged into the main archive document for the task upon completion. after archival, `tasks.md` is cleared to be ready for the next task. it is an ephemeral working document during a task's lifecycle, with its persistent record captured in the task's archive file.
+* **active context file:** `memory-bank/activecontext.md`
+* **progress file:** `memory-bank/progress.md`
+* **project brief file:** `memory-bank/projectbrief.md`
+* **product context file:** `memory-bank/productcontext.md`
+* **system patterns file:** `memory-bank/systempatterns.md`
+* **tech context file:** `memory-bank/techcontext.md`
+* **style guide file:** `memory-bank/style-guide.md`
+* **creative phase docs:** `memory-bank/creative/creative-[feature_name].md`
+* **reflection docs:** `memory-bank/reflection/reflection-[task_id].md`
+* **archive directory:** `memory-bank/archive/archive-[task_id].md`
+
+**verification mandate:** before any `create_file` or `edit_file` operation on these core files, verify the path starts with `memory-bank/`. if attempting to create a new core file (e.g., `tasks.md` at the start of a project), ensure it is created at `memory-bank/tasks.md`.

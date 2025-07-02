@@ -1,0 +1,110 @@
+---
+description: Visual map for REFLECT mode
+globs: "**/reflect-mode-map.mdc"
+alwaysApply: false
+---
+
+# 🤔 REFLECT MODE VISUAL MAP
+
+> **TL;DR:** This document provides a visual map of the REFLECT mode, outlining the process for reviewing completed work, extracting insights, and identifying improvements for future tasks.
+
+## 🧘 REFLECT MODE WORKFLOW
+
+```mermaid
+graph TD
+    Start["Start<br>REFLECT Mode"] --> Review["1. Review<br>Completed Work"]
+    Review --> Analyze["2. Analyze<br>Successes & Challenges"]
+    Analyze --> Insights["3. Extract<br>Key Insights"]
+    Insights --> Actions["4. Define<br>Actionable Improvements"]
+    Actions --> Document["5. Document<br>Reflection"]
+    Document --> Share["6. Share<br>Learnings"]
+    Share --> Complete["REFLECT Mode<br>Complete"]
+    
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style Review fill:#ffa64d,stroke:#cc7a30,color:white
+    style Analyze fill:#4dbb5f,stroke:#36873f,color:white
+    style Insights fill:#d94dbb,stroke:#a3378a,color:white
+    style Actions fill:#4dbbbb,stroke:#368787,color:white
+    style Document fill:#d971ff,stroke:#a33bc2,color:white
+    style Share fill:#ff71c2,stroke:#c23b8a,color:white
+    style Complete fill:#4da6ff,stroke:#0066cc,color:white
+```
+
+## 📋 REFLECTION DOCUMENT STRUCTURE
+
+```mermaid
+graph TD
+    subgraph "Reflection Document"
+        Summary["Summary of Work"]
+        Successes["Successes & What Went Well"]
+        Challenges["Challenges & What Went Wrong"]
+        Insights["Key Insights & Learnings"]
+        Actions["Actionable Improvements"]
+    end
+    
+    Summary --> Successes
+    Successes --> Challenges
+    Challenges --> Insights
+    Insights --> Actions
+    
+    style Summary fill:#4dbb5f,stroke:#36873f,color:white
+    style Successes fill:#ffa64d,stroke:#cc7a30,color:white
+    style Challenges fill:#d94dbb,stroke:#a3378a,color:white
+    style Insights fill:#4dbbbb,stroke:#368787,color:white
+    style Actions fill:#d971ff,stroke:#a33bc2,color:white
+```
+
+## 🔄 MEMORY BANK INTEGRATION
+
+```mermaid
+graph TD
+    Reflection["Reflection<br>Document"] --> Tasks["Update<br>tasks.md"]
+    Reflection --> Progress["Update<br>progress.md"]
+    Reflection --> Active["Update<br>activeContext.md"]
+    
+    Tasks --> MB["Memory Bank"]
+    Progress --> MB
+    Active --> MB
+    
+    style Reflection fill:#4da6ff,stroke:#0066cc,color:white
+    style Tasks fill:#ffa64d,stroke:#cc7a30,color:white
+    style Progress fill:#4dbb5f,stroke:#36873f,color:white
+    style Active fill:#d94dbb,stroke:#a3378a,color:white
+    style MB fill:#4dbbbb,stroke:#368787,color:white
+```
+
+## ✅ REFLECTION VERIFICATION CHECKLIST
+
+```mermaid
+graph TD
+    subgraph "Verification Checklist"
+        Honesty["Honesty & Objectivity"]
+        Specificity["Specificity of Examples"]
+        Insightfulness["Depth of Insights"]
+        Actionability["Actionability of Improvements"]
+        Completeness["Completeness of Documentation"]
+    end
+    
+    Honesty --> Specificity
+    Specificity --> Insightfulness
+    Insightfulness --> Actionability
+    Actionability --> Completeness
+    
+    style Honesty fill:#4dbb5f,stroke:#36873f,color:white
+    style Specificity fill:#ffa64d,stroke:#cc7a30,color:white
+    style Insightfulness fill:#d94dbb,stroke:#a3378a,color:white
+    style Actionability fill:#4dbbbb,stroke:#368787,color:white
+    style Completeness fill:#d971ff,stroke:#a33bc2,color:white
+```
+
+## 🚨 REFLECTION PRINCIPLE
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Reflection is the engine of improvement. Without    │
+│ honest reflection, we are doomed to repeat our      │
+│ mistakes and miss opportunities for growth.         │
+└─────────────────────────────────────────────────────┘
+```
+
+This visual map provides a clear overview of the REFLECT mode, ensuring that every task contributes to continuous learning and improvement.

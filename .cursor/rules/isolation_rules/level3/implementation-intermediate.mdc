@@ -1,0 +1,73 @@
+---
+description: 
+globs: implementation-intermediate.mdc
+alwaysapply: false
+---
+# level 3 implementation: building intermediate features
+
+> **tldr:** this guide focuses on the systematic implementation of a planned and designed level 3 feature. it emphasizes modular development, strict adherence to creative decisions and the style guide, integration with existing systems, and thorough feature-specific testing.
+
+## 🛠️ level 3 feature implementation workflow
+
+this workflow outlines the typical steps for building an intermediate feature.
+
+```mermaid
+graph td
+    startimpl["start l3 implementation"] -->
+    reviewdocs["1. review all relevant docs<br>(tasks, creative docs, style guide)"] -->
+    setupenv["2. setup/verify dev environment<br>(branch, tools, dependencies)"] -->
+    modulebreakdown["3. break down feature into modules/major components<br>(based on plan in `tasks.md`)"] -->
+    builditerate["4. implement modules/components iteratively"]
+
+    builditerate --> implementmodule["4a. select next module/component"]
+    implementmodule --> codemodule["4b. code module<br>(adhere to design, style guide, coding standards)"]
+    codemodule --> unittests["4c. write & pass unit tests"]
+    unittests --> selfreview["4d. self-review/code linting"]
+    selfreview --> moremodules{"4e. more modules<br>for this feature?"}
+    moremodules -- yes --> implementmodule
+
+    moremodules -- no --> integratemodules["5. integrate all feature modules/components"]
+    integratemodules --> integrationtesting["6. perform integration testing<br>(feature modules + existing system parts)"]
+    integrationtesting --> e2efeaturetesting["7. end-to-end feature testing<br>(validate against user stories & requirements)"]
+    e2efeaturetesting --> accessibilitycheck["8. accessibility & responsiveness check<br>(if ui is involved)"]
+    accessibilitycheck --> codecleanup["9. code cleanup & refinement"]
+    codecleanup --> updatemb["10. update memory bank<br>(`tasks.md` sub-tasks, `progress.md` details)"]
+    updatemb --> finalfeaturereview["11. final feature review (conceptual peer review if possible)"]
+    finalfeaturereview --> implementationdone["l3 implementation complete<br>ready for reflect mode"]
+
+    style startimpl fill:#e57373,stroke:#f44336
+    style builditerate fill:#ffcdd2,stroke:#ef9a9a
+    style implementationdone fill:#ef9a9a,stroke:#e57373
+````
+
+## 🔑 key considerations for level 3 implementation
+
+  * **modularity & encapsulation:** design and build the feature in well-defined, reusable, and loosely coupled modules or components.
+  * **adherence to design:** strictly follow the decisions documented in `memory-bank/creative-*.md` files and the `memory-bank/style-guide.md`. deviations must be justified and documented.
+  * **state management:** if the feature introduces or significantly interacts with complex application state, ensure the state management strategy (potentially defined in creative mode) is correctly implemented and tested.
+  * **api interactions:**
+      * if consuming new or existing apis, ensure requests and responses are handled correctly, including error states.
+      * if exposing new api endpoints as part of the feature, ensure they are robust, secure, and documented.
+  * **error handling:** implement user-friendly error messages and robust error handling within the feature's scope.
+  * **performance:** be mindful of performance implications. avoid common pitfalls like n+1 database queries, inefficient algorithms, or large asset loading without optimization, especially if identified as a concern in the plan or creative phase.
+  * **security:** implement with security best practices in mind, particularly for features handling user input, authentication, or sensitive data. refer to any security design decisions from creative mode.
+
+## 🧪 testing focus for level 3 features
+
+  * **unit tests:** each new function, method, or logical unit within the feature's components should have corresponding unit tests. aim for good coverage of core logic and edge cases.
+  * **component tests (for ui features):** test ui components in isolation, verifying rendering, props handling, and event emissions.
+  * **integration tests:** crucial for l3. test how the different modules/components of the new feature work together. also, test how the completed feature integrates with existing parts of the application it interacts with.
+  * **user scenario / acceptance tests (feature-specific):** validate that the feature fulfills its defined requirements and user stories from the user's perspective. this can be manual or automated.
+
+## 📝 documentation during implementation
+
+  * **`memory-bank/tasks.md`:** update the status of sub-tasks related to the feature as they are completed. note any blockers or changes in estimates.
+  * **`memory-bank/progress.md`:** make regular entries detailing:
+      * modules/components completed.
+      * key decisions made during implementation (if minor and not warranting a full creative cycle).
+      * files significantly modified
+      * test results for major integration points.
+      * any deviations from the plan or creative designs, with rationale.
+  * **code comments:** write clear, concise comments explaining complex logic, assumptions, or todos.
+  * **readmes (if applicable):** if the feature introduces new modules or libraries that require specific setup or usage notes, consider adding or updating relevant readme files.
+

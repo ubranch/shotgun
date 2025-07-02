@@ -1,6 +1,6 @@
 <template>
     <div class="p-4 h-full flex flex-col">
-        <!-- Loading State: Always Progress Bar -->
+        <!-- loading state: always progress bar -->
         <div
             v-if="isLoadingContext"
             class="flex-grow flex justify-center items-center"
@@ -31,7 +31,7 @@
             </div>
         </div>
 
-        <!-- Content Area (Textarea + Copy Button OR Error Message OR Placeholder) -->
+        <!-- content area (textarea + copy button or error message or placeholder) -->
         <div v-else-if="projectRoot" class="mt-0 flex-grow flex flex-col">
             <div
                 v-if="
@@ -81,7 +81,7 @@
             </p>
         </div>
 
-        <!-- Initial message when no project is selected -->
+        <!-- initial message when no project is selected -->
         <p
             v-else
             class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex-grow flex justify-center items-center"
@@ -105,17 +105,17 @@ const props = defineProps({
         default: "",
     },
     isLoadingContext: {
-        // New prop
+        // new prop
         type: Boolean,
         default: false,
     },
     generationProgress: {
-        // New prop for progress data
+        // new prop for progress data
         type: Object,
         default: () => ({ current: 0, total: 0 }),
     },
     platform: {
-        // To know if we are on macOS
+        // to know if we are on macos
         type: String,
         default: "unknown",
     },

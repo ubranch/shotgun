@@ -1,0 +1,110 @@
+# qa validation process
+
+> **tldr:** this document outlines the technical validation process that occurs in van qa mode, ensuring all prerequisites are met before implementation begins.
+
+## 🔍 technical validation overview
+
+the van qa technical validation process consists of four key validation points:
+
+```mermaid
+graph td
+    vanqa["van qa mode"] --> fourchecks["four-point validation"]
+    
+    fourchecks --> depcheck["1️⃣ dependency verification<br>check all required packages"]
+    depcheck --> configcheck["2️⃣ configuration validation<br>verify format & compatibility"]
+    configcheck --> envcheck["3️⃣ environment validation<br>check build environment"]
+    envcheck --> minbuildcheck["4️⃣ minimal build test<br>test core functionality"]
+    
+    minbuildcheck --> validationresults{"all checks<br>passed?"}
+    validationresults -->|"yes"| successreport["generate success report"]
+    validationresults -->|"no"| failurereport["generate failure report"]
+    
+    successreport --> build["proceed to build mode"]
+    failurereport --> fixissues["fix technical issues"]
+    fixissues --> revalidate["re-validate"]
+    revalidate --> validationresults
+    
+    style vanqa fill:#4da6ff,stroke:#0066cc,color:white
+    style fourchecks fill:#f6546a,stroke:#c30052,color:white
+    style validationresults fill:#f6546a,stroke:#c30052,color:white
+    style build fill:#10b981,stroke:#059669,color:white
+    style fixissues fill:#ff5555,stroke:#dd3333,color:white
+```
+
+## 📝 validation status format
+
+the qa validation step includes clear status indicators:
+
+```
+╔═════════════════ 🔍 qa validation status ═════════════════╗
+│ ✓ design decisions   │ verified as implementable          │
+│ ✓ dependencies       │ all required packages installed    │
+│ ✓ configurations     │ format verified for platform       │
+│ ✓ environment        │ suitable for implementation        │
+╚════════════════════════════════════════════════════════════╝
+✅ verified - clear to proceed to build mode
+```
+
+## 🚨 build mode prevention
+
+the system prevents moving to build mode without passing qa validation:
+
+```mermaid
+graph td
+    start["user types: build"] --> checkqa{"qa validation<br>completed?"}
+    checkqa -->|"yes and passed"| allowbuild["allow build mode"]
+    checkqa -->|"no or failed"| blockbuild["block build mode"]
+    blockbuild --> message["display:<br>⚠️ qa validation required"]
+    message --> returntovanqa["prompt: type van qa"]
+    
+    style checkqa fill:#f6546a,stroke:#c30052,color:white
+    style blockbuild fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
+    style message fill:#ff5555,stroke:#dd3333,color:white
+    style returntovanqa fill:#4da6ff,stroke:#0066cc,color:white
+```
+
+## 🔄 qa command precedence
+
+qa validation can be called at any point and takes immediate precedence:
+
+```mermaid
+graph td
+    userqa["user types: qa"] --> highpriority["⚠️ high priority command"]
+    highpriority --> currenttask["pause current task/process"]
+    currenttask --> loadqa["load qa mode map"]
+    loadqa --> runqa["execute qa validation process"]
+    runqa --> qaresults{"qa results"}
+    
+    qaresults -->|"pass"| resumeflow["resume prior process flow"]
+    qaresults -->|"fail"| fixissues["fix identified issues"]
+    fixissues --> rerunqa["re-run qa validation"]
+    rerunqa --> qaresults
+    
+    style userqa fill:#f8d486,stroke:#e8b84d,color:black
+    style highpriority fill:#ff0000,stroke:#cc0000,color:white,stroke-width:3px
+    style loadqa fill:#4da6ff,stroke:#0066cc,color:white
+    style runqa fill:#4da6ff,stroke:#0066cc,color:white
+    style qaresults fill:#f6546a,stroke:#c30052,color:white
+```
+
+## 🧪 common qa fixes
+
+| issue category | common fixes |
+|----------------|--------------|
+| **dependencies** | `npm install`, check versions, clear cache |
+| **configurations** | validate json/js syntax, check for missing entries |
+| **environment** | check tool versions, permissions, available ports |
+| **build test** | check console for errors, verify minimal config |
+
+## 🔒 final qa checkpoint
+
+```
+✓ section checkpoint: qa validation
+- dependency verification passed? [yes/no]
+- configuration validation passed? [yes/no]
+- environment validation passed? [yes/no]
+- minimal build test passed? [yes/no]
+
+→ if all yes: ready for build mode
+→ if any no: fix identified issues before proceeding
+```

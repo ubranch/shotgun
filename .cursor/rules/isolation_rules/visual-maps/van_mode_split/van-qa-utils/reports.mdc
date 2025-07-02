@@ -1,0 +1,149 @@
+---
+description: utility for van qa validation reports
+globs: van-qa-utils/reports.mdc
+alwaysapply: false
+---
+# van qa: validation reports
+
+> **tldr:** this component contains the formats for comprehensive success and failure reports generated upon completion of the qa validation process.
+
+## 📋 comprehensive success report format
+
+after all four validation points pass, generate this success report:
+
+```
+╔═════════════════════ 🔍 qa validation report ══════════════════════╗
+│ project: [project name] | timestamp: [current date/time]            │
+├──────────────────��──────────────────────────────────────────────────┤
+│ 1️⃣ dependencies: ✓ compatible                                       │
+│ 2️⃣ configuration: ✓ valid & compatible                             │
+│ 3️⃣ environment: ✓ ready                                             │
+│ 4️⃣ minimal build: ✓ successful & passed                            │
+├─────────────────────────────────────────────────────────────────────┤
+│ 🚨 final verdict: pass                                              │
+│ ➡️ clear to proceed to build mode                                   │
+╚═════════════════════════════════════════════════════════════════════╝
+```
+
+### success report generation example:
+```powershell
+function generate-successreport {
+    param (
+        [string]$projectname = "current project"
+    )
+    
+    $timestamp = get-date -format "yyyy-mm-dd hh:mm:ss"
+    
+    $report = @"
+╔═════════════════════ 🔍 qa validation report ══════════════════════╗
+│ project: $projectname | timestamp: $timestamp            │
+├─────────────────────────────────────────────────────────────────────┤
+│ 1️⃣ dependencies: ✓ compatible                                       │
+│ 2️⃣ configuration: ✓ valid & compatible                             │
+│ 3️⃣ environment: ✓ ready                                             │
+│ 4️⃣ minimal build: ✓ successful & passed                            │
+├─────────────────────────────────────────────────────────────────────┤
+│ 🚨 final verdict: pass                                              │
+│ ➡️ clear to proceed to build mode                                   │
+╚═════════════════════════════════════════════════════════════════════╝
+"@
+    
+    # save validation status (used by build mode prevention mechanism)
+    "pass" | set-content -path "memory-bank\.qa_validation_status"
+    
+    return $report
+}
+```
+
+## ❌ failure report format
+
+if any validation step fails, generate this detailed failure report:
+
+```
+⚠️⚠️⚠️ qa validation failed ⚠️⚠️⚠️
+
+the following issues must be resolved before proceeding to build mode:
+
+1️⃣ dependency issues:
+- [detailed description of dependency issues]
+- [recommended fix]
+
+2️⃣ configuration issues:
+- [detailed description of configuration issues]
+- [recommended fix]
+
+3️⃣ environment issues:
+- [detailed description of environment issues]
+- [recommended fix]
+
+4️⃣ build test issues:
+- [detailed description of build test issues]
+- [recommended fix]
+
+⚠️ build mode is blocked until these issues are resolved.
+type 'van qa' after fixing the issues to re-validate.
+```
+
+### failure report generation example:
+```powershell
+function generate-failurereport {
+    param (
+        [string[]]$dependencyissues = @(),
+        [string[]]$configissues = @(),
+        [string[]]$environmentissues = @(),
+        [string[]]$buildissues = @()
+    )
+    
+    $report = @"
+⚠️⚠️⚠️ qa validation failed ⚠️⚠️⚠️
+
+the following issues must be resolved before proceeding to build mode:
+
+"@
+    
+    if ($dependencyissues.count -gt 0) {
+        $report += @"
+1️⃣ dependency issues:
+$(($dependencyissues | foreach-object { "- $_" }) -join "`n")
+
+"@
+    }
+    
+    if ($configissues.count -gt 0) {
+        $report += @"
+2️⃣ configuration issues:
+$(($configissues | foreach-object { "- $_" }) -join "`n")
+
+"@
+    }
+    
+    if ($environmentissues.count -gt 0) {
+        $report += @"
+3️⃣ environment issues:
+$(($environmentissues | foreach-object { "- $_" }) -join "`n")
+
+"@
+    }
+    
+    if ($buildissues.count -gt 0) {
+        $report += @"
+4️⃣ build test issues:
+$(($buildissues | foreach-object { "- $_" }) -join "`n")
+
+"@
+    }
+    
+    $report += @"
+⚠️ build mode is blocked until these issues are resolved.
+type 'van qa' after fixing the issues to re-validate.
+"@
+    
+    # save validation status (used by build mode prevention mechanism)
+    "fail" | set-content -path "memory-bank\.qa_validation_status"
+    
+    return $report
+}
+```
+
+**next step (on success):** load `van-qa-utils/mode-transitions.mdc` to handle build mode transition.
+**next step (on failure):** load `van-qa-utils/common-fixes.mdc` for issue remediation guidance.

@@ -1,0 +1,809 @@
+---
+description: architectural planning guidelines for level 4 complex system tasks
+globs: "**/level4/**", "**/architecture/**"
+alwaysapply: false
+---
+
+# architectural planning for level 4 tasks
+
+> **tldr:** this document outlines a comprehensive architectural planning approach for level 4 (complex system) tasks, ensuring a robust, scalable, and maintainable architecture that aligns with business objectives and technical requirements.
+
+## 🔍 architectural planning overview
+
+level 4 complex system tasks require thorough architectural planning to ensure the resulting system is robust, scalable, maintainable, and aligned with business objectives. this document outlines a structured approach to architectural planning that systematically addresses key concerns and produces comprehensive documentation.
+
+```mermaid
+flowchart td
+    classdef phase fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+    classdef verification fill:#c5e8b7,stroke:#a5c897,color:#000
+    
+    start([begin architectural<br>planning]) --> reqs[analyze<br>requirements]
+    reqs --> context[define business<br>context]
+    context --> vision[establish vision<br>and goals]
+    vision --> principles[define architectural<br>principles]
+    principles --> constraints[identify<br>constraints]
+    constraints --> explore[explore<br>alternatives]
+    explore --> evaluate[evaluate<br>options]
+    evaluate --> decision[document<br>decisions]
+    decision --> create[create architecture<br>documentation]
+    create --> validate[validate<br>architecture]
+    validate --> communicate[communicate<br>architecture]
+    communicate --> verification{architecture<br>verification}
+    verification -->|pass| complete([architectural<br>planning complete])
+    verification -->|fail| revise[revise<br>architecture]
+    revise --> verification
+    
+    reqs -.-> reqdoc((requirements<br>document))
+    context -.-> condoc((context<br>document))
+    vision -.-> visdoc((vision<br>document))
+    principles -.-> prindoc((principles<br>document))
+    explore -.-> altdoc((alternatives<br>analysis))
+    decision -.-> adr((architecture<br>decision records))
+    create -.-> archdoc((architecture<br>documentation))
+    
+    class start,complete milestone
+    class reqs,context,vision,principles,constraints,explore,evaluate,decision,create,validate,communicate,revise step
+    class verification verification
+    class reqdoc,condoc,visdoc,prindoc,altdoc,adr,archdoc artifact
+```
+
+## 📋 architectural planning principles
+
+1. **business alignment**: architecture must directly support business objectives and user needs.
+2. **future-proofing**: architecture must anticipate future requirements and facilitate change.
+3. **simplicity**: prefer simple solutions over complex ones when possible.
+4. **separation of concerns**: systems should be divided into distinct components with minimal overlap.
+5. **defense in depth**: multiple layers of security controls should be employed.
+6. **loose coupling**: components should interact through well-defined interfaces with minimal dependencies.
+7. **high cohesion**: related functionality should be grouped together, unrelated functionality separated.
+8. **resilience**: architecture should anticipate failures and provide mechanisms for recovery.
+9. **scalability**: architecture should support growth in users, data, and functionality.
+10. **measurability**: architecture should enable monitoring and measurement of key metrics.
+
+## 📋 architectural requirements analysis
+
+begin architectural planning with a comprehensive analysis of requirements:
+
+### functional requirements analysis
+
+```mermaid
+flowchart lr
+    classdef req fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef arch fill:#a8d5ff,stroke:#88b5e0,color:#000
+    
+    fr[functional<br>requirements] --> use[use cases/<br>user stories]
+    use --> dom[domain<br>model]
+    dom --> comp[component<br>identification]
+    comp --> int[interface<br>definition]
+    int --> flow[information<br>flow]
+    
+    class fr,use,dom req
+    class comp,int,flow arch
+```
+
+**template for functional requirements analysis:**
+
+```markdown
+## functional requirements analysis
+
+### key use cases
+- use case 1: [description]
+- use case 2: [description]
+- use case 3: [description]
+
+### domain model
+- entity 1: [description and attributes]
+- entity 2: [description and attributes]
+- entity 3: [description and attributes]
+- relationships:
+  - entity 1 → entity 2: [relationship type and description]
+  - entity 2 → entity 3: [relationship type and description]
+
+### component identification
+- component 1: [description and responsibilities]
+- component 2: [description and responsibilities]
+- component 3: [description and responsibilities]
+
+### interface definitions
+- interface 1: [description, methods, parameters]
+- interface 2: [description, methods, parameters]
+- interface 3: [description, methods, parameters]
+
+### information flow
+- flow 1: [description of information exchange]
+- flow 2: [description of information exchange]
+- flow 3: [description of information exchange]
+```
+
+### non-functional requirements analysis
+
+```mermaid
+flowchart lr
+    classdef req fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef arch fill:#a8d5ff,stroke:#88b5e0,color:#000
+    
+    nfr[non-functional<br>requirements] --> perf[performance<br>requirements]
+    nfr --> sec[security<br>requirements]
+    nfr --> scal[scalability<br>requirements]
+    nfr --> avail[availability<br>requirements]
+    nfr --> maint[maintainability<br>requirements]
+    
+    perf & sec & scal & avail & maint --> arch[architectural<br>decisions]
+    
+    class nfr,perf,sec,scal,avail,maint req
+    class arch arch
+```
+
+**template for non-functional requirements analysis:**
+
+```markdown
+## non-functional requirements analysis
+
+### performance requirements
+- response time: [requirements]
+- throughput: [requirements]
+- resource utilization: [requirements]
+- architectural implications: [implications for architecture]
+
+### security requirements
+- authentication: [requirements]
+- authorization: [requirements]
+- data protection: [requirements]
+- audit/logging: [requirements]
+- architectural implications: [implications for architecture]
+
+### scalability requirements
+- user scalability: [requirements]
+- data scalability: [requirements]
+- transaction scalability: [requirements]
+- architectural implications: [implications for architecture]
+
+### availability requirements
+- uptime requirements: [requirements]
+- fault tolerance: [requirements]
+- disaster recovery: [requirements]
+- architectural implications: [implications for architecture]
+
+### maintainability requirements
+- modularity: [requirements]
+- extensibility: [requirements]
+- testability: [requirements]
+- architectural implications: [implications for architecture]
+```
+
+## 📋 business context documentation
+
+document the business context to ensure architectural alignment:
+
+```markdown
+## business context documentation
+
+### business objectives
+- objective 1: [description]
+- objective 2: [description]
+- objective 3: [description]
+
+### key stakeholders
+- stakeholder group 1: [description, needs, and concerns]
+- stakeholder group 2: [description, needs, and concerns]
+- stakeholder group 3: [description, needs, and concerns]
+
+### business processes
+- process 1: [description and flow]
+- process 2: [description and flow]
+- process 3: [description and flow]
+
+### business constraints
+- constraint 1: [description and impact]
+- constraint 2: [description and impact]
+- constraint 3: [description and impact]
+
+### business metrics
+- metric 1: [description and target]
+- metric 2: [description and target]
+- metric 3: [description and target]
+
+### business risks
+- risk 1: [description, probability, impact, and mitigation]
+- risk 2: [description, probability, impact, and mitigation]
+- risk 3: [description, probability, impact, and mitigation]
+```
+
+## 📋 architectural vision and goals
+
+document the architectural vision and goals:
+
+```markdown
+## architectural vision and goals
+
+### vision statement
+[concise statement of the architectural vision]
+
+### strategic goals
+- goal 1: [description and success criteria]
+- goal 2: [description and success criteria]
+- goal 3: [description and success criteria]
+
+### quality attributes
+- quality attribute 1: [description and importance]
+- quality attribute 2: [description and importance]
+- quality attribute 3: [description and importance]
+
+### technical roadmap
+- short-term (0-6 months): [key architectural milestones]
+- medium-term (6-18 months): [key architectural milestones]
+- long-term (18+ months): [key architectural milestones]
+
+### key success indicators
+- indicator 1: [description and measurement]
+- indicator 2: [description and measurement]
+- indicator 3: [description and measurement]
+```
+
+## 📋 architectural principles
+
+document architectural principles to guide decision-making:
+
+```markdown
+## architectural principles
+
+### principle 1: [name]
+- **statement**: [concise statement of the principle]
+- **rationale**: [why this principle is important]
+- **implications**: [what this principle means for the architecture]
+- **examples**: [examples of applying this principle]
+
+### principle 2: [name]
+- **statement**: [concise statement of the principle]
+- **rationale**: [why this principle is important]
+- **implications**: [what this principle means for the architecture]
+- **examples**: [examples of applying this principle]
+
+### principle 3: [name]
+- **statement**: [concise statement of the principle]
+- **rationale**: [why this principle is important]
+- **implications**: [what this principle means for the architecture]
+- **examples**: [examples of applying this principle]
+
+...
+```
+
+## 📋 constraints identification
+
+document constraints that impact architectural decisions:
+
+```markdown
+## architectural constraints
+
+### technical constraints
+- constraint 1: [description and impact]
+- constraint 2: [description and impact]
+- constraint 3: [description and impact]
+
+### organizational constraints
+- constraint 1: [description and impact]
+- constraint 2: [description and impact]
+- constraint 3: [description and impact]
+
+### external constraints
+- constraint 1: [description and impact]
+- constraint 2: [description and impact]
+- constraint 3: [description and impact]
+
+### regulatory/compliance constraints
+- constraint 1: [description and impact]
+- constraint 2: [description and impact]
+- constraint 3: [description and impact]
+
+### resource constraints
+- constraint 1: [description and impact]
+- constraint 2: [description and impact]
+- constraint 3: [description and impact]
+```
+
+## 📋 architectural alternatives exploration
+
+document and evaluate architectural alternatives:
+
+```markdown
+## architectural alternatives
+
+### alternative 1: [name]
+- **description**: [brief description of the alternative]
+- **key components**:
+  - component 1: [description]
+  - component 2: [description]
+  - component 3: [description]
+- **advantages**:
+  - [advantage 1]
+  - [advantage 2]
+  - [advantage 3]
+- **disadvantages**:
+  - [disadvantage 1]
+  - [disadvantage 2]
+  - [disadvantage 3]
+- **risks**:
+  - [risk 1]
+  - [risk 2]
+  - [risk 3]
+- **cost factors**:
+  - [cost factor 1]
+  - [cost factor 2]
+  - [cost factor 3]
+- **alignment with requirements**:
+  - [how well this alternative addresses requirements]
+
+### alternative 2: [name]
+...
+
+### alternative 3: [name]
+...
+
+## evaluation criteria
+- criterion 1: [description and weighting]
+- criterion 2: [description and weighting]
+- criterion 3: [description and weighting]
+
+## evaluation matrix
+| criterion | alternative 1 | alternative 2 | alternative 3 |
+|-----------|---------------|---------------|---------------|
+| criterion 1 | score | score | score |
+| criterion 2 | score | score | score |
+| criterion 3 | score | score | score |
+| total | sum | sum | sum |
+
+## recommended approach
+[description of the recommended architectural approach with justification]
+```
+
+## 📋 architecture decision records (adrs)
+
+document key architectural decisions:
+
+```markdown
+# architecture decision record: [decision title]
+
+## status
+[proposed/accepted/deprecated/superseded]
+
+## context
+[description of the context and problem statement]
+
+## decision
+[description of the decision made]
+
+## consequences
+[description of the consequences of the decision]
+
+## alternatives considered
+[description of alternatives considered]
+
+## related decisions
+[references to related decisions]
+
+## notes
+[additional notes and considerations]
+```
+
+## 📋 comprehensive architecture documentation
+
+create comprehensive architecture documentation:
+
+### system context diagram
+
+```mermaid
+flowchart td
+    classdef system fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef external fill:#a8d5ff,stroke:#88b5e0,color:#000
+    classdef user fill:#c5e8b7,stroke:#a5c897,color:#000
+    
+    u1[user 1] --> s[system]
+    u2[user 2] --> s
+    s --> e1[external<br>system 1]
+    s --> e2[external<br>system 2]
+    s --> e3[external<br>system 3]
+    
+    class s system
+    class e1,e2,e3 external
+    class u1,u2 user
+```
+
+### high-level architecture diagram
+
+```mermaid
+flowchart td
+    classdef frontend fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef backend fill:#a8d5ff,stroke:#88b5e0,color:#000
+    classdef data fill:#c5e8b7,stroke:#a5c897,color:#000
+    classdef integration fill:#f4b8c4,stroke:#d498a4,color:#000
+    
+    u[users] --> f[frontend<br>layer]
+    f --> b[backend<br>layer]
+    b --> d[data<br>layer]
+    b --> i[integration<br>layer]
+    i --> e[external<br>systems]
+    
+    class f frontend
+    class b backend
+    class d data
+    class i integration
+    class u,e external
+```
+
+### component architecture diagram
+
+```mermaid
+flowchart td
+    classdef ui fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef service fill:#a8d5ff,stroke:#88b5e0,color:#000
+    classdef data fill:#c5e8b7,stroke:#a5c897,color:#000
+    
+    ui[user interface] --> api[api gateway]
+    api --> s1[service 1]
+    api --> s2[service 2]
+    api --> s3[service 3]
+    s1 --> db1[database 1]
+    s2 --> db1
+    s2 --> db2[database 2]
+    s3 --> db2
+    
+    class ui ui
+    class api,s1,s2,s3 service
+    class db1,db2 data
+```
+
+### data architecture diagram
+
+```mermaid
+flowchart td
+    classdef entity fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef relation fill:#a8d5ff,stroke:#88b5e0,color:#000
+    
+    e1[entity 1] -- 1:n --> e2[entity 2]
+    e1 -- 1:1 --> e3[entity 3]
+    e2 -- n:m --> e4[entity 4]
+    e3 -- 1:n --> e4
+    
+    class e1,e2,e3,e4 entity
+```
+
+### security architecture diagram
+
+```mermaid
+flowchart td
+    classdef security fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef app fill:#a8d5ff,stroke:#88b5e0,color:#000
+    
+    u[users] --> waf[web application<br>firewall]
+    waf --> lb[load<br>balancer]
+    lb --> api[api gateway]
+    api --> authz[authorization<br>service]
+    api --> s1[service 1]
+    api --> s2[service 2]
+    authz --> iam[identity &<br>access management]
+    
+    class waf,authz,iam security
+    class api,s1,s2 app
+    class u,lb external
+```
+
+### deployment architecture diagram
+
+```mermaid
+flowchart td
+    classdef env fill:#f9d77e,stroke:#d9b95c,color:#000
+    classdef component fill:#a8d5ff,stroke:#88b5e0,color:#000
+    
+    subgraph production
+    lb[load balancer] --> w1[web server 1]
+    lb --> w2[web server 2]
+    w1 & w2 --> a1[app server 1]
+    w1 & w2 --> a2[app server 2]
+    a1 & a2 --> db[database<br>cluster]
+    end
+    
+    class production env
+    class lb,w1,w2,a1,a2,db component
+```
+
+### architecture documentation template
+
+```markdown
+# system architecture document
+
+## 1. introduction
+- **purpose**: [purpose of the architecture]
+- **scope**: [scope of the architecture]
+- **audience**: [intended audience for the document]
+- **references**: [related documents and references]
+
+## 2. system context
+- **system purpose**: [brief description of system purpose]
+- **context diagram**: [system context diagram]
+- **external systems**: [description of external systems and interfaces]
+- **user types**: [description of user types and interactions]
+
+## 3. architecture overview
+- **architecture style**: [description of the architectural style/pattern]
+- **high-level architecture**: [high-level architecture diagram]
+- **key components**: [overview of key components]
+- **technology stack**: [overview of technology stack]
+
+## 4. component architecture
+- **component diagram**: [component architecture diagram]
+- **component descriptions**:
+  - component 1: [description, responsibilities, interfaces]
+  - component 2: [description, responsibilities, interfaces]
+  - component 3: [description, responsibilities, interfaces]
+- **component interactions**: [description of component interactions]
+- **api specifications**: [overview of key apis]
+
+## 5. data architecture
+- **data model**: [data architecture diagram]
+- **entity descriptions**:
+  - entity 1: [description, attributes, relationships]
+  - entity 2: [description, attributes, relationships]
+  - entity 3: [description, attributes, relationships]
+- **data storage**: [description of data storage approaches]
+- **data access**: [description of data access patterns]
+- **data migration**: [overview of data migration approach]
+
+## 6. security architecture
+- **security model**: [security architecture diagram]
+- **authentication**: [authentication approach]
+- **authorization**: [authorization approach]
+- **data protection**: [data protection mechanisms]
+- **security controls**: [key security controls]
+- **audit and logging**: [audit and logging approach]
+
+## 7. deployment architecture
+- **deployment model**: [deployment architecture diagram]
+- **environment descriptions**:
+  - environment 1: [description and configuration]
+  - environment 2: [description and configuration]
+  - environment 3: [description and configuration]
+- **infrastructure requirements**: [infrastructure requirements]
+- **scaling approach**: [scaling approach]
+
+## 8. quality attributes
+- **performance**: [performance characteristics and mechanisms]
+- **scalability**: [scalability approach]
+- **availability**: [availability approach]
+- **maintainability**: [maintainability approach]
+- **reliability**: [reliability approach]
+- **portability**: [portability considerations]
+
+## 9. cross-cutting concerns
+- **logging**: [logging approach]
+- **error handling**: [error handling approach]
+- **monitoring**: [monitoring approach]
+- **configuration management**: [configuration management approach]
+- **internationalization**: [internationalization approach]
+
+## 10. architecture decisions
+- [references to architecture decision records]
+
+## 11. risks and mitigations
+- risk 1: [description and mitigation]
+- risk 2: [description and mitigation]
+- risk 3: [description and mitigation]
+
+## 12. glossary
+- term 1: [definition]
+- term 2: [definition]
+- term 3: [definition]
+```
+
+## 📋 architecture validation
+
+validate architecture against requirements and principles:
+
+```markdown
+## architecture validation
+
+### requirements coverage
+- requirement 1: [covered/partially covered/not covered] - [explanation]
+- requirement 2: [covered/partially covered/not covered] - [explanation]
+- requirement 3: [covered/partially covered/not covered] - [explanation]
+
+### principles alignment
+- principle 1: [aligned/partially aligned/not aligned] - [explanation]
+- principle 2: [aligned/partially aligned/not aligned] - [explanation]
+- principle 3: [aligned/partially aligned/not aligned] - [explanation]
+
+### quality attribute scenarios
+- scenario 1: [description and validation]
+- scenario 2: [description and validation]
+- scenario 3: [description and validation]
+
+### architecture review findings
+- finding 1: [description and resolution]
+- finding 2: [description and resolution]
+- finding 3: [description and resolution]
+
+### risk assessment
+- risk 1: [description, probability, impact, and mitigation]
+- risk 2: [description, probability, impact, and mitigation]
+- risk 3: [description, probability, impact, and mitigation]
+
+### validation outcome
+[summary of validation outcome and next steps]
+```
+
+## 📋 architecture communication
+
+communicate architecture to stakeholders:
+
+```markdown
+## architecture communication plan
+
+### key stakeholders
+- stakeholder group 1: [communication needs]
+- stakeholder group 2: [communication needs]
+- stakeholder group 3: [communication needs]
+
+### communication materials
+- **executive summary**: [purpose and audience]
+- **technical reference**: [purpose and audience]
+- **developer guide**: [purpose and audience]
+- **operations guide**: [purpose and audience]
+
+### communication schedule
+- event 1: [date, audience, purpose]
+- event 2: [date, audience, purpose]
+- event 3: [date, audience, purpose]
+
+### feedback mechanism
+[description of how feedback will be collected and incorporated]
+```
+
+## 📋 memory bank integration
+
+```mermaid
+flowchart td
+    classdef memfile fill:#f4b8c4,stroke:#d498a4,color:#000
+    classdef process fill:#f9d77e,stroke:#d9b95c,color:#000
+    
+    architecture[architectural<br>planning] --> pb[projectbrief.md]
+    architecture --> pc[productcontext.md]
+    architecture --> sp[systempatterns.md]
+    architecture --> tc[techcontext.md]
+    
+    pb & pc & sp & tc --> mbi[memory bank<br>integration]
+    mbi --> next[implementation<br>phase]
+    
+    class pb,pc,sp,tc memfile
+    class architecture,mbi,next process
+```
+
+### memory bank updates
+
+update the following memory bank files during architectural planning:
+
+1. **projectbrief.md**
+   - update with architectural vision
+   - document high-level architecture approach
+   - link to architecture documentation
+
+2. **productcontext.md**
+   - update with business context documentation
+   - document key stakeholder requirements
+   - capture business drivers for architectural decisions
+
+3. **systempatterns.md**
+   - document architectural patterns and styles chosen
+   - capture key architecture decisions with rationales
+   - document technical patterns to be used
+
+4. **techcontext.md**
+   - update with technology stack decisions
+   - document technical constraints and considerations
+   - capture integration approaches
+
+## 📋 architectural planning verification checklist
+
+```
+✓ architectural planning verification checklist
+
+requirements analysis
+- functional requirements analyzed? [yes/no]
+- non-functional requirements analyzed? [yes/no]
+- domain model created? [yes/no]
+- component identification completed? [yes/no]
+
+business context
+- business objectives documented? [yes/no]
+- key stakeholders identified? [yes/no]
+- business processes documented? [yes/no]
+- business constraints identified? [yes/no]
+
+vision and goals
+- architectural vision stated? [yes/no]
+- strategic goals defined? [yes/no]
+- quality attributes identified? [yes/no]
+- technical roadmap created? [yes/no]
+
+architectural principles
+- core principles defined? [yes/no]
+- principles have clear rationales? [yes/no]
+- implications of principles documented? [yes/no]
+- examples of applying principles provided? [yes/no]
+
+constraints identification
+- technical constraints documented? [yes/no]
+- organizational constraints documented? [yes/no]
+- external constraints documented? [yes/no]
+- regulatory constraints documented? [yes/no]
+
+alternatives exploration
+- multiple alternatives identified? [yes/no]
+- alternatives evaluated against criteria? [yes/no]
+- advantages and disadvantages documented? [yes/no]
+- recommended approach justified? [yes/no]
+
+architecture documentation
+- system context documented? [yes/no]
+- high-level architecture documented? [yes/no]
+- component architecture documented? [yes/no]
+- data architecture documented? [yes/no]
+- security architecture documented? [yes/no]
+- deployment architecture documented? [yes/no]
+
+architecture validation
+- requirements coverage validated? [yes/no]
+- principles alignment checked? [yes/no]
+- quality attribute scenarios assessed? [yes/no]
+- architecture review conducted? [yes/no]
+
+memory bank integration
+- projectbrief.md updated? [yes/no]
+- productcontext.md updated? [yes/no]
+- systempatterns.md updated? [yes/no]
+- techcontext.md updated? [yes/no]
+```
+
+## 📋 minimal mode architecture planning format
+
+for situations requiring a more compact architectural planning approach:
+
+```markdown
+## level 4 architecture planning: [system name]
+
+### system context
+- **purpose**: [brief description of system purpose]
+- **users**: [primary users]
+- **external systems**: [key external systems]
+
+### key architectural decisions
+- **architecture style**: [chosen style with brief rationale]
+- **component structure**: [key components with brief descriptions]
+- **data model**: [brief description of data approach]
+- **technical stack**: [key technologies]
+
+### quality attributes
+- **performance**: [brief description of approach]
+- **security**: [brief description of approach]
+- **scalability**: [brief description of approach]
+- **maintainability**: [brief description of approach]
+
+### architecture diagram
+[simple architecture diagram]
+
+### key risks and mitigations
+- **risk 1**: [brief description] - **mitigation**: [brief approach]
+- **risk 2**: [brief description] - **mitigation**: [brief approach]
+
+### memory bank updates
+- [brief description of updates needed]
+```
+
+## 🚨 architectural planning enforcement principle
+
+```
+┌─────────────────────────────────────────────────────┐
+│ architectural planning is mandatory for level 4      │
+│ tasks. implementation cannot begin until             │
+│ architectural planning is complete and approved.     │
+└─────────────────────────────────────────────────────┘
+```

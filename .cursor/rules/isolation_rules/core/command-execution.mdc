@@ -1,0 +1,235 @@
+---
+description: command execution guidelines for isolation-focused memory bank
+globs: command-execution.mdc
+alwaysapply: false
+---
+
+# command execution system
+
+> **tldr:** this system provides guidelines for efficient command execution, balancing clarity and token optimization through appropriate command chaining, with proper documentation of commands and results.
+
+## 🔍 command efficiency workflow
+
+```mermaid
+graph td
+    start["command<br>planning"] --> analyze["analyze command<br>requirements"]
+    analyze --> balance["balance clarity<br>vs. efficiency"]
+    balance --> complexity{"command<br>complexity?"}
+    
+    complexity -->|"simple"| single["execute<br>single command"]
+    complexity -->|"moderate"| chain["use efficient<br>command chaining"]
+    complexity -->|"complex"| group["group into<br>logical steps"]
+    
+    single & chain & group --> verify["verify<br>results"]
+    verify --> document["document<br>command & result"]
+    document --> next["next<br>command"]
+```
+
+## 📋 command chaining guidelines
+
+```mermaid
+graph td
+    command["command<br>execution"] --> chainapprop{"is chaining<br>appropriate?"}
+    
+    chainapprop -->|"yes"| chaintypes["chain<br>types"]
+    chainapprop -->|"no"| singlecmd["use single<br>commands"]
+    
+    chaintypes --> sequential["sequential operations<br>cmd1 && cmd2"]
+    chaintypes --> conditional["conditional operations<br>cmd1 || cmd2"]
+    chaintypes --> piping["piping<br>cmd1 | cmd2"]
+    chaintypes --> grouping["command grouping<br>(cmd1; cmd2)"]
+    
+    sequential & conditional & piping & grouping --> doc["document<br>commands & results"]
+```
+
+## 🚦 directory verification workflow
+
+```mermaid
+graph td
+    command["command<br>execution"] --> dircheck["check current<br>directory"]
+    dircheck --> projectroot{"in project<br>root?"}
+    
+    projectroot -->|"yes"| execute["execute<br>command"]
+    projectroot -->|"no"| locate["locate<br>project root"]
+    
+    locate --> found{"project root<br>found?"}
+    found -->|"yes"| navigate["navigate to<br>project root"]
+    found -->|"no"| error["error: cannot<br>find project root"]
+    
+    navigate --> execute
+    execute --> verify["verify<br>results"]
+```
+
+## 📋 directory verification checklist
+
+before executing any npm or build command:
+
+| step | windows (powershell) | unix/linux/mac | purpose |
+|------|----------------------|----------------|---------|
+| **check package.json** | `test-path package.json` | `ls package.json` | verify current directory is project root |
+| **check for parent directory** | `test-path "*/package.json"` | `find . -maxdepth 2 -name package.json` | find potential project directories |
+| **navigate to project root** | `cd [project-dir]` | `cd [project-dir]` | move to correct directory before executing commands |
+
+## 📋 react-specific command guidelines
+
+for react applications, follow these strict guidelines:
+
+| command | correct usage | incorrect usage | notes |
+|---------|---------------|----------------|-------|
+| **npm start** | `cd [project-root] && npm start` | `npm start` (from parent dir) | must execute from directory with package.json |
+| **npm run build** | `cd [project-root] && npm run build` | `cd [parent-dir] && npm run build` | must execute from directory with package.json |
+| **npm install** | `cd [project-root] && npm install [pkg]` | `npm install [pkg]` (wrong dir) | dependencies installed to nearest package.json |
+| **npm create** | `npm create vite@latest my-app -- --template react` | manually configuring webpack | use standard tools for project creation |
+
+## 🔄 command chaining patterns
+
+effective command chaining patterns include:
+
+| pattern | format | examples | use case |
+|---------|--------|----------|----------|
+| **sequential** | `cmd1 && cmd2` | `mkdir dir && cd dir` | commands that should run in sequence, second only if first succeeds |
+| **conditional** | `cmd1 || cmd2` | `test -f file.txt || touch file.txt` | fallback commands, second only if first fails |
+| **piping** | `cmd1 \| cmd2` | `grep "pattern" file.txt \| wc -l` | pass output of first command as input to second |
+| **background** | `cmd &` | `npm start &` | run command in background |
+| **grouping** | `(cmd1; cmd2)` | `(echo "start"; npm test; echo "end")` | group commands to run as a unit |
+
+## 📋 command documentation template
+
+```
+## command execution: [purpose]
+
+### command
+```
+[actual command or chain]
+```
+
+### result
+```
+[command output]
+```
+
+### effect
+[brief description of what changed in the system]
+
+### next steps
+[what needs to be done next]
+```
+
+## 🔍 platform-specific considerations
+
+```mermaid
+graph td
+    platform["platform<br>detection"] --> windows["windows<br>commands"]
+    platform --> unix["unix/linux/mac<br>commands"]
+    
+    windows --> winadapt["windows command<br>adaptations"]
+    unix --> unixadapt["unix command<br>adaptations"]
+    
+    winadapt --> winchain["windows chaining:<br>commands separated by &"]
+    unixadapt --> unixchain["unix chaining:<br>commands separated by ;"]
+    
+    winchain & unixchain --> execute["execute<br>platform-specific<br>commands"]
+```
+
+## 📋 command efficiency examples
+
+examples of efficient command usage:
+
+| inefficient | efficient | explanation |
+|-------------|-----------|-------------|
+| `mkdir dir`<br>`cd dir`<br>`npm init -y` | `mkdir dir && cd dir && npm init -y` | combines related sequential operations |
+| `ls`<br>`grep "\.js$"` | `ls \| grep "\.js$"` | pipes output of first command to second |
+| `test -f file.txt`<br>`if not exists, touch file.txt` | `test -f file.txt \|\| touch file.txt` | creates file only if it doesn't exist |
+| `mkdir dir1`<br>`mkdir dir2`<br>`mkdir dir3` | `mkdir dir1 dir2 dir3` | uses command's built-in multiple argument capability |
+| `npm install pkg1`<br>`npm install pkg2` | `npm install pkg1 pkg2` | installs multiple packages in one command |
+
+## 📋 react project initialization standards
+
+always use these standard approaches for react project creation:
+
+| approach | command | benefits | avoids |
+|----------|---------|----------|--------|
+| **create react app** | `npx create-react-app my-app` | preconfigured webpack & babel | manual configuration errors |
+| **create react app w/typescript** | `npx create-react-app my-app --template typescript` | type safety + preconfigured | inconsistent module systems |
+| **vite** | `npm create vite@latest my-app -- --template react` | faster build times | complex webpack setups |
+| **next.js** | `npx create-next-app@latest my-app` | ssr support | module system conflicts |
+
+## ⚠️ error handling workflow
+
+```mermaid
+sequencediagram
+    participant user
+    participant ai
+    participant system
+    
+    ai->>system: execute command
+    system->>ai: return result
+    
+    alt success
+        ai->>ai: verify expected result
+        ai->>user: report success
+    else error
+        ai->>ai: analyze error message
+        ai->>ai: identify likely cause
+        ai->>user: explain error & cause
+        ai->>user: suggest corrective action
+        user->>ai: approve correction
+        ai->>system: execute corrected command
+    end
+```
+
+## 📋 command result verification
+
+after command execution, verify:
+
+```mermaid
+graph td
+    execute["execute<br>command"] --> check{"check<br>result"}
+    
+    check -->|"success"| verify["verify expected<br>outcome"]
+    check -->|"error"| analyze["analyze<br>error"]
+    
+    verify -->|"expected"| document["document<br>success"]
+    verify -->|"unexpected"| investigate["investigate<br>unexpected result"]
+    
+    analyze --> diagnose["diagnose<br>error cause"]
+    diagnose --> correct["propose<br>correction"]
+    
+    document & investigate & correct --> next["next step<br>in process"]
+```
+
+## 📝 command execution checklist
+
+```
+✓ command execution checklist
+- command purpose clearly identified? [yes/no]
+- appropriate balance of clarity vs. efficiency? [yes/no]
+- platform-specific considerations addressed? [yes/no]
+- command documented with results? [yes/no]
+- outcome verified against expectations? [yes/no]
+- errors properly handled (if any)? [yes/no/na]
+- for npm/build commands: executed from project root? [yes/no/na]
+- for react projects: using standard tooling? [yes/no/na]
+
+→ if all yes: command execution complete
+→ if any no: address missing elements
+```
+
+## 🚨 command execution warnings
+
+avoid these common command issues:
+
+```mermaid
+graph td
+    warning["command<br>warnings"] --> w1["excessive<br>verbosity"]
+    warning --> w2["insufficient<br>error handling"]
+    warning --> w3["unnecessary<br>complexity"]
+    warning --> w4["destructive<br>operations without<br>confirmation"]
+    warning --> w5["wrong directory<br>execution"]
+    
+    w1 --> s1["use flags to reduce<br>unnecessary output"]
+    w2 --> s2["include error handling<br>in command chains"]
+    w3 --> s3["prefer built-in<br>command capabilities"]
+    w4 --> s4["show confirmation<br>before destructive actions"]
+    w5 --> s5["verify directory before<br>npm/build commands"]
+```

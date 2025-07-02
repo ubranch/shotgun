@@ -1,0 +1,188 @@
+---
+description: planning comprehensive
+globs: planning-comprehensive.mdc
+alwaysapply: false
+---
+# level 3 comprehensive planning
+
+> **tldr:** this document provides structured planning guidelines for level 3 (intermediate feature) tasks, focusing on comprehensive planning with creative phases and clear implementation strategies.
+
+## 🏗️ planning workflow
+
+```mermaid
+graph td
+    start["planning start"] --> req["📋 requirements<br>analysis"]
+    req --> comp["🔍 component<br>analysis"]
+    comp --> design["🎨 design<br>decisions"]
+    design --> impl["⚙️ implementation<br>strategy"]
+    impl --> test["🧪 testing<br>strategy"]
+    test --> doc["📚 documentation<br>plan"]
+    
+    design --> creative["creative phases:"]
+    creative --> ui["ui/ux design"]
+    creative --> arch["architecture"]
+    creative --> algo["algorithm"]
+    
+    style start fill:#4da6ff,stroke:#0066cc,color:white
+    style req fill:#ffa64d,stroke:#cc7a30,color:white
+    style comp fill:#4dbb5f,stroke:#36873f,color:white
+    style design fill:#d94dbb,stroke:#a3378a,color:white
+    style impl fill:#4dbbbb,stroke:#368787,color:white
+    style test fill:#d971ff,stroke:#a33bc2,color:white
+    style doc fill:#ff71c2,stroke:#c23b8a,color:white
+```
+
+## 🔄 level transition handling
+
+```mermaid
+graph td
+    l3["level 3 task"] --> assess["continuous<br>assessment"]
+    
+    assess --> down["downgrade to<br>level 1/2"]
+    assess --> up["upgrade to<br>level 4"]
+    
+    down --> l12trigger["triggers:<br>- simpler than expected<br>- limited scope<br>- few components"]
+    
+    up --> l4trigger["triggers:<br>- system-wide impact<br>- architectural changes<br>- high complexity"]
+    
+    l12trigger --> l12switch["switch to<br>level 1/2 workflow"]
+    l4trigger --> l4switch["switch to<br>level 4 workflow"]
+```
+
+## 📋 planning template
+
+```markdown
+# feature planning document
+
+## requirements analysis
+- core requirements:
+  - [ ] requirement 1
+  - [ ] requirement 2
+- technical constraints:
+  - [ ] constraint 1
+  - [ ] constraint 2
+
+## component analysis
+- affected components:
+  - component 1
+    - changes needed:
+    - dependencies:
+  - component 2
+    - changes needed:
+    - dependencies:
+
+## design decisions
+- architecture:
+  - [ ] decision 1
+  - [ ] decision 2
+- ui/ux:
+  - [ ] design 1
+  - [ ] design 2
+- algorithms:
+  - [ ] algorithm 1
+  - [ ] algorithm 2
+
+## implementation strategy
+1. phase 1:
+   - [ ] task 1
+   - [ ] task 2
+2. phase 2:
+   - [ ] task 3
+   - [ ] task 4
+
+## testing strategy
+- unit tests:
+  - [ ] test 1
+  - [ ] test 2
+- integration tests:
+  - [ ] test 3
+  - [ ] test 4
+
+## documentation plan
+- [ ] api documentation
+- [ ] user guide updates
+- [ ] architecture documentation
+```
+
+## 🎨 creative phase identification
+
+```mermaid
+graph td
+    subgraph "creative phases required"
+    ui["🎨 ui/ux design<br>required: yes/no"]
+    arch["🏗️ architecture design<br>required: yes/no"]
+    algo["⚙️ algorithm design<br>required: yes/no"]
+    end
+    
+    ui --> uitrig["triggers:<br>- new ui component<br>- ux flow change"]
+    arch --> archtrig["triggers:<br>- system structure change<br>- new integration"]
+    algo --> algotrig["triggers:<br>- performance critical<br>- complex logic"]
+    
+    style ui fill:#4dbb5f,stroke:#36873f,color:white
+    style arch fill:#ffa64d,stroke:#cc7a30,color:white
+    style algo fill:#d94dbb,stroke:#a3378a,color:white
+```
+
+## ✅ verification checklist
+
+```mermaid
+graph td
+    subgraph "planning verification"
+    r["requirements<br>complete"]
+    c["components<br>identified"]
+    d["design decisions<br>made"]
+    i["implementation<br>plan ready"]
+    t["testing strategy<br>defined"]
+    doc["documentation<br>plan ready"]
+    end
+    
+    r --> c --> d --> i --> t --> doc
+    
+    style r fill:#4dbb5f,stroke:#36873f,color:white
+    style c fill:#ffa64d,stroke:#cc7a30,color:white
+    style d fill:#d94dbb,stroke:#a3378a,color:white
+    style i fill:#4dbbbb,stroke:#368787,color:white
+    style t fill:#d971ff,stroke:#a33bc2,color:white
+    style doc fill:#ff71c2,stroke:#c23b8a,color:white
+```
+
+## 🔄 implementation phases
+
+```mermaid
+graph lr
+    setup["🛠️ setup"] --> core["⚙️ core<br>implementation"]
+    core --> ui["🎨 ui<br>implementation"]
+    ui --> test["🧪 testing"]
+    test --> doc["📚 documentation"]
+    
+    style setup fill:#4da6ff,stroke:#0066cc,color:white
+    style core fill:#4dbb5f,stroke:#36873f,color:white
+    style ui fill:#ffa64d,stroke:#cc7a30,color:white
+    style test fill:#d94dbb,stroke:#a3378a,color:white
+    style doc fill:#4dbbbb,stroke:#368787,color:white
+```
+
+## 🔄 integration with memory bank
+
+```mermaid
+graph td
+    l3["level 3<br>task"] --> pb["comprehensive<br>projectbrief.md"]
+    l3 --> ac["detailed<br>activecontext.md"]
+    l3 --> tm["structured<br>tasks.md"]
+    l3 --> pm["detailed<br>progress.md"]
+    
+    pb & ac & tm & pm --> mb["memory bank<br>integration"]
+    mb --> nextphase["proceed to<br>implementation"]
+```
+
+## 🚨 planning efficiency principle
+
+remember:
+
+```
+┌─────────────────────────────────────────────────────┐
+│ level 3 planning requires comprehensive design but   │
+│ should avoid over-engineering. focus on delivering  │
+│ maintainable, well-documented features.            │
+└─────────────────────────────────────────────────────┘
+``` 

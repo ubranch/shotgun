@@ -1,0 +1,55 @@
+---
+description: file verification qa checks
+globs: file-verification.mdc
+alwaysapply: false
+---
+# file verification qa checks
+
+> **tldr:** this document outlines the quality assurance checks for file verification, ensuring that all required project files are present, correctly formatted, and adhere to project standards.
+
+## 📂 file verification workflow
+
+```mermaid
+graph td
+    start["start<br>file checks"] --> presence["1️⃣ check for<br>required files"]
+    presence -->|all present| format["2️⃣ check file<br>formatting"]
+    presence -->|missing| missingfiles["🚨 missing<br>files"]
+    
+    format -->|all correct| linting["3️⃣ run<br>linters"]
+    format -->|incorrect| incorrectformat["⚠️ incorrect<br>formatting"]
+    
+    linting -->|no errors| complete["✅ checks<br>complete"]
+    linting -->|errors| linterrors["🚨 linter<br>errors"]
+    
+    missingfiles --> reportmissing["report<br>missing files"]
+    incorrectformat --> reportformat["report<br>formatting issues"]
+    linterrors --> reportlint["report<br>linter errors"]
+    
+    style start fill:#4da6ff,stroke:#0066cc,color:white
+    style presence fill:#ffa64d,stroke:#cc7a30,color:white
+    style format fill:#4dbb5f,stroke:#36873f,color:white
+    style linting fill:#d94dbb,stroke:#a3378a,color:white
+    style missingfiles fill:#ff5555,stroke:#cc0000,color:white
+    style incorrectformat fill:#ffc107,stroke:#c79100,color:white
+    style linterrors fill:#ff5555,stroke:#cc0000,color:white
+    style complete fill:#4caf50,stroke:#388e3c,color:white
+```
+
+## 📋 common file verification checks
+
+| check | tool | command |
+|-----------------|---------|-----------------|
+| **formatting** | prettier | `prettier --check .` |
+| **linting** | eslint | `eslint .` |
+| **type checking** | typescript | `tsc --noemit` |
+| **style** | stylelint | `stylelint "**/*.css"` |
+| **json** | jsonlint | `jsonlint **/*.json` |
+
+## ✅ verification complete
+
+if all required files are present, correctly formatted, and pass all linter checks, the file verification qa checks are complete.
+
+```
+file verification qa checks complete.
+all project files are present and correctly formatted.
+```

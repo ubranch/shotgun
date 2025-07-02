@@ -72,7 +72,7 @@
                             </span>
                         </button>
                     </div>
-                    <!-- Connector line -->
+                    <!-- connector line -->
                     <div
                         v-if="index < steps.length - 1"
                         class="flex-auto border-t-2 transition-all duration-300 ease-in-out mt-4 mx-2"
@@ -92,7 +92,7 @@ import { defineProps, defineEmits } from "vue";
 
 const props = defineProps({
     currentStep: { type: Number, required: true },
-    steps: { type: Array, required: true }, // Array of { id: Number, title: String, completed: Boolean }
+    steps: { type: Array, required: true }, // array of { id: number, title: string, completed: boolean }
 });
 
 const emit = defineEmits(["navigate"]);
@@ -105,6 +105,6 @@ function canNavigateToStep(stepId) {
     return (
         stepId === firstUncompletedStepId ||
         (firstUncompletedStepId === undefined && targetStep)
-    ); // Allow any if all completed
+    ); // allow any if all completed
 }
 </script>

@@ -1,0 +1,112 @@
+---
+description: Visual map for IMPLEMENT mode
+globs: "**/implement-mode-map.mdc"
+alwaysApply: false
+---
+
+# 🛠️ IMPLEMENT MODE VISUAL MAP
+
+> **TL;DR:** This document provides a visual map of the IMPLEMENT mode, outlining the process for translating plans and designs into functional code with a focus on quality, testing, and documentation.
+
+## ⚙️ IMPLEMENT MODE WORKFLOW
+
+```mermaid
+graph TD
+    Start["Start<br>IMPLEMENT Mode"] --> Setup["1. Setup<br>Environment"]
+    Setup --> Code["2. Code<br>Implementation"]
+    Code --> Test["3. Unit &<br>Integration Testing"]
+    Test --> Review["4. Code<br>Review"]
+    Review --> Refactor["5. Refactor &<br>Improve"]
+    Refactor --> Document["6. Document<br>Code"]
+    Document --> Verify["7. Verify<br>Against Requirements"]
+    Verify --> Complete["IMPLEMENT Mode<br>Complete"]
+    
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style Setup fill:#ffa64d,stroke:#cc7a30,color:white
+    style Code fill:#4dbb5f,stroke:#36873f,color:white
+    style Test fill:#d94dbb,stroke:#a3378a,color:white
+    style Review fill:#4dbbbb,stroke:#368787,color:white
+    style Refactor fill:#d971ff,stroke:#a33bc2,color:white
+    style Document fill:#ff71c2,stroke:#c23b8a,color:white
+    style Verify fill:#4da6ff,stroke:#0066cc,color:white
+    style Complete fill:#4da6ff,stroke:#0066cc,color:white
+```
+
+## 📋 IMPLEMENTATION DOCUMENT STRUCTURE
+
+```mermaid
+graph TD
+    subgraph "Implementation Documentation"
+        Code["Code & Comments"]
+        Tests["Unit & Integration Tests"]
+        Review["Code Review Feedback"]
+        Dependencies["Dependencies & Setup"]
+        APIs["API Documentation"]
+    end
+    
+    Code --> Tests
+    Tests --> Review
+    Review --> Dependencies
+    Dependencies --> APIs
+    
+    style Code fill:#4dbb5f,stroke:#36873f,color:white
+    style Tests fill:#ffa64d,stroke:#cc7a30,color:white
+    style Review fill:#d94dbb,stroke:#a3378a,color:white
+    style Dependencies fill:#4dbbbb,stroke:#368787,color:white
+    style APIs fill:#d971ff,stroke:#a33bc2,color:white
+```
+
+## 🔄 MEMORY BANK INTEGRATION
+
+```mermaid
+graph TD
+    Implementation["Implementation<br>Artifacts"] --> Tasks["Update<br>tasks.md"]
+    Implementation --> Progress["Update<br>progress.md"]
+    Implementation --> Active["Update<br>activeContext.md"]
+    
+    Tasks --> MB["Memory Bank"]
+    Progress --> MB
+    Active --> MB
+    
+    style Implementation fill:#4da6ff,stroke:#0066cc,color:white
+    style Tasks fill:#ffa64d,stroke:#cc7a30,color:white
+    style Progress fill:#4dbb5f,stroke:#36873f,color:white
+    style Active fill:#d94dbb,stroke:#a3378a,color:white
+    style MB fill:#4dbbbb,stroke:#368787,color:white
+```
+
+## ✅ IMPLEMENTATION VERIFICATION CHECKLIST
+
+```mermaid
+graph TD
+    subgraph "Verification Checklist"
+        Functionality["Functionality"]
+        Quality["Code Quality"]
+        Testing["Test Coverage"]
+        Documentation["Documentation"]
+        Requirements["Requirements Met"]
+    end
+    
+    Functionality --> Quality
+    Quality --> Testing
+    Testing --> Documentation
+    Documentation --> Requirements
+    
+    style Functionality fill:#4dbb5f,stroke:#36873f,color:white
+    style Quality fill:#ffa64d,stroke:#cc7a30,color:white
+    style Testing fill:#d94dbb,stroke:#a3378a,color:white
+    style Documentation fill:#4dbbbb,stroke:#368787,color:white
+    style Requirements fill:#d971ff,stroke:#a33bc2,color:white
+```
+
+## 🚨 IMPLEMENTATION PRINCIPLE
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Write code for humans first, computers second.      │
+│ Clean, well-tested, and documented code is the      │
+│ foundation of a maintainable system.                │
+└─────────────────────────────────────────────────────┘
+```
+
+This visual map provides a clear overview of the IMPLEMENT mode, ensuring that code is developed with a focus on quality, testing, and alignment with project goals.

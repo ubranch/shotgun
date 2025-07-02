@@ -1,0 +1,67 @@
+---
+description: van qa main
+globs: van-qa-main.mdc
+alwaysapply: false
+---
+# van qa main
+
+> **tldr:** this document outlines the main quality assurance process for the van (verify, analyze, narrate) mode, ensuring that all aspects of the project are verified before proceeding.
+
+## 🧪 van qa workflow
+
+```mermaid
+graph td
+    start["start<br>van qa"] --> env["1️⃣ environment<br>checks"]
+    env -->|pass| files["2️⃣ file<br>verification"]
+    env -->|fail| envfail["🚨 environment<br>issues"]
+    
+    files -->|pass| deps["3️⃣ dependency<br>checks"]
+    files -->|fail| filefail["🚨 file<br>issues"]
+    
+    deps -->|pass| config["4️⃣ configuration<br>checks"]
+    deps -->|fail| depfail["🚨 dependency<br>issues"]
+    
+    config -->|pass| build["5️⃣ build & test<br>checks"]
+    config -->|fail| configfail["🚨 configuration<br>issues"]
+    
+    build -->|pass| complete["✅ van qa<br>complete"]
+    build -->|fail| buildfail["🚨 build/test<br>issues"]
+    
+    envfail --> reportenv["report<br>environment issues"]
+    filefail --> reportfile["report<br>file issues"]
+    depfail --> reportdep["report<br>dependency issues"]
+    configfail --> reportconfig["report<br>configuration issues"]
+    buildfail --> reportbuild["report<br>build/test issues"]
+    
+    style start fill:#4da6ff,stroke:#0066cc,color:white
+    style env fill:#ffa64d,stroke:#cc7a30,color:white
+    style files fill:#4dbb5f,stroke:#36873f,color:white
+    style deps fill:#d94dbb,stroke:#a3378a,color:white
+    style config fill:#4dbbbb,stroke:#368787,color:white
+    style build fill:#d971ff,stroke:#a33bc2,color:white
+    style envfail fill:#ff5555,stroke:#cc0000,color:white
+    style filefail fill:#ff5555,stroke:#cc0000,color:white
+    style depfail fill:#ff5555,stroke:#cc0000,color:white
+    style configfail fill:#ff5555,stroke:#cc0000,color:white
+    style buildfail fill:#ff5555,stroke:#cc0000,color:white
+    style complete fill:#4caf50,stroke:#388e3c,color:white
+```
+
+## 📋 qa checklist
+
+| check | status | notes |
+|-----------------|--------|-------|
+| **environment** | [pass/fail] | [any issues found] |
+| **files** | [pass/fail] | [any issues found] |
+| **dependencies** | [pass/fail] | [any issues found] |
+| **configuration** | [pass/fail] | [any issues found] |
+| **build & test** | [pass/fail] | [any issues found] |
+
+## ✅ verification complete
+
+if all qa checks pass, the van qa process is complete, and the system can proceed to the next mode.
+
+```
+van qa complete.
+all systems verified and ready for next steps.
+```

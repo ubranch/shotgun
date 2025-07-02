@@ -10,7 +10,7 @@
     <aside
         class="w-64 md:w-72 lg:w-80 bg-light-bg dark:bg-dark-surface p-4 border-r border-light-border dark:border-dark-border flex flex-col flex-shrink-0 h-full"
     >
-        <!-- Project Selection and File Tree -->
+        <!-- project selection and file tree -->
         <div class="flex flex-col flex-grow h-full">
             <button
                 @click="$emit('select-folder')"
@@ -99,7 +99,7 @@
 
 <script setup>
 import { defineProps, defineEmits, ref } from "vue";
-import FileTree from "./FileTree.vue"; // Import the existing FileTree
+import FileTree from "./FileTree.vue"; // import the existing filetree
 import CustomRulesModal from "./CustomRulesModal.vue";
 import {
     GetCustomIgnoreRules,
@@ -111,13 +111,13 @@ import {
 } from "../../wailsjs/runtime/runtime";
 
 /**
- * Props for LeftSidebar:
- * - useGitignore: enables .gitignore rules for file parsing
- * - useCustomIgnore: enables custom ignore.glob rules for file parsing
+ * props for leftsidebar:
+ * - usegitignore: enables .gitignore rules for file parsing
+ * - usecustomignore: enables custom ignore.glob rules for file parsing
  */
 const props = defineProps({
     currentStep: { type: Number, required: true },
-    steps: { type: Array, required: true }, // Array of { id: Number, title: String, completed: Boolean }
+    steps: { type: Array, required: true }, // array of { id: number, title: string, completed: boolean }
     projectRoot: { type: String, default: "" },
     fileTreeNodes: { type: Array, default: () => [] },
     useGitignore: { type: Boolean, default: true },
@@ -151,10 +151,10 @@ async function openCustomRulesModal() {
             message: `failed to load custom rules: ${error.message || error}`,
             type: "error",
         });
-        // Show a placeholder or error message in the textarea if loading fails
+        // show a placeholder or error message in the textarea if loading fails
         currentCustomRulesForModal.value =
             "# error loading rules. please check application logs.\n# you can still edit and save.";
-        isCustomRulesModalVisible.value = true; // Still open modal
+        isCustomRulesModalVisible.value = true; // still open modal
     }
 }
 
@@ -169,7 +169,7 @@ async function handleSaveCustomRules(newRules) {
             message: "custom ignore rules saved.",
             type: "success",
         });
-        emit("custom-rules-updated"); // Notify MainLayout to refresh
+        emit("custom-rules-updated"); // notify mainlayout to refresh
     } catch (error) {
         console.error("error saving custom ignore rules:", error);
         LogErrorRuntime(`error saving custom rules: ${error.message || error}`);
@@ -177,7 +177,7 @@ async function handleSaveCustomRules(newRules) {
             message: `failed to save custom rules: ${error.message || error}`,
             type: "error",
         });
-        // Keep modal open for user to retry or copy content, or show an error in the modal itself.
+        // keep modal open for user to retry or copy content, or show an error in the modal itself.
     }
 }
 
@@ -196,10 +196,10 @@ function canNavigateToStep(stepId) {
     return (
         stepId === firstUncompletedStepId ||
         (firstUncompletedStepId === undefined && targetStep)
-    ); // Allow any if all completed
+    ); // allow any if all completed
 }
 </script>
 
 <style scoped>
-/* Add your styles here */
+/* add your styles here */
 </style>

@@ -76,7 +76,7 @@ const descriptionText = computed(() => {
     if (props.ruleType === "prompt") {
         return "these rules provide specific instructions or pre-defined text for the ai. they will be included in the final prompt.";
     }
-    // Default to the description for ignore rules
+    // default to the description for ignore rules
     return 'these rules use .gitignore pattern syntax. they are applied globally when "use custom rules" is checked.';
 });
 
@@ -92,7 +92,7 @@ watch(
     () => props.isVisible,
     (newVal) => {
         if (newVal) {
-            // When modal becomes visible, ensure textarea reflects the latest initialRules
+            // when modal becomes visible, ensure textarea reflects the latest initialrules
             editableRules.value = props.initialRules;
         }
     }
@@ -108,5 +108,5 @@ function handleCancel() {
 </script>
 
 <style scoped>
-/* Basic styling for modal, can be enhanced with Tailwind further if needed */
+/* basic styling for modal, can be enhanced with tailwind further if needed */
 </style>
