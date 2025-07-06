@@ -1,12 +1,53 @@
 <template>
   <div class="p-6 flex flex-col h-full">
     <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">step 3: execute prompt</h2>
-    <p class="text-gray-600 dark:text-gray-400 mb-2">
-      <li>for now go to google ai studio, copy the prompt and paste it there with 2.5 pro model with 0.1 temperature. it will give you <b>the diff</b></li>
-      <li>then open any agentic code tool and ask 'apply diff' + copy-paste the diff. </li>
+
+    <div class="flex flex-row items-center mb-4 space-x-4">
+      <button
+        @click="executeRequest"
+        class="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400 dark:disabled:bg-gray-700"
+        :disabled="isRequestActive || !isReadyToExecute"
+      >
+        execute request
+      </button>
+      <select
+        v-model="selectedModel"
+        class="p-2 px-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
+        title="gemini model"
+        :disabled="isRequestActive || !isReadyToExecute"
+      >
+        <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+        <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+      </select>
+      <div v-if="requestError" class="ml-2 max-w-[300px] truncate text-sm rounded-full bg-red-600 dark:bg-red-700 text-white px-3 py-1 font-mono" title="{{ requestError }}">
+        {{ requestError }}
+      </div>
+      <div v-if="isPromptTooLarge" class="ml-2 max-w-[300px] truncate text-sm rounded-full bg-red-600 dark:bg-red-700 text-white px-3 py-1 font-mono">
+        prompt exceeds free api limit of 250,000 tokens
+      </div>
+      <div v-if="isPromptTooLarge" class="ml-2 max-w-[300px] truncate text-sm rounded-full bg-gray-600 dark:bg-grey-700 text-white px-3 py-1 font-mono">
+        use google ai studio instead
+      </div>
+      <div class="flex items-center w-[4rem] justify-center" v-if="isRequestActive">
+        <div class="text-gray-700 dark:text-gray-300 font-mono">{{ formattedTime }}</div>
+      </div>
+      <div class="w-[4rem] justify-center" v-else></div>
+      <button
+        @click="stopRequest"
+        class="px-6 py-2 bg-red-600 dark:bg-red-700 text-white font-semibold rounded-md hover:bg-red-700 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:bg-gray-400 dark:disabled:bg-gray-700"
+        v-if="isRequestActive"
+      >
+        stop request
+      </button>
+    </div>
+
+    <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+      <li>open any agentic code tool and ask 'apply diff' + copy-paste the diff. </li>
+      <li>use the execute request button above to send the prompt directly to gemini api.</li>
     </p>
-    <p class="text-gray-600 dark:text-gray-400 mb-2">
+
     <hr class="my-4 border-gray-300 dark:border-gray-700"/>
+    <p class="text-gray-600 dark:text-gray-400 mb-2">
       <strong>prepare the diff to apply</strong>
       <br>
       this tool will split the diff into smaller parts to make it easier to apply.
@@ -17,15 +58,15 @@
         id="shotgun-git-diff-input"
         v-model="localShotgunGitDiffInput"
         rows="15"
-        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm font-mono bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm font-mono bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
         placeholder="paste the git diff output here, e.g., diff --git a/file.txt b/file.txt..."
       ></textarea>
     </div>
 
     <div class="mb-4">
       <label for="split-line-limit" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">approx. lines per split:</label>
-      <p class="text-gray-600 dark:text-gray-400 mb-2 text-xs">
-        ⓘ this will attempt to split the diff into the specified number of lines, while keeping the original structure and the hunks.
+      <p class="text-gray-600 dark:text-gray-400 mb-2 text-sm">
+        ⓘ this will attempt to split the diff into the specified number of lines, while keeping the original structure and the chunks.
         the exact number of lines per split is not guaranteed, but the diff will be split into as many parts as possible.
         <br>
         leave this unchanged if you don't want to split the diff.
@@ -36,9 +77,9 @@
         v-model.number="localSplitLineLimit"
         min="50"
         step="50"
-        class="w-1/8 p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+        class="w-1/8 p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
       />
-      <p class="text-gray-600 dark:text-gray-400 mb-2 text-xs mt-2">
+      <p class="text-gray-600 dark:text-gray-400 mb-2 text-sm mt-2">
         total number of lines: {{ shotgunGitDiffInputLines }} <a href="#" class="text-blue-500 dark:text-blue-400" title="reset to this value" @click="resetSplitLineLimit">(reset to this value)</a>
       </p>
     </div>
@@ -55,7 +96,8 @@
 
 <script setup>
 import { ref, defineEmits, watch, computed, onMounted, onBeforeUnmount } from 'vue';
-import { LogInfo as LogInfoRuntime, LogError as LogErrorRuntime } from '../../../wailsjs/runtime/runtime';
+import { LogInfo as LogInfoRuntime, LogError as LogErrorRuntime, EventsOn, EventsOff } from '../../../wailsjs/runtime/runtime';
+import { ExecuteGeminiRequest, StopGeminiRequest, CountGeminiTokens } from '../../../wailsjs/go/main/App';
 
 const emit = defineEmits(['action', 'update:shotgunGitDiff', 'update:splitLineLimit']);
 
@@ -67,24 +109,124 @@ const props = defineProps({
   initialSplitLineLimit: {
     type: Number,
     default: 0
+  },
+  finalPrompt: {
+    type: String,
+    default: ''
   }
 });
 
+// timer state
+const isRequestActive = ref(false);
+const startTime = ref(null);
+const elapsedTime = ref(0);
+const timerInterval = ref(null);
+const requestError = ref(null);
+
+// token limit enforcement state
+const tokenCountLimit = 250000;
+const promptTokensCount = ref(0);
+const isPromptTooLarge = computed(() => promptTokensCount.value >= tokenCountLimit);
+
+const isTokenChecking = ref(false);
+const isReadyToExecute = computed(() => {
+  return !isTokenChecking.value && !isPromptTooLarge.value;
+});
+
+// model selection state
+const selectedModel = ref('gemini-2.5-flash');
+
+const formattedTime = computed(() => {
+  const seconds = Math.floor(elapsedTime.value / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+});
+
+async function executeRequest() {
+  if (!props.finalPrompt) {
+    LogErrorRuntime("no prompt available to execute");
+    requestError.value = "no prompt available to execute";
+    return;
+  }
+
+  isRequestActive.value = true;
+  startTime.value = Date.now();
+  elapsedTime.value = 0;
+  requestError.value = null;
+
+  timerInterval.value = setInterval(() => {
+    elapsedTime.value = Date.now() - startTime.value;
+  }, 1000);
+
+  try {
+    LogInfoRuntime("executing gemini request...");
+    // log selected model and request body for transparency
+    LogInfoRuntime(`gemini request config: model=${selectedModel.value}`);
+    const charCount = props.finalPrompt.length;
+    const bodyPreview = charCount > 500 ? props.finalPrompt.slice(0, 500) + '...' : props.finalPrompt;
+    LogInfoRuntime(`gemini request body length: ${charCount} characters`);
+    LogInfoRuntime('gemini request body preview (max 500 chars):');
+    LogInfoRuntime(bodyPreview);
+    const result = await ExecuteGeminiRequest(props.finalPrompt, selectedModel.value);
+
+    // if we get a result, update the diff input
+    if (result) {
+      localShotgunGitDiffInput.value = result;
+      LogInfoRuntime("gemini request completed successfully");
+    }
+  } catch (error) {
+    // improve error handling to capture both string and error object responses
+    const errMsg = typeof error === 'string' ? error : (error && error.message ? error.message : error?.toString() || 'failed to execute gemini request');
+    requestError.value = errMsg;
+    LogErrorRuntime("gemini request failed: " + errMsg);
+  } finally {
+    isRequestActive.value = false;
+    clearInterval(timerInterval.value);
+  }
+}
+
+async function stopRequest() {
+  if (isRequestActive.value) {
+    try {
+      await StopGeminiRequest();
+      LogInfoRuntime("gemini request stopped by user");
+    } catch (error) {
+      LogErrorRuntime("failed to stop gemini request: " + (error.message || "unknown error"));
+    }
+  }
+}
 
 const localShotgunGitDiffInput = ref(props.initialGitDiff);
 
 const localSplitLineLimit = ref(props.initialSplitLineLimit > 0 ? props.initialSplitLineLimit : 500);
 
 onMounted(() => {
-
   localShotgunGitDiffInput.value = props.initialGitDiff;
-
 
   if (props.initialSplitLineLimit > 0) {
     localSplitLineLimit.value = props.initialSplitLineLimit;
   } else if (localSplitLineLimit.value <= 0) {
     localSplitLineLimit.value = 500;
   }
+
+  // subscribe to gemini api events
+  EventsOn("gemini_request_start", () => {
+    LogInfoRuntime("gemini request started");
+    isRequestActive.value = true;
+  });
+
+  EventsOn("gemini_request_complete", () => {
+    LogInfoRuntime("gemini request completed");
+    isRequestActive.value = false;
+    clearInterval(timerInterval.value);
+  });
+
+  EventsOn("gemini_request_canceled", () => {
+    LogInfoRuntime("gemini request was canceled");
+    isRequestActive.value = false;
+    clearInterval(timerInterval.value);
+  });
 });
 
 const shotgunGitDiffInputLines = computed(() => {
@@ -104,6 +246,28 @@ watch(() => props.initialSplitLineLimit, (newVal, oldVal) => {
         localSplitLineLimit.value = 500;
     }
 });
+
+// watch finalPrompt to keep token count updated and enforce limit
+watch(
+  () => props.finalPrompt,
+  async (newPrompt) => {
+    if (!newPrompt) {
+      promptTokensCount.value = 0;
+      return;
+    }
+    try {
+      isTokenChecking.value = true;
+      const count = await CountGeminiTokens(newPrompt);
+      promptTokensCount.value = count;
+      isTokenChecking.value = false;
+    } catch (err) {
+      // in case of error, assume over limit and keep disabled
+      promptTokensCount.value = tokenCountLimit;
+      isTokenChecking.value = false;
+    }
+  },
+  { immediate: true }
+);
 
 let diffInputDebounceTimer = null;
 watch(localShotgunGitDiffInput, (newVal, oldVal) => {
@@ -148,17 +312,27 @@ onBeforeUnmount(() => {
   clearTimeout(diffInputDebounceTimer);
   clearTimeout(limitDebounceTimer);
 
+  // clear timer interval if active
+  if (timerInterval.value) {
+    clearInterval(timerInterval.value);
+  }
+
+  // unsubscribe from events
+  EventsOff("gemini_request_start");
+  EventsOff("gemini_request_complete");
+  EventsOff("gemini_request_canceled");
+
   // immediately emit the current value of localshotgungitdiffinput if it's different from the prop
-    if (localShotgunGitDiffInput.value !== props.initialGitDiff) {
-        emit('update:shotgunGitDiff', localShotgunGitDiffInput.value);
+  if (localShotgunGitDiffInput.value !== props.initialGitDiff) {
+    emit('update:shotgunGitDiff', localShotgunGitDiffInput.value);
   } else {
-       }
+  }
 
   // immediately emit the current value of localsplitlinelimit if it's valid and different from the prop
-    if (localSplitLineLimit.value > 0 && localSplitLineLimit.value !== props.initialSplitLineLimit) {
-        emit('update:splitLineLimit', localSplitLineLimit.value);
+  if (localSplitLineLimit.value > 0 && localSplitLineLimit.value !== props.initialSplitLineLimit) {
+    emit('update:splitLineLimit', localSplitLineLimit.value);
   } else {
-      }
+  }
 });
 
 function handleSplitDiff() {

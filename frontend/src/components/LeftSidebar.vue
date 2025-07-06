@@ -8,7 +8,7 @@
         @cancel="handleCancelCustomRules"
     />
     <aside
-        class="w-64 md:w-72 lg:w-80 bg-light-bg dark:bg-dark-surface p-4 border-r border-light-border dark:border-dark-border flex flex-col flex-shrink-0 h-full"
+        class="w-64 md:w-72 lg:w-[400px] bg-light-bg dark:bg-[#141414] p-4 border-r border-light-border dark:border-dark-border flex flex-col flex-shrink-0 h-full"
     >
         <!-- project selection and file tree -->
         <div class="flex flex-col flex-grow h-full">
@@ -20,7 +20,7 @@
             </button>
             <div
                 v-if="projectRoot"
-                class="text-xs text-gray-600 dark:text-gray-400 mb-2 break-all"
+                class="text-sm text-gray-600 dark:text-gray-400 mb-2 break-all"
             >
                 selected: {{ projectRoot }}
             </div>
@@ -56,7 +56,7 @@
                     <button
                         @click="openCustomRulesModal"
                         title="edit custom ignore rules"
-                        class="ml-2 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-xs"
+                        class="ml-2 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-sm"
                     >
                         ⚙️
                     </button>
@@ -69,7 +69,7 @@
                 project files
             </h2>
             <div
-                class="border border-gray-300 dark:border-gray-600 rounded min-h-0 bg-white dark:bg-dark-surface text-sm overflow-auto flex-grow h-0"
+                class="border border-gray-300 dark:border-gray-600 rounded min-h-0 bg-white dark:bg-dark-surface text-sm overflow-auto flex-grow h-0 p-2"
             >
                 <FileTree
                     v-if="fileTreeNodes && fileTreeNodes.length"
@@ -79,17 +79,17 @@
                 />
                 <p
                     v-else-if="projectRoot && !loadingError"
-                    class="p-2 text-xs text-gray-500 dark:text-gray-400"
+                    class="p-2 text-sm text-gray-500 dark:text-gray-400"
                 >
                     loading tree...
                 </p>
                 <p
                     v-else-if="!projectRoot"
-                    class="p-2 text-xs text-gray-500 dark:text-gray-400"
+                    class="p-2 text-sm text-gray-500 dark:text-gray-400"
                 >
                     select a project folder to see files.
                 </p>
-                <p v-if="loadingError" class="p-2 text-xs text-red-500">
+                <p v-if="loadingError" class="p-2 text-sm text-red-500">
                     {{ loadingError }}
                 </p>
             </div>

@@ -6,6 +6,10 @@ export function CountGeminiTokens(arg1) {
   return window['go']['main']['App']['CountGeminiTokens'](arg1);
 }
 
+export function ExecuteGeminiRequest(arg1, arg2) {
+  return window['go']['main']['App']['ExecuteGeminiRequest'](arg1, arg2);
+}
+
 export function GetCustomIgnoreRules() {
   return window['go']['main']['App']['GetCustomIgnoreRules']();
 }
@@ -56,4 +60,8 @@ export function StartupTest(arg1) {
 
 export function StopFileWatcher() {
   return window['go']['main']['App']['StopFileWatcher']();
+}
+
+export function StopGeminiRequest() {
+  return window['go']['main']['App']['StopGeminiRequest']();
 }

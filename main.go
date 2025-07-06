@@ -14,6 +14,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	// alias for wails runtime package
+	"strings"
 )
 
 //go:embed all:frontend/dist
@@ -22,7 +23,6 @@ var assets embed.FS
 // add this selectdirectory method to the app struct in app.go
 // or, if you prefer to keep app.go clean of wails runtime imports for some reason,
 // you can define it here and pass `app.ctx` if needed, though it's better in app.go.
-// for this example, let's assume it's added to app.go and `app.ctx` is used.
 // example of how it would look in app.go:
 /*
 func (a *app) selectdirectory() (string, error) {
@@ -37,7 +37,25 @@ func (a *app) selectdirectory() (string, error) {
 */
 
 func main() {
+	// parse command line arguments for an initial folder path. if the user drags
+	// a folder onto the executable, windows will pass the folder path as the
+	// first command line argument.
+
+	var initialFolder string
+	if len(os.Args) > 1 {
+		candidate := strings.Trim(os.Args[1], "\"") // trim surrounding quotes if any
+		if info, err := os.Stat(candidate); err == nil && info.IsDir() {
+			initialFolder = candidate
+		}
+	}
+
 	app := NewApp() // creates an instance of app from app.go
+
+	// propagate the initial folder (if any) to the app instance so that it can
+	// emit the auto-open event during startup.
+	if initialFolder != "" {
+		app.defaultRootDir = initialFolder
+	}
 	// load icons
 
 	iconPNG, errPNG := os.ReadFile("appicon.png") // changed from ioutil.readfile
@@ -53,7 +71,7 @@ func main() {
 	}
 
 	err := wails.Run(&options.App{
-		Title:  "shotgun",
+		Title:  "Shotgun",
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{
@@ -61,8 +79,9 @@ func main() {
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
+		OnDomReady:       app.domReady,
 		Bind: []interface{}{
-			app, // this binds all public methods of app
+			app, // this binds all public methods of app (including startup which may emit auto-open-folder)
 		},
 		Menu: appMenu, // set the application menu
 

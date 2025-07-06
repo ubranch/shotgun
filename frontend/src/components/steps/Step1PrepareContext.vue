@@ -18,7 +18,7 @@
                             :style="{ width: progressBarWidth }"
                         ></div>
                     </div>
-                    <p class="text-gray-500 dark:text-gray-400 mt-1 text-xs">
+                    <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">
                         {{ generationProgress.current }} /
                         {{
                             generationProgress.total > 0
@@ -48,7 +48,7 @@
                     :value="generatedContext"
                     rows="10"
                     readonly
-                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-gray-800 font-mono text-xs text-gray-900 dark:text-gray-100 flex-grow"
+                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-dark-surface font-mono text-sm text-gray-900 dark:text-gray-100 flex-grow"
                     placeholder="context will appear here. if empty, ensure files are selected and not all excluded."
                     style="min-height: 150px"
                 ></textarea>
@@ -68,13 +68,13 @@
             >
                 <h4 class="font-semibold mb-1">error generating context:</h4>
                 <pre
-                    class="text-xs whitespace-pre-wrap text-left w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-2 border border-red-200 dark:border-red-700 rounded max-h-60 overflow-auto"
+                    class="text-sm whitespace-pre-wrap text-left w-full bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 p-2 border border-red-200 dark:border-red-700 rounded max-h-60 overflow-auto"
                     >{{ generatedContext.substring(6).trim() }}</pre
                 >
             </div>
             <p
                 v-else
-                class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex-grow flex justify-center items-center"
+                class="text-sm text-gray-500 dark:text-gray-400 mt-2 flex-grow flex justify-center items-center"
             >
                 project context will be generated automatically. if empty after
                 generation, ensure files are selected and not all excluded.
@@ -84,7 +84,7 @@
         <!-- initial message when no project is selected -->
         <p
             v-else
-            class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex-grow flex justify-center items-center"
+            class="text-sm text-gray-500 dark:text-gray-400 mt-2 flex-grow flex justify-center items-center"
         >
             select a project folder to begin.
         </p>

@@ -1,7 +1,7 @@
 <template>
     <div
         :style="{ height: height + 'px' }"
-        class="bg-gray-800 text-white p-3 text-xs overflow-y-auto flex flex-col-reverse select-text"
+        class="bg-gray-900 text-white p-3 text-sm overflow-y-auto flex flex-col-reverse select-text"
         ref="consoleRootRef"
     >
         <div ref="consoleContentRef" class="flex-grow">

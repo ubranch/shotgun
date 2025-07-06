@@ -1,5 +1,5 @@
-<template>
-    <ul class="file-tree">
+<template >
+    <ul class="file-tree overflow-y-hidden">
         <li
             v-for="node in nodes"
             :key="node.path"
@@ -9,24 +9,54 @@
                 class="node-item"
                 :style="{ 'padding-left': depth * 20 + 'px' }"
             >
-                <span
-                    v-if="node.isDir"
-                    @click="toggleExpand(node)"
-                    class="toggler"
-                >
-                    {{ node.expanded ? "▼" : "▶" }}
-                </span>
-                <span v-else class="item-spacer"></span>
-
-                <input
+            <input
                     type="checkbox"
                     :checked="!node.excluded"
                     @change="handleCheckboxChange(node)"
                     class="exclude-checkbox"
                 />
                 <span
+                    v-if="node.isDir"
+                    @click="toggleExpand(node)"
+                    class="toggler"
+                >
+                    <!-- folder icon (closed) -->
+                    <svg
+                        v-if="!node.expanded"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4 text-yellow-600 dark:text-yellow-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    </svg>
+                    <!-- folder icon (open) -->
+                    <svg
+                        v-else
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4 text-yellow-600 dark:text-yellow-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1h-14v-1zm0 3v4a2 2 0 002 2h12a2 2 0 002-2v-4h-14z" clip-rule="evenodd" />
+                    </svg>
+                </span>
+                <!-- file icon -->
+                <span v-else class="file-icon">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4 text-gray-600 dark:text-gray-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                    </svg>
+                </span>
+
+                <span
                     @click="node.isDir ? toggleExpand(node) : null"
                     :class="{ 'folder-name': node.isDir }"
+                    class="text-sm"
                 >
                     {{ node.name }}
                 </span>
@@ -91,11 +121,8 @@ function isEffectivelyExcludedByParent(node) {
 <style scoped>
 .file-tree {
     list-style-type: none;
-    padding-left: 0; /* remove default ul padding */
 }
-.file-tree li {
-    margin: 2px 0;
-}
+
 .node-item {
     display: flex;
     align-items: center;
@@ -108,12 +135,15 @@ function isEffectivelyExcludedByParent(node) {
 .toggler {
     cursor: pointer;
     width: 20px;
-    display: inline-block;
-    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
-.item-spacer {
-    width: 20px; /* space for non-folders to align with folder togglers */
-    display: inline-block;
+.file-icon {
+    width: 20px; /* space for files to align with folder icons */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .folder-name {
     cursor: pointer; /* to indicate it's clickable for expanding */
@@ -121,30 +151,14 @@ function isEffectivelyExcludedByParent(node) {
 }
 .exclude-checkbox {
     margin-right: 5px;
+    margin-left: 5px;
     cursor: pointer;
 }
-.excluded-node > .node-item > span:not(.toggler) {
+.excluded-node > .node-item > span:not(.toggler):not(.file-icon) {
     text-decoration: line-through;
     color: #999;
 }
-/* style for checkbox of an effectively excluded item (e.g. parent excluded) */
-.exclude-checkbox:disabled + span {
-    color: #bbb; /* lighter text for items under an excluded parent */
-}
 .exclude-checkbox:disabled {
     cursor: not-allowed;
-}
-
-/* dark mode styles */
-:global(.dark) .node-item:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-:global(.dark) .excluded-node > .node-item > span:not(.toggler) {
-    color: #666;
-}
-
-:global(.dark) .exclude-checkbox:disabled + span {
-    color: #555;
 }
 </style>

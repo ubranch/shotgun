@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/adrg/xdg"
 	"github.com/fsnotify/fsnotify"
@@ -45,6 +46,12 @@ type App struct {
 	useGitignore                bool
 	useCustomIgnore             bool
 	projectGitignore            *gitignore.GitIgnore // compiled .gitignore for the current project
+	geminiRequestCancel         context.CancelFunc   // cancel function for gemini request
+
+	// defaultrootdir holds an optional folder path passed via command line argument (e.g. when a user
+	// drags a folder onto the compiled executable). if set, the app will emit an event on startup so
+	// it can open the folder automatically.
+	defaultRootDir string
 }
 
 func NewApp() *App {
@@ -71,6 +78,31 @@ func (a *App) startup(ctx context.Context) {
 	if strings.TrimSpace(a.settings.CustomPromptRules) == "" {
 		a.settings.CustomPromptRules = defaultCustomPromptRulesContent
 	}
+
+	// if a default root directory was provided we will emit an auto-open event
+	// after the frontend is fully ready (see domready). here we just set the
+	// window title early for better ux.
+	if a.defaultRootDir != "" {
+		if info, err := os.Stat(a.defaultRootDir); err == nil && info.IsDir() {
+			folderName := filepath.Base(a.defaultRootDir)
+			title := fmt.Sprintf("%s | Shotgun", folderName)
+			runtime.WindowSetTitle(a.ctx, title)
+		} else {
+			runtime.LogWarningf(a.ctx, "startup: provided defaultRootDir '%s' is invalid: %v", a.defaultRootDir, err)
+			// invalidate if not valid
+			a.defaultRootDir = ""
+		}
+	}
+}
+
+// domready is called by wails when the frontend has finished loading and the js
+// runtime is ready. only at this point are event listeners on the js side able
+// to receive events, so we emit the auto-open-folder event here.
+func (a *App) domReady(ctx context.Context) {
+	if a.defaultRootDir == "" {
+		return
+	}
+	runtime.EventsEmit(ctx, "auto-open-folder", a.defaultRootDir)
 }
 
 type FileNode struct {
@@ -91,7 +123,7 @@ func (a *App) SelectDirectory() (string, error) {
 	}
 	if dirPath != "" {
 		folderName := filepath.Base(dirPath)
-		title := fmt.Sprintf("%s | shotgun", folderName)
+		title := fmt.Sprintf("%s | Shotgun", folderName)
 		runtime.WindowSetTitle(a.ctx, title)
 	}
 	return dirPath, nil
@@ -1042,4 +1074,98 @@ func (a *App) CountGeminiTokens(text string) (int, error) {
 	}
 
 	return int(resp.TotalTokens), nil
+}
+
+// ExecuteGeminiRequest sends a prompt to Google Gemini API
+func (a *App) ExecuteGeminiRequest(prompt string, modelName string) (string, error) {
+	apiKey := os.Getenv("GOOGLE_API_KEY")
+	if apiKey == "" {
+		return "", errors.New("google api key not set. please set the GOOGLE_API_KEY environment variable")
+	}
+
+	// create a context with cancellation capability
+	ctx, cancel := context.WithCancel(a.ctx)
+	defer cancel()
+
+	// store the cancel function so it can be used by StopGeminiRequest
+	a.geminiRequestCancel = cancel
+
+	// create gemini client
+	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
+	if err != nil {
+		return "", fmt.Errorf("failed to create genai client: %v", err)
+	}
+	defer client.Close()
+
+	// default to flash if model name is empty or unsupported
+	if strings.TrimSpace(modelName) == "" {
+		modelName = "gemini-2.5-flash"
+	}
+
+	model := client.GenerativeModel(modelName)
+	model.SetTemperature(0.1)  // Set low temperature as per requirements
+
+	// log request configuration and a preview of the request body (max 500 chars) for easier debugging
+	bodyPreview := prompt
+	if len(bodyPreview) > 500 {
+		bodyPreview = bodyPreview[:500] + "..."
+	}
+	charCount := utf8.RuneCountInString(prompt)
+	runtime.LogInfof(a.ctx, "gemini request config: model=%s temperature=0.1", modelName)
+	runtime.LogInfof(a.ctx, "gemini request body length: %d characters", charCount)
+	runtime.LogInfof(a.ctx, "gemini request body preview: %s", bodyPreview)
+
+	// create chat session
+	cs := model.StartChat()
+
+	runtime.EventsEmit(a.ctx, "gemini_request_start", nil)
+
+	// send the prompt and get response
+	resp, err := cs.SendMessage(ctx, genai.Text(prompt))
+	if err != nil {
+		if errors.Is(err, context.Canceled) {
+			runtime.EventsEmit(a.ctx, "gemini_request_canceled", nil)
+			return "", errors.New("request was canceled")
+		}
+		return "", fmt.Errorf("failed to send message: %v", err)
+	}
+
+	// extract text from response manually for compatibility with sdk versions lacking resp.Text()
+	var sb strings.Builder
+	for _, cand := range resp.Candidates {
+		if cand.Content != nil {
+			for _, part := range cand.Content.Parts {
+				if txt, ok := part.(genai.Text); ok {
+					sb.WriteString(string(txt))
+				}
+			}
+		}
+	}
+	respText := strings.TrimSpace(sb.String())
+
+	// remove ```diff and closing ``` code block markers, replacing them with blank lines
+	respText = strings.ReplaceAll(respText, "```diff", "\n")
+	respText = strings.ReplaceAll(respText, "```", "\n")
+
+	// trim any leading/trailing whitespace after cleanup
+	respText = strings.TrimSpace(respText)
+
+	if respText == "" {
+		return "", errors.New("no response from gemini")
+	}
+
+	runtime.EventsEmit(a.ctx, "gemini_request_complete", nil)
+
+	return respText, nil
+}
+
+// StopGeminiRequest cancels any ongoing Gemini API request
+func (a *App) StopGeminiRequest() error {
+	if a.geminiRequestCancel != nil {
+		a.geminiRequestCancel()
+		a.geminiRequestCancel = nil
+		runtime.EventsEmit(a.ctx, "gemini_request_canceled", nil)
+		return nil
+	}
+	return errors.New("no active gemini request to cancel")
 }

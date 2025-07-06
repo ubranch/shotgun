@@ -1,7 +1,7 @@
 <template>
     <div
         v-if="isVisible"
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-80 overflow-y-auto h-full w-full z-50 flex justify-center items-center"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-dark-surface dark:bg-opacity-80 overflow-y-auto h-full w-full z-50 flex justify-center items-center"
         @click.self="handleCancel"
     >
         <div
@@ -17,11 +17,11 @@
                     <textarea
                         v-model="editableRules"
                         rows="15"
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm font-mono bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm font-mono bg-gray-50 dark:bg-dark-surface text-gray-900 dark:text-gray-100"
                         placeholder="enter custom ignore patterns, one per line (e.g., *.log, node_modules/)"
                     ></textarea>
                     <p
-                        class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-left"
+                        class="text-sm text-gray-500 dark:text-gray-400 mt-1 text-left"
                     >
                         {{ descriptionText }}
                     </p>

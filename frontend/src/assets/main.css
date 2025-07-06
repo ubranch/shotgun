@@ -15,3 +15,7 @@ html {
     width: 100vw;
     overflow: hidden;
 }
+
+select {
+  appearance: none!important;
+}

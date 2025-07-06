@@ -1,9 +1,9 @@
 <template>
     <div
-        class="flex flex-col h-screen bg-light-bg dark:bg-dark-bg text-light-fg dark:text-dark-fg"
+        class="flex flex-col h-screen bg-light-bg dark:bg-[#141414] text-light-fg dark:text-dark-fg"
     >
         <div
-            class="flex items-center bg-light-surface dark:bg-dark-surface border-b border-light-border dark:border-dark-border"
+            class="flex items-center justify-center bg-light-surface dark:bg-[#141414] border-b border-light-border dark:border-dark-border"
         >
             <HorizontalStepper
                 :current-step="currentStep"
@@ -13,9 +13,6 @@
                     .map((s) => s.completed)
                     .join('')}`"
             />
-            <div class="ml-auto pr-4">
-                <ThemeToggle />
-            </div>
         </div>
         <div class="flex flex-1 overflow-hidden">
             <LeftSidebar
@@ -85,6 +82,9 @@ import {
     SplitShotgunDiff,
 } from "../../wailsjs/go/main/App";
 import { EventsOn, Environment } from "../../wailsjs/runtime/runtime";
+
+// unlisten function for the auto-open-folder event emitted by the backend
+let unlistenAutoOpenFolder = null;
 
 const currentStep = ref(1);
 const steps = ref([
@@ -614,6 +614,27 @@ async function handleStepAction(actionName, payload) {
     }
 }
 
+// add global keyboard shortcut handler for navigating steps
+function handleGlobalKeydown(event) {
+    // ignore if the user is typing in an editable element
+    const tag = event.target?.tagName?.toLowerCase() || "";
+    const isEditable =
+        event.target?.isContentEditable ||
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select";
+    if (isEditable) return;
+
+    // support ctrl (windows/linux) and meta (mac) + number 1-4
+    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey) {
+        const key = event.key;
+        if (key === "1" || key === "2" || key === "3" || key === "4") {
+            event.preventDefault();
+            navigateToStep(parseInt(key));
+        }
+    }
+}
+
 onMounted(() => {
     EventsOn("shotgunContextGenerated", (output) => {
         addLog(
@@ -696,6 +717,16 @@ onMounted(() => {
             }
         }
     );
+
+    // register the global keydown listener
+    window.addEventListener("keydown", handleGlobalKeydown);
+
+    // listen for the backend event that signals an initial folder should be opened automatically
+    unlistenAutoOpenFolder = EventsOn("auto-open-folder", async (folderPath) => {
+        if (typeof folderPath !== "string" || !folderPath) return;
+        addLog(`auto-open-folder event received for path: ${folderPath}`, "info", "bottom");
+        await openFolderProgrammatically(folderPath);
+    });
 });
 
 onBeforeUnmount(async () => {
@@ -712,7 +743,13 @@ onBeforeUnmount(async () => {
     if (unlistenProjectFilesChanged) {
         unlistenProjectFilesChanged();
     }
+    if (unlistenAutoOpenFolder) {
+        unlistenAutoOpenFolder();
+    }
     // remember to unlisten other events if they return unlistener functions
+
+    // cleanup the global keydown listener
+    window.removeEventListener("keydown", handleGlobalKeydown);
 });
 
 watch(
@@ -811,6 +848,39 @@ function handleShotgunGitDiffUpdate(val) {
 
 function handleSplitLineLimitUpdate(val) {
     splitLineLimitValue.value = val;
+}
+
+// programmatically open a folder path without showing the select-dialog.
+async function openFolderProgrammatically(folderPath) {
+    if (!folderPath) return;
+    isFileTreeLoading.value = true;
+    try {
+        shotgunPromptContext.value = "";
+        isGeneratingContext.value = false;
+        projectRoot.value = folderPath;
+        loadingError.value = "";
+        manuallyToggledNodes.clear();
+        fileTree.value = [];
+
+        await loadFileTree(folderPath);
+
+        splitDiffs.value = [];
+
+        if (!isFileTreeLoading.value && projectRoot.value) {
+            debouncedTriggerShotgunContextGeneration();
+        }
+
+        steps.value.forEach((s) => (s.completed = false));
+        currentStep.value = 1;
+        addLog(`project folder opened automatically: ${folderPath}`, "info", "bottom");
+    } catch (err) {
+        console.error("error opening folder programmatically:", err);
+        const errorMsg = `failed to open folder: ${err.message || err}`;
+        loadingError.value = errorMsg;
+        addLog(errorMsg, "error", "bottom");
+    } finally {
+        isFileTreeLoading.value = false;
+    }
 }
 </script>
 

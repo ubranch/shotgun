@@ -13,7 +13,7 @@ import (
 
 // splitshotgundiff parses a git diff string and splits it into multiple
 // smaller git diff strings, each not exceeding approxlinelimit lines.
-// it tries to split between file diffs first, then between hunks if a single file diff is too large.
+// it tries to split between file diffs first, then between chunks if a single file diff is too large.
 func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]string, error) {
 	runtime.LogInfof(a.ctx, "splitshotgundiff called with line limit: %d for git diff text", approxLineLimit)
 
@@ -73,7 +73,7 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 				currentSplitLines = 0
 			}
 
-			// this fileblock is too large, needs to be split by hunks
+			// this fileblock is too large, needs to be split by chunks
 			// extract file header (lines before the first hunk)
 			firstHunkIndex := -1
 			for i, line := range fileBlockLines {
@@ -83,8 +83,8 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 				}
 			}
 
-			if firstHunkIndex == -1 { // no hunks found, but block is large? unusual. treat as one large piece.
-				runtime.LogWarning(a.ctx, fmt.Sprintf("splitshotgundiff: large file block without hunks in '%s'. treating as single block.", getPathFromDiffHeader(fileBlockLines[0])))
+			if firstHunkIndex == -1 { // no chunks found, but block is large? unusual. treat as one large piece.
+				runtime.LogWarning(a.ctx, fmt.Sprintf("splitshotgundiff: large file block without chunks in '%s'. treating as single block.", getPathFromDiffHeader(fileBlockLines[0])))
 				splitDiffs = append(splitDiffs, fileBlock+"\n") // add newline for consistency if it's a full block
 				continue
 			}
@@ -125,7 +125,7 @@ func (a *App) SplitShotgunDiff(gitDiffText string, approxLineLimit int) ([]strin
 				hunkStartIndex = hunkEndIndex
 			}
 
-			// add any remaining hunks for the current file
+			// add any remaining chunks for the current file
 			if currentFileSplitHunks.Len() > 0 {
 				splitDiffs = append(splitDiffs, fileHeader + currentFileSplitHunks.String())
 			}

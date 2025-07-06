@@ -5,6 +5,8 @@ import {context} from '../models';
 
 export function CountGeminiTokens(arg1:string):Promise<number>;
 
+export function ExecuteGeminiRequest(arg1:string,arg2:string):Promise<string>;
+
 export function GetCustomIgnoreRules():Promise<string>;
 
 export function GetCustomPromptRules():Promise<string>;
@@ -30,3 +32,5 @@ export function StartFileWatcher(arg1:string):Promise<void>;
 export function StartupTest(arg1:context.Context):Promise<void>;
 
 export function StopFileWatcher():Promise<void>;
+
+export function StopGeminiRequest():Promise<void>;

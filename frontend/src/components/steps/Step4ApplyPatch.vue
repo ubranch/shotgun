@@ -17,7 +17,7 @@
             v-else-if="splitDiffs && splitDiffs.length > 0"
             class="flex-grow overflow-y-auto space-y-6"
         >
-            <p class="text-gray-600 dark:text-gray-400 mb-2 text-xs">
+            <p class="text-gray-600 dark:text-gray-400 mb-2 text-sm">
                 the original diff has been split into
                 {{ splitDiffs.length }} smaller diffs. copy each part and apply
                 it using your preferred tool. with an llm, just tell it to
@@ -30,7 +30,7 @@
                     'border border-gray-300 dark:border-gray-700 rounded-md p-4',
                     isCopied[index]
                         ? 'bg-green-50 dark:bg-green-900 dark:bg-opacity-20'
-                        : 'bg-gray-50 dark:bg-gray-800',
+                        : 'bg-gray-50 dark:bg-dark-surface',
                     'shadow-sm',
                 ]"
             >
@@ -43,30 +43,30 @@
                     <div class="flex items-center space-x-2">
                         <!-- soon: add a feature to apply the diff automatically -->
                         <!-- <button
-              class="px-3 py-1 bg-gray-100 text-gray-300 text-xs font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
-              disabled
-            >
-              apply diff
-            </button> -->
+                          class="px-3 py-1 bg-gray-100 text-gray-300 text-sm font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
+                          disabled
+                        >
+                          apply diff
+                        </button> -->
                         <button
                             @click="copyDiffToClipboard(diff, index)"
-                            class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                            class="px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
                         >
                             {{ copyButtonTexts[index] || "copy" }}
                         </button>
                     </div>
                 </div>
-                <div class="text-gray-600 dark:text-gray-400 text-xs mb-2">
+                <div class="text-gray-600 dark:text-gray-400 text-sm mb-2">
                     <!-- the lines metric will be orange if it's greater than props.splitlinelimit + 5%, red if it's greater than props.splitlinelimit + 20%, green if it's less than props.splitlinelimit + 5% -->
                     <!-- calculate this in the vue script below, to simplify the code -->
                     <div
-                        class="inline-block px-2 py-1 rounded-full text-xs"
+                        class="inline-block px-2 py-1 rounded-full text-sm"
                         :class="getLineMetricClass(diff.split('\n').length)"
                     >
                         {{ diff.split("\n").length }} lines
                     </div>
                     <div
-                        class="inline-block px-2 py-1 bg-blue-100 dark:bg-blue-900 dark:bg-opacity-50 text-gray-900 dark:text-gray-200 rounded-full text-xs ml-2"
+                        class="inline-block px-2 py-1 bg-blue-100 dark:bg-blue-900 dark:bg-opacity-50 text-gray-900 dark:text-gray-200 rounded-full text-sm ml-2"
                     >
                         {{ (diff.match(/^diff --git/gm) || []).length }} file{{
                             (diff.match(/^diff --git/gm) || []).length === 1
@@ -75,7 +75,7 @@
                         }}
                     </div>
                     <div
-                        class="inline-block px-2 py-1 bg-blue-100 dark:bg-blue-900 dark:bg-opacity-50 text-gray-900 dark:text-gray-200 rounded-full text-xs ml-2"
+                        class="inline-block px-2 py-1 bg-blue-100 dark:bg-blue-900 dark:bg-opacity-50 text-gray-900 dark:text-gray-200 rounded-full text-sm ml-2"
                     >
                         {{ (diff.match(/^@@ .* @@/gm) || []).length }} hunk{{
                             (diff.match(/^@@ .* @@/gm) || []).length === 1
@@ -88,7 +88,7 @@
                     :value="diff"
                     rows="10"
                     readonly
-                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-mono text-xs"
+                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 font-mono text-sm"
                     style="min-height: 150px"
                 ></textarea>
             </div>
@@ -100,30 +100,6 @@
             </p>
         </div>
 
-        <div class="mt-6 flex space-x-4 flex-shrink-0 flex-row justify-between">
-            <div>
-                <h3
-                    class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                    coming soon
-                </h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">
-                    - apply patch from shotgun
-                </p>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">
-                    - apply patch automatically
-                </p>
-            </div>
-            <!--
-      <button
-      @click="$emit('action', 'finishSplitting'), finishButtonText = 'hooray! 🎉'"
-      class="px-6 py-2 bg-blue-500 dark:bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-      :class="finishButtonText === 'hooray! 🎉' ? 'bg-green-200 dark:bg-green-700 text-black dark:text-white hover:bg-green-200 dark:hover:bg-green-600' : ''"
-      >
-        {{ finishButtonText }}
-      </button>
-      -->
-        </div>
     </div>
 </template>
 

@@ -11,7 +11,7 @@
 
         <div class="flex-grow flex flex-row space-x-4 overflow-hidden">
             <div
-                class="w-1/2 flex flex-col space-y-2 overflow-y-auto px-2 py-1 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-dark-surface"
+                class="w-1/2 flex flex-col space-y-2 overflow-y-hidden px-2 py-1 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-[#141414]"
             >
                 <div>
                     <label
@@ -23,21 +23,22 @@
                         id="user-task-ai"
                         v-model="localUserTask"
                         rows="15"
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
                         placeholder="describe what the ai should do..."
+                        value="task here"
                     ></textarea>
                 </div>
 
                 <div>
                     <label
                         for="rules-content"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center"
+                        class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center"
                     >
                         custom rules:
                         <button
                             @click="openPromptRulesModal"
                             title="edit custom prompt rules"
-                            class="ml-2 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-xs"
+                            class="ml-2 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-sm"
                         >
                             ⚙️
                         </button>
@@ -48,8 +49,8 @@
                         @input="
                             (e) => emit('update:rulesContent', e.target.value)
                         "
-                        rows="8"
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-gray-800 text-sm font-mono text-gray-900 dark:text-gray-100"
+                        rows="13"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface text-sm font-mono text-gray-900 dark:text-gray-100"
                         placeholder="rules for ai..."
                     ></textarea>
                 </div>
@@ -63,9 +64,9 @@
                     <textarea
                         id="file-list-context"
                         :value="props.fileListContext"
-                        rows="10"
+                        rows="5"
                         readonly
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-gray-800 font-mono text-xs text-gray-900 dark:text-gray-100"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface font-mono text-sm text-gray-900 dark:text-gray-100"
                         placeholder="file list from step 1 (prepare context) will appear here..."
                         style="min-height: 150px"
                     ></textarea>
@@ -77,43 +78,42 @@
             >
                 <div class="flex justify-between items-center mb-2">
                     <div class="flex items-center space-x-2">
-                        <h3
-                            class="text-md font-medium text-gray-700 dark:text-gray-300"
-                        >
-                            prompt:
-                        </h3>
-                        <select
-                            v-model="selectedPromptTemplateKey"
-                            class="ml-2 p-1 border border-gray-300 dark:border-gray-600 rounded-md text-xs focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                            :disabled="isLoadingFinalPrompt"
-                            title="select prompt template"
-                        >
-                            <option
+                        <div class="flex lg:flex-row flex-col space-x-2">
+                            <button
                                 v-for="(template, key) in promptTemplates"
                                 :key="key"
-                                :value="key"
+                                @click="selectedPromptTemplateKey = key"
+                                :class="[
+                                    'p-2 px-3 rounded-md text-sm flex items-center',
+                                    selectedPromptTemplateKey === key
+                                        ? 'bg-blue-500 text-white dark:bg-blue-600'
+                                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                ]"
+                                :disabled="isLoadingFinalPrompt"
+                                :title="template.name"
                             >
-                                {{ template.name }}
-                            </option>
-                        </select>
+                                <span class="">{{ getTemplateIcon(key) }}</span>
+                                <span class="font-bold">{{ getShortName(key) }}</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="flex items-center space-x-3">
                         <span
                             v-if="isCountingTokens"
-                            class="text-xs text-gray-500"
+                            class="text-sm text-gray-500"
                         >
                             counting...
                         </span>
                         <span
                             v-else-if="tokenCountError"
-                            class="text-xs text-red-500"
+                            class="text-sm text-red-500"
                             :title="tokenCountError"
                         >
                             error
                         </span>
                         <span
                             v-else
-                            :class="['text-xs font-medium', charCountColorClass]"
+                            :class="['text-sm font-bold', charCountColorClass]"
                             :title="tooltipText"
                         >
                             {{ geminiTokenCount.toLocaleString() }} tokens
@@ -123,7 +123,7 @@
                             :disabled="
                                 !props.finalPrompt || isLoadingFinalPrompt
                             "
-                            class="px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300 dark:disabled:bg-gray-700"
+                            class="px-3 py-2 bg-blue-500 dark:bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300 dark:disabled:bg-gray-700"
                         >
                             {{ copyButtonText }}
                         </button>
@@ -147,7 +147,7 @@
                     :value="props.finalPrompt"
                     @input="(e) => emit('update:finalPrompt', e.target.value)"
                     rows="20"
-                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm font-mono text-xs flex-grow bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm font-mono text-sm flex-grow bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
                     placeholder="the final prompt will be generated here..."
                     style="min-height: 300px"
                 ></textarea>
@@ -220,6 +220,29 @@ const promptTemplates = {
     },
 };
 
+// helper functions for template icons and short names
+function getTemplateIcon(key) {
+    const icons = {
+        dev: "💻",
+        architect: "🏗️",
+        findBug: "🐞",
+        projectManager: "📋",
+        promptEnhancer: "✨"
+    };
+    return icons[key] || "📝";
+}
+
+function getShortName(key) {
+    const shortNames = {
+        dev: "DEV",
+        architect: "ARCH",
+        findBug: "BUG",
+        projectManager: "TASKS",
+        promptEnhancer: "PROMPT"
+    };
+    return shortNames[key] || key;
+}
+
 const selectedPromptTemplateKey = ref("dev"); // default template
 
 const isLoadingFinalPrompt = ref(false);
@@ -287,7 +310,9 @@ onMounted(async () => {
         isFirstMount.value = false;
     }
 
-    if (!props.finalPrompt && (props.fileListContext || props.userTask)) {
+    // always generate initial prompt if not already available
+    // this ensures token calculation triggers even when file list context or user task are initially empty
+    if (!props.finalPrompt) {
         debouncedUpdateFinalPrompt();
     }
 });
@@ -318,6 +343,10 @@ async function updateFinalPrompt() {
     populatedPrompt = populatedPrompt.replaceAll("{CURRENT_DATE}", currentDate);
 
     emit("update:finalPrompt", populatedPrompt);
+
+    // trigger token counting immediately for the freshly generated prompt
+    countTokensForPrompt(populatedPrompt);
+
     isLoadingFinalPrompt.value = false;
 }
 
@@ -368,20 +397,18 @@ watch(selectedPromptTemplateKey, () => {
     debouncedUpdateFinalPrompt();
 });
 
-watch(() => props.finalPrompt, (newPrompt) => {
+const countTokensForPrompt = (prompt) => {
     clearTimeout(tokenDebounceTimer);
-    if (!newPrompt) {
+    if (!prompt) {
         geminiTokenCount.value = 0;
         tokenCountError.value = "";
         return;
     }
-
     isCountingTokens.value = true;
     tokenCountError.value = "";
-
     tokenDebounceTimer = setTimeout(async () => {
         try {
-            const count = await CountGeminiTokens(newPrompt);
+            const count = await CountGeminiTokens(prompt);
             geminiTokenCount.value = count;
         } catch (err) {
             console.error("token counting error:", err);
@@ -390,8 +417,16 @@ watch(() => props.finalPrompt, (newPrompt) => {
         } finally {
             isCountingTokens.value = false;
         }
-    }, 500); // 500ms debounce
-});
+    }, 500);
+};
+
+watch(
+    () => props.finalPrompt,
+    (newPrompt) => {
+        countTokensForPrompt(newPrompt);
+    },
+    { immediate: true }
+);
 
 async function copyFinalPromptToClipboard() {
     if (!props.finalPrompt) return;

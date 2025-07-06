@@ -1,6 +1,6 @@
 <template>
     <main
-        class="flex-1 p-0 overflow-y-auto bg-light-surface dark:bg-dark-surface relative"
+        class="flex-1 p-0 overflow-y-auto bg-light-surface dark:bg-[#141414] relative"
     >
         <Step1CopyStructure
             v-if="currentStep === 1"
@@ -30,6 +30,7 @@
             ref="step3Ref"
             :initial-git-diff="initialGitDiff"
             :initial-split-line-limit="initialSplitLineLimit"
+            :final-prompt="props.finalPrompt"
             @update:shotgunGitDiff="(val) => emit('update:shotgunGitDiff', val)"
             @update:splitLineLimit="(val) => emit('update:splitLineLimit', val)"
         />
