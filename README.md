@@ -1,5 +1,7 @@
 # shotgun
 
+![shotgun](./appimage.png)
+
 shotgun is a tool for streamlined prompt engineering and testing. it provides a user-friendly interface for crafting prompts, managing context, and executing prompts with ai models.
 
 ## requirements
