@@ -5,7 +5,7 @@
     <div class="flex flex-row items-center mb-4 space-x-4">
       <button
         @click="executeRequest"
-        class="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400 dark:disabled:bg-gray-700"
+        class="px-6 py-2 bg-light-accent dark:bg-dark-accent text-white font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent focus:ring-opacity-50 disabled:bg-gray-400 dark:disabled:bg-gray-700"
         :disabled="isRequestActive || !isReadyToExecute"
       >
         execute request
@@ -58,7 +58,7 @@
         id="shotgun-git-diff-input"
         v-model="localShotgunGitDiffInput"
         rows="15"
-        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm font-mono bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
+        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm font-mono bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
         placeholder="paste the git diff output here, e.g., diff --git a/file.txt b/file.txt..."
       ></textarea>
     </div>
@@ -71,23 +71,25 @@
         <br>
         leave this unchanged if you don't want to split the diff.
       </p>
-      <input
-        type="number"
-        id="split-line-limit"
-        v-model.number="localSplitLineLimit"
-        min="50"
-        step="50"
-        class="w-1/8 p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
-      />
-      <p class="text-gray-600 dark:text-gray-400 mb-2 text-sm mt-2">
-        total number of lines: {{ shotgunGitDiffInputLines }} <a href="#" class="text-blue-500 dark:text-blue-400" title="reset to this value" @click="resetSplitLineLimit">(reset to this value)</a>
-      </p>
+      <div class="flex items-center space-x-2 mt-2">
+        <input
+          type="number"
+          id="split-line-limit"
+          v-model.number="localSplitLineLimit"
+          min="50"
+          step="50"
+          class="w-1/8 p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
+        />
+        <span class="text-sm text-gray-500 dark:text-gray-400">
+          total number of lines: {{ shotgunGitDiffInputLines }} <a href="#" class="text-light-accent dark:text-dark-accent" title="reset to this value" @click="resetSplitLineLimit">(reset to this value)</a>
+        </span>
+      </div>
     </div>
 
     <button
       @click="handleSplitDiff"
       :disabled="!localShotgunGitDiffInput.trim() || localSplitLineLimit <= 0"
-      class="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 self-start disabled:bg-gray-400 dark:disabled:bg-gray-700"
+      class="px-6 py-2 bg-light-accent dark:bg-dark-accent text-white font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent focus:ring-opacity-50 self-start disabled:bg-gray-400 dark:disabled:bg-gray-700"
     >
       {{ localSplitLineLimit === shotgunGitDiffInputLines ? 'proceed to apply' : 'split diff & proceed to apply' }}
     </button>

@@ -1,4 +1,4 @@
-<template >
+<template>
     <ul class="file-tree overflow-y-hidden">
         <li
             v-for="node in nodes"
@@ -6,59 +6,65 @@
             :class="{ 'excluded-node': node.excluded }"
         >
             <div
-                class="node-item"
+                class="node-item p-1 border-b border-gray-200 dark:border-gray-700"
                 :style="{ 'padding-left': depth * 20 + 'px' }"
+                style="position: relative; cursor: pointer"
+                @click="handleAreaClick($event, node)"
             >
-            <input
-                    type="checkbox"
-                    :checked="!node.excluded"
-                    @change="handleCheckboxChange(node)"
-                    class="exclude-checkbox"
-                />
-                <span
-                    v-if="node.isDir"
-                    @click="toggleExpand(node)"
-                    class="toggler"
-                >
-                    <!-- folder icon (closed) -->
-                    <svg
-                        v-if="!node.expanded"
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4 text-yellow-600 dark:text-yellow-500"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                    </svg>
-                    <!-- folder icon (open) -->
-                    <svg
-                        v-else
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4 text-yellow-600 dark:text-yellow-500"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1h-14v-1zm0 3v4a2 2 0 002 2h12a2 2 0 002-2v-4h-14z" clip-rule="evenodd" />
-                    </svg>
-                </span>
-                <!-- file icon -->
-                <span v-else class="file-icon">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4 text-gray-600 dark:text-gray-400"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
-                    </svg>
+                <span class="arrow-indicator pl-2">
+                    <span v-if="node.isDir && !node.expanded" @click.stop="toggleExpand(node)">
+                        <div class="codicon codicon-chevron-down codicon-bold codicon-custom"></div>
+                    </span>
+                    <span v-else-if="node.isDir && node.expanded" @click.stop="toggleExpand(node)">
+                        <div class="codicon codicon-chevron-up codicon-bold codicon-custom"></div>
+                    </span>
+                    <span v-else class="placeholder-arrow"></span>
                 </span>
 
-                <span
-                    @click="node.isDir ? toggleExpand(node) : null"
-                    :class="{ 'folder-name': node.isDir }"
-                    class="text-sm"
-                >
-                    {{ node.name }}
+                <span class="node-content-wrapper pl-3">
+                    <span
+                        v-if="node.isDir"
+                        @click.stop="toggleExpand(node)"
+                        class="toggler"
+                    >
+                        <!-- folder icon (closed) -->
+                        <i class="codicon codicon-folder text-decoration-none no-underline"
+                            v-if="!node.expanded"
+                        />
+                        <!-- folder icon (open) -->
+                        <i class="codicon codicon-folder-opened no-underline" v-else/>
+                    </span>
+                    <!-- file icon -->
+                    <span v-else class="file-icon">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-6 w-6 text-gray-600 dark:text-gray-400"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M4 4a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
+                    </span>
+                    <span
+                        @click.stop="node.isDir ? toggleExpand(node) : handleCheckboxChange(node)"
+                        :class="{ 'folder-name': node.isDir }"
+                        class="text-sm name-label"
+                    >
+                        {{ node.name }}
+                    </span>
+                </span>
+
+                <span class="checkbox-wrapper" @click.stop>
+                    <input
+                        type="checkbox"
+                        :checked="!node.excluded"
+                        @change="handleCheckboxChange(node)"
+                        class="exclude-checkbox"
+                    />
                 </span>
             </div>
             <FileTree
@@ -98,8 +104,34 @@ function toggleExpand(node) {
 }
 
 function handleCheckboxChange(node) {
-    // emit an event with the node to toggle its exclusion status in the parent (app.vue)
+    // emit an event with the node to toggle its exclusion status in the parent component
     emit("toggle-exclude", node);
+}
+
+function handleAreaClick(event, node) {
+    // decide behavior based on node type and click target
+    const target = event.target;
+
+    // ignore clicks on the checkbox area (they have their own events)
+    if (target.closest('.checkbox-wrapper') || target.classList.contains('exclude-checkbox')) {
+        return;
+    }
+
+    if (node.isDir) {
+        // if the click wasn't on the arrow icon, folder name, or explicit toggler, treat the whole row as an expander
+        if (
+            !target.closest('.arrow-indicator') &&
+            !target.classList.contains('folder-name') &&
+            !target.classList.contains('toggler')
+        ) {
+            toggleExpand(node);
+            return;
+        }
+        // the other folder-specific elements already have their own @click handlers
+    } else {
+        // for files, whitespace toggles inclusion/exclusion
+        handleCheckboxChange(node);
+    }
 }
 
 function emitToggleExclude(node) {
@@ -149,16 +181,55 @@ function isEffectivelyExcludedByParent(node) {
     cursor: pointer; /* to indicate it's clickable for expanding */
     font-weight: bold;
 }
-.exclude-checkbox {
-    margin-right: 5px;
-    margin-left: 5px;
-    cursor: pointer;
+.checkbox-wrapper {
+    margin-left: auto; /* push to the end of the line */
+    display: flex;
+    align-items: center;
 }
-.excluded-node > .node-item > span:not(.toggler):not(.file-icon) {
-    text-decoration: line-through;
+.exclude-checkbox {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+.excluded-node > .node-item > span:not(.toggler, .file-icon, .arrow-indicator, .codicon) {
     color: #999;
 }
 .exclude-checkbox:disabled {
     cursor: not-allowed;
+}
+.name-label {
+    margin-left: 8px;
+}
+.arrow-indicator {
+    display: flex;
+    align-items: center;
+    width: 22px;
+}
+.placeholder-arrow {
+    width: 22px; /* same as the real arrow, to maintain alignment */
+}
+.node-content-wrapper {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* take up available space */
+    min-width: 0; /* allow text to be truncated */
+    overflow: hidden; /* for text truncation if needed */
+}
+.codicon-bold {
+    font-weight: bold !important; /* or a numeric value like 700 */
+}
+
+.codicon-custom {
+    align-items: center;
+    display: flex !important;
+    flex-shrink: 0;
+    font-size: 22px;
+    justify-content: center;
+    padding-right: 6px;
+    text-align: right;
+    transform: translateX(3px);
+    width: 22px;
+    height: 100%;
+    text-decoration: none!important;
 }
 </style>

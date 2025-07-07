@@ -14,7 +14,7 @@
         <div class="flex flex-col flex-grow h-full">
             <button
                 @click="$emit('select-folder')"
-                class="w-full px-4 py-2 mb-2 bg-light-accent dark:bg-dark-accent text-white font-semibold rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                class="w-full px-4 py-2 mb-2 bg-light-accent dark:bg-dark-accent text-white font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent focus:ring-opacity-50"
             >
                 select project folder
             </button>
@@ -36,7 +36,7 @@
                         @change="
                             $emit('toggle-gitignore', $event.target.checked)
                         "
-                        class="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500 mr-2"
+                        class="form-checkbox h-4 w-4 text-light-accent dark:text-dark-accent rounded border-gray-300 dark:border-gray-600 focus:ring-light-accent dark:focus:ring-dark-accent mr-2"
                     />
                     use .gitignore rules
                 </label>
@@ -50,7 +50,7 @@
                         @change="
                             $emit('toggle-custom-ignore', $event.target.checked)
                         "
-                        class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300 dark:border-gray-600 focus:ring-indigo-500 mr-2"
+                        class="form-checkbox h-4 w-4 text-light-accent dark:text-dark-accent rounded border-gray-300 dark:border-gray-600 focus:ring-light-accent dark:focus:ring-dark-accent mr-2"
                     />
                     use custom rules
                     <button
@@ -63,13 +63,33 @@
                 </label>
             </div>
 
-            <h2
-                class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2"
-            >
-                project files
-            </h2>
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                    project files
+                </h2>
+                <div v-if="fileTreeNodes && fileTreeNodes.length" class="flex space-x-2">
+                    <button
+                        @click="selectAllFiles"
+                        class="text-xs px-2 py-1 bg-light-accent dark:bg-dark-accent text-white rounded hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover"
+                    >
+                        select all
+                    </button>
+                    <button
+                        @click="deselectAllFiles"
+                        class="text-xs px-2 py-1 bg-gray-500 dark:bg-gray-600 text-white rounded hover:bg-gray-600 dark:hover:bg-gray-700"
+                    >
+                        deselect all
+                    </button>
+                    <button
+                        @click="resetFileSelections"
+                        class="text-xs px-2 py-1 bg-yellow-500 dark:bg-yellow-600 text-white rounded hover:bg-yellow-600 dark:hover:bg-yellow-700"
+                    >
+                        reset
+                    </button>
+                </div>
+            </div>
             <div
-                class="border border-gray-300 dark:border-gray-600 rounded min-h-0 bg-white dark:bg-dark-surface text-sm overflow-auto flex-grow h-0 p-2"
+                class="border border-gray-300 dark:border-gray-600 rounded min-h-0 bg-white dark:bg-dark-surface text-sm overflow-auto flex-grow h-0"
             >
                 <FileTree
                     v-if="fileTreeNodes && fileTreeNodes.length"
@@ -133,6 +153,9 @@ const emit = defineEmits([
     "toggle-exclude",
     "custom-rules-updated",
     "add-log",
+    "select-all-files",
+    "deselect-all-files",
+    "reset-file-selections"
 ]);
 
 const isCustomRulesModalVisible = ref(false);
@@ -197,6 +220,30 @@ function canNavigateToStep(stepId) {
         stepId === firstUncompletedStepId ||
         (firstUncompletedStepId === undefined && targetStep)
     ); // allow any if all completed
+}
+
+function selectAllFiles() {
+    emit("select-all-files");
+    emit("add-log", {
+        message: "selecting all files",
+        type: "info"
+    });
+}
+
+function deselectAllFiles() {
+    emit("deselect-all-files");
+    emit("add-log", {
+        message: "deselecting all files",
+        type: "info"
+    });
+}
+
+function resetFileSelections() {
+    emit("reset-file-selections");
+    emit("add-log", {
+        message: "resetting file selections to default",
+        type: "info"
+    });
 }
 </script>
 

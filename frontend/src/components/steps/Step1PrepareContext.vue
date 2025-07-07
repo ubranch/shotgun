@@ -14,7 +14,7 @@
                         class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700"
                     >
                         <div
-                            class="bg-blue-600 dark:bg-blue-500 h-2.5 rounded-full"
+                            class="bg-light-accent dark:bg-dark-accent h-2.5 rounded-full"
                             :style="{ width: progressBarWidth }"
                         ></div>
                     </div>
@@ -34,9 +34,19 @@
         <!-- content area (textarea + copy button or error message or placeholder) -->
         <div v-else-if="projectRoot" class="mt-0 flex-grow flex flex-col">
             <div
-                v-if="
-                    generatedContext && !generatedContext.startsWith('Error:')
-                "
+                v-if="isErrorContext"
+                class="flex-grow flex flex-col justify-center items-center"
+            >
+                <div class="max-w-3xl w-full p-6 border border-red-300 dark:border-red-700 rounded-lg bg-red-50 dark:bg-red-900 dark:bg-opacity-20 shadow-sm">
+                    <h4 class="text-lg font-semibold mb-3 text-red-600 dark:text-red-400">error generating context</h4>
+                    <pre
+                        class="text-sm whitespace-pre-wrap text-left w-full bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 p-4 border border-red-200 dark:border-red-700 rounded-md overflow-auto max-h-[50vh]"
+                    >{{ errorMessage }}</pre>
+                    <p class="mt-4 text-sm text-gray-600 dark:text-gray-400">try reducing the project scope by excluding more files or using a smaller project</p>
+                </div>
+            </div>
+            <div
+                v-else-if="generatedContext && !isErrorContext"
                 class="flex-grow flex flex-col"
             >
                 <h3
@@ -59,18 +69,6 @@
                 >
                     {{ copyButtonText }}
                 </button>
-            </div>
-            <div
-                v-else-if="
-                    generatedContext && generatedContext.startsWith('Error:')
-                "
-                class="text-red-500 dark:text-red-400 p-3 border border-red-300 dark:border-red-700 rounded bg-red-50 dark:bg-red-900 dark:bg-opacity-20 flex-grow flex flex-col justify-center items-center"
-            >
-                <h4 class="font-semibold mb-1">error generating context:</h4>
-                <pre
-                    class="text-sm whitespace-pre-wrap text-left w-full bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 p-2 border border-red-200 dark:border-red-700 rounded max-h-60 overflow-auto"
-                    >{{ generatedContext.substring(6).trim() }}</pre
-                >
             </div>
             <p
                 v-else
@@ -121,6 +119,31 @@ const props = defineProps({
     },
 });
 
+const isErrorContext = computed(() => {
+    if (!props.generatedContext) return false;
+    // consider only the first non-blank line to decide if the backend sent an error
+    const firstLine = props.generatedContext.trimStart().split('\n', 1)[0].toLowerCase();
+    return firstLine.startsWith('error:');
+});
+
+const errorMessage = computed(() => {
+    if (!isErrorContext.value || !props.generatedContext) return '';
+
+    // check if starts with "Error:" (case insensitive)
+    const lowerCaseContext = props.generatedContext.toLowerCase();
+    if (lowerCaseContext.startsWith('error:')) {
+        return props.generatedContext.substring(props.generatedContext.indexOf(':') + 1).trim();
+    }
+
+    // if it contains "error:" elsewhere, try to extract the message
+    if (lowerCaseContext.includes('error:')) {
+        const errorIndex = lowerCaseContext.indexOf('error:');
+        return props.generatedContext.substring(errorIndex).trim();
+    }
+
+    return props.generatedContext.trim();
+});
+
 const progressBarWidth = computed(() => {
     if (props.generationProgress && props.generationProgress.total > 0) {
         const percentage =
@@ -131,7 +154,7 @@ const progressBarWidth = computed(() => {
     }
     return "0%";
 });
-const copyButtonText = ref("copy all");
+const copyButtonText = ref("copy");
 
 async function copyGeneratedContextToClipboard() {
     if (!props.generatedContext) return;
@@ -144,7 +167,7 @@ async function copyGeneratedContextToClipboard() {
         //}
         copyButtonText.value = "copied!";
         setTimeout(() => {
-            copyButtonText.value = "copy all";
+            copyButtonText.value = "copy";
         }, 2000);
     } catch (err) {
         console.error("failed to copy context: ", err);
@@ -153,7 +176,7 @@ async function copyGeneratedContextToClipboard() {
         }
         copyButtonText.value = "failed!";
         setTimeout(() => {
-            copyButtonText.value = "copy all";
+            copyButtonText.value = "copy";
         }, 2000);
     }
 }

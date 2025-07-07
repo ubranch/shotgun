@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"bytes"
 	"unicode/utf8"
 
 	"github.com/adrg/xdg"
@@ -115,12 +116,24 @@ type FileNode struct {
 	IsCustomIgnored bool        `json:"isCustomIgnored"` // true if path matches a ignore.glob rule
 }
 
-// selectdirectory opens a dialog to select a directory and returns the chosen path
+// selectdirectory opens a dialog to select a directory and returns the chosen path (empty string on cancel)
 func (a *App) SelectDirectory() (string, error) {
 	dirPath, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{})
+
+	// if the dialog was closed or cancelled, wails may return an error with an empty path
+	// we treat this as a normal cancel action: return empty path and nil error so the
+	// frontend does not show a scary error message.
+	if err != nil && dirPath == "" {
+		// optionally log at debug level for diagnostics
+		runtime.LogDebugf(a.ctx, "selectdirectory: dialog closed without selection: %v", err)
+		return "", nil
+	}
+
 	if err != nil {
+		// genuine error where a path should have been returned; propagate it
 		return "", err
 	}
+
 	if dirPath != "" {
 		folderName := filepath.Base(dirPath)
 		title := fmt.Sprintf("%s | Shotgun", folderName)
@@ -520,7 +533,11 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 				relPathForwardSlash := filepath.ToSlash(relPath)
 
 				fileContents.WriteString(fmt.Sprintf("<file path=\"%s\">\n", relPathForwardSlash))
-				fileContents.WriteString(string(content))
+				if isTextContent(content) {
+					fileContents.WriteString(string(content))
+				} else {
+					fileContents.WriteString("[non-text file content omitted]")
+				}
 				fileContents.WriteString("\n</file>\n") // each file block ends with a newline
 
 				progressState.processedItems++ // for file content
@@ -1168,4 +1185,34 @@ func (a *App) StopGeminiRequest() error {
 		return nil
 	}
 	return errors.New("no active gemini request to cancel")
+}
+
+// istextcontent heuristically determines whether the provided byte slice represents textual data.
+// it checks for the presence of null bytes, utf-8 validity, and a ratio of non-printable control
+// characters. this helps us avoid inlining binary data (e.g. images, audio) into the generated
+// project context output. for non-text files we will emit a placeholder instead of raw bytes.
+func isTextContent(data []byte) bool {
+	if len(data) == 0 {
+		return true
+	}
+	// quick checks: null byte or invalid utf-8 => binary
+	if bytes.IndexByte(data, 0) != -1 || !utf8.Valid(data) {
+		return false
+	}
+
+	// sample first kib to estimate control char ratio
+	sampleSize := len(data)
+	if sampleSize > 1024 {
+		sampleSize = 1024
+	}
+
+	nonPrintable := 0
+	for i := 0; i < sampleSize; i++ {
+		b := data[i]
+		if b < 32 && b != 9 && b != 10 && b != 13 { // allow tab, lf, cr
+			nonPrintable++
+		}
+	}
+	// if more than 5% of sampled bytes are control characters, treat as binary
+	return nonPrintable*20 <= sampleSize
 }

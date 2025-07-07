@@ -66,7 +66,7 @@
                         {{ diff.split("\n").length }} lines
                     </div>
                     <div
-                        class="inline-block px-2 py-1 bg-blue-100 dark:bg-blue-900 dark:bg-opacity-50 text-gray-900 dark:text-gray-200 rounded-full text-sm ml-2"
+                        class="inline-block px-2 py-1 bg-indigo-100 dark:bg-indigo-900 dark:bg-opacity-50 text-gray-900 dark:text-gray-200 rounded-full text-sm ml-2"
                     >
                         {{ (diff.match(/^diff --git/gm) || []).length }} file{{
                             (diff.match(/^diff --git/gm) || []).length === 1
@@ -75,7 +75,7 @@
                         }}
                     </div>
                     <div
-                        class="inline-block px-2 py-1 bg-blue-100 dark:bg-blue-900 dark:bg-opacity-50 text-gray-900 dark:text-gray-200 rounded-full text-sm ml-2"
+                        class="inline-block px-2 py-1 bg-indigo-100 dark:bg-indigo-900 dark:bg-opacity-50 text-gray-900 dark:text-gray-200 rounded-full text-sm ml-2"
                     >
                         {{ (diff.match(/^@@ .* @@/gm) || []).length }} hunk{{
                             (diff.match(/^@@ .* @@/gm) || []).length === 1

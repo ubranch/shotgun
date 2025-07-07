@@ -23,9 +23,8 @@
                         id="user-task-ai"
                         v-model="localUserTask"
                         rows="15"
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
                         placeholder="describe what the ai should do..."
-                        value="task here"
                     ></textarea>
                 </div>
 
@@ -86,8 +85,8 @@
                                 :class="[
                                     'p-2 px-3 rounded-md text-sm flex items-center',
                                     selectedPromptTemplateKey === key
-                                        ? 'bg-blue-500 text-white dark:bg-blue-600'
-                                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                        ? 'bg-light-accent text-white dark:bg-dark-accent'
+                                        : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
                                 ]"
                                 :disabled="isLoadingFinalPrompt"
                                 :title="template.name"
@@ -123,7 +122,7 @@
                             :disabled="
                                 !props.finalPrompt || isLoadingFinalPrompt
                             "
-                            class="px-3 py-2 bg-blue-500 dark:bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300 dark:disabled:bg-gray-700"
+                            class="px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent focus:ring-opacity-50 disabled:bg-gray-300 dark:disabled:bg-gray-700"
                         >
                             {{ copyButtonText }}
                         </button>
@@ -135,7 +134,7 @@
                     class="flex-grow flex justify-center items-center"
                 >
                     <div
-                        class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 dark:border-blue-400"
+                        class="animate-spin rounded-full h-8 w-8 border-b-2 border-light-accent dark:border-dark-accent"
                     ></div>
                     <p class="text-gray-500 dark:text-gray-400 ml-2">
                         updating prompt...
@@ -207,17 +206,17 @@ const emit = defineEmits([
 ]);
 
 const promptTemplates = {
-    dev: { name: "dev", content: devTemplateContentFromFile },
-    architect: { name: "architect", content: architectTemplateContentFromFile },
-    findBug: { name: "find bug", content: findBugTemplateContentFromFile },
-    projectManager: {
-        name: "project: update tasks",
-        content: projectManagerTemplateContentFromFile,
-    },
     promptEnhancer: {
-        name: "prompt enhancer",
+        name: "prompt engineer of your task",
         content: promptEnhancerTemplateContentFromFile,
     },
+    architect: { name: "strategic planner and designer", content: architectTemplateContentFromFile },
+    dev: { name: "builder of your plan", content: devTemplateContentFromFile },
+    findBug: { name: "checker of the known & new bugs", content: findBugTemplateContentFromFile },
+    projectManager: {
+        name: "project scanner & analyzer of implementation",
+        content: projectManagerTemplateContentFromFile,
+    }
 };
 
 // helper functions for template icons and short names
@@ -234,11 +233,11 @@ function getTemplateIcon(key) {
 
 function getShortName(key) {
     const shortNames = {
-        dev: "DEV",
-        architect: "ARCH",
-        findBug: "BUG",
-        projectManager: "TASKS",
-        promptEnhancer: "PROMPT"
+        dev: "BUILD",
+        promptEnhancer: "CREATIVE",
+        architect: "PLAN",
+        findBug: "Q&A",
+        projectManager: "REFLECT"
     };
     return shortNames[key] || key;
 }
@@ -246,7 +245,7 @@ function getShortName(key) {
 const selectedPromptTemplateKey = ref("dev"); // default template
 
 const isLoadingFinalPrompt = ref(false);
-const copyButtonText = ref("copy all");
+const copyButtonText = ref("copy");
 const geminiTokenCount = ref(0);
 const isCountingTokens = ref(false);
 const tokenCountError = ref("");
@@ -434,7 +433,7 @@ async function copyFinalPromptToClipboard() {
         await navigator.clipboard.writeText(props.finalPrompt);
         copyButtonText.value = "copied!";
         setTimeout(() => {
-            copyButtonText.value = "copy all";
+            copyButtonText.value = "copy";
         }, 2000);
     } catch (err) {
         console.error("failed to copy final prompt: ", err);
@@ -446,7 +445,7 @@ async function copyFinalPromptToClipboard() {
         }
         copyButtonText.value = "failed!";
         setTimeout(() => {
-            copyButtonText.value = "copy all";
+            copyButtonText.value = "copy";
         }, 2000);
     }
 }

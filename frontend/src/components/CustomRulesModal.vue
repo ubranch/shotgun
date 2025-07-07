@@ -17,8 +17,8 @@
                     <textarea
                         v-model="editableRules"
                         rows="15"
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm font-mono bg-gray-50 dark:bg-dark-surface text-gray-900 dark:text-gray-100"
-                        placeholder="enter custom ignore patterns, one per line (e.g., *.log, node_modules/)"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm font-mono bg-gray-50 dark:bg-dark-surface text-gray-900 dark:text-gray-100"
+                        :placeholder="`enter ${ruleType} patterns here...`"
                     ></textarea>
                     <p
                         class="text-sm text-gray-500 dark:text-gray-400 mt-1 text-left"
@@ -29,7 +29,7 @@
                 <div class="items-center px-4 py-3">
                     <button
                         @click="handleSave"
-                        class="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white text-base font-medium rounded-md w-auto hover:bg-blue-700 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2"
+                        class="px-4 py-2 bg-light-accent dark:bg-dark-accent text-white text-base font-medium rounded-md w-auto hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-light-accent dark:focus:ring-dark-accent mr-2"
                     >
                         save
                     </button>

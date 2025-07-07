@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@vscode/codicons':
+        specifier: ^0.0.36
+        version: 0.0.36
       vue:
         specifier: ^3.3.0
         version: 3.5.17
@@ -331,6 +334,9 @@ packages:
     peerDependencies:
       vite: ^4.0.0 || ^5.0.0
       vue: ^3.2.25
+
+  '@vscode/codicons@0.0.36':
+    resolution: {integrity: sha512-wsNOvNMMJ2BY8rC2N2MNBG7yOowV3ov8KlvUE/AiVUlHKTfWsw3OgAOQduX7h0Un6GssKD3aoTVH+TF3DSQwKQ==}
 
   '@vue/compiler-core@3.5.17':
     resolution: {integrity: sha512-Xe+AittLbAyV0pabcN7cP7/BenRBNcteM4aSDCtRvGw0d9OL+HG1u/XHLY/kt1q4fyMeZYXyIYrsHuPSiDPosA==}
@@ -1026,6 +1032,8 @@ snapshots:
     dependencies:
       vite: 5.4.19
       vue: 3.5.17
+
+  '@vscode/codicons@0.0.36': {}
 
   '@vue/compiler-core@3.5.17':
     dependencies:

@@ -29,6 +29,9 @@
                 @toggle-custom-ignore="toggleCustomIgnoreHandler"
                 @toggle-exclude="toggleExcludeNode"
                 @custom-rules-updated="handleCustomRulesUpdated"
+                @select-all-files="selectAllFiles"
+                @deselect-all-files="deselectAllFiles"
+                @reset-file-selections="resetFileSelections"
                 @add-log="({ message, type }) => addLog(message, type)"
             />
             <CentralPanel
@@ -280,8 +283,14 @@ function toggleExcludeNode(nodeToToggle) {
         nodeToToggle.excluded = !nodeToToggle.excluded;
     }
     manuallyToggledNodes.set(nodeToToggle.relPath, nodeToToggle.excluded);
+
+    // immediately propagate the visual exclusion state through the subtree so that
+    // child checkboxes reflect the folder selection change without waiting for
+    // the deep watcher tick.
+    updateAllNodesExcludedState(fileTree.value);
+
     addLog(
-        `toggled exclusion for ${nodeToToggle.name} to ${nodeToToggle.excluded}`,
+        `toggled exclusion for ${nodeToToggle.name} to ${nodeToToggle.excluded} (children updated)`,
         "info",
         "bottom"
     );
@@ -357,7 +366,96 @@ function toggleCustomIgnoreHandler(value) {
         );
 }
 
+function selectAllFiles() {
+    if (!fileTree.value || fileTree.value.length === 0) return;
+
+    function selectNodesRecursive(nodes) {
+        if (!nodes || nodes.length === 0) return;
+
+        nodes.forEach(node => {
+            // Set node as included (not excluded)
+            node.excluded = false;
+            manuallyToggledNodes.set(node.relPath, false);
+
+            // Process children recursively
+            if (node.children && node.children.length > 0) {
+                selectNodesRecursive(node.children);
+            }
+        });
+    }
+
+    selectNodesRecursive(fileTree.value);
+    addLog("selected all files in the tree", "success", "bottom");
+
+    // force context regeneration with a slight delay to ensure UI updates first
+    setTimeout(() => {
+        shotgunPromptContext.value = ""; // Clear current context to ensure fresh generation
+        debouncedTriggerShotgunContextGeneration();
+    }, 100);
+}
+
+function deselectAllFiles() {
+    if (!fileTree.value || fileTree.value.length === 0) return;
+
+    function deselectNodesRecursive(nodes) {
+        if (!nodes || nodes.length === 0) return;
+
+        nodes.forEach(node => {
+            // Set node as excluded
+            node.excluded = true;
+            manuallyToggledNodes.set(node.relPath, true);
+
+            // Process children recursively
+            if (node.children && node.children.length > 0) {
+                deselectNodesRecursive(node.children);
+            }
+        });
+    }
+
+    deselectNodesRecursive(fileTree.value);
+    addLog("deselected all files in the tree", "success", "bottom");
+
+    // clear existing context and prevent new generation
+    shotgunPromptContext.value = "";
+    isGeneratingContext.value = false;
+    // cancel any pending debounced generation
+    clearTimeout(debounceTimer);
+    addLog("context generation canceled - all files are excluded", "info", "bottom");
+}
+
+function resetFileSelections() {
+    // clear manual toggles to revert to default ignore states
+    manuallyToggledNodes.clear();
+    updateAllNodesExcludedState(fileTree.value);
+
+    addLog("reset file selections to default ignore rules", "success", "bottom");
+
+    // regenerate context based on new selection state
+    shotgunPromptContext.value = "";
+    debouncedTriggerShotgunContextGeneration();
+}
+
 function debouncedTriggerShotgunContextGeneration() {
+    // skip generation when no files are visually included
+    function anyNodesIncluded(nodes) {
+        if (!nodes) return false;
+        for (const n of nodes) {
+            if (!n.excluded) return true;
+            if (n.children && n.children.length > 0 && anyNodesIncluded(n.children)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    if (!anyNodesIncluded(fileTree.value)) {
+        addLog("all files are currently excluded, skipping context generation", "info", "bottom");
+        shotgunPromptContext.value = "";
+        generationProgressData.value = { current: 0, total: 0 };
+        isGeneratingContext.value = false;
+        clearTimeout(debounceTimer);
+        return;
+    }
     if (!projectRoot.value) {
         // clear context and stop loading if no project root
         shotgunPromptContext.value = ""; // clear previous context
@@ -463,25 +561,40 @@ function navigateToStep(stepId) {
     const targetStep = steps.value.find((s) => s.id === stepId);
     if (!targetStep) return;
 
-    if (targetStep.completed || stepId === currentStep.value) {
-        // when navigating to previous steps, mark any later steps as incomplete
-        if (stepId < currentStep.value) {
-            for (let i = stepId; i < steps.value.length; i++) {
-                if (steps.value[i].id > stepId) {
-                    steps.value[i].completed = false;
-                }
-            }
-        }
+    // if trying to stay on the same step, simply return
+    if (stepId === currentStep.value) {
         currentStep.value = stepId;
         return;
     }
 
+    // navigating backwards
+    if (stepId < currentStep.value) {
+        // whenever we move to an earlier step, subsequent steps should be marked as incomplete
+        // this avoids inconsistent states where later steps remain completed after revisions
+        for (let i = 0; i < steps.value.length; i++) {
+            if (steps.value[i].id > stepId) {
+                steps.value[i].completed = false;
+            }
+        }
+
+        currentStep.value = stepId;
+        return;
+    }
+
+    // navigating forwards to an already completed step
+    if (targetStep.completed) {
+        currentStep.value = stepId;
+        return;
+    }
+
+    // navigating forwards to the first incomplete step is allowed
     const firstUncompletedStep = steps.value.find((s) => !s.completed);
-    if (!firstUncompletedStep || stepId === firstUncompletedStep.id) {
+    if (firstUncompletedStep && stepId === firstUncompletedStep.id) {
         currentStep.value = stepId;
     } else {
+        const requiredStepId = firstUncompletedStep ? firstUncompletedStep.id : 'unknown';
         addLog(
-            `cannot navigate to step ${stepId} yet. please complete step ${firstUncompletedStep.id}.`,
+            `cannot navigate to step ${stepId} yet. please complete step ${requiredStepId}.`,
             "warn"
         );
     }
