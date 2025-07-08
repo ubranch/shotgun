@@ -622,9 +622,19 @@ function navigateToStep(stepId) {
         return;
     }
 
+    // helper to restore completed state for all steps up to a given id
+    function restoreCompletedFlags(upToId) {
+        steps.value.forEach((s) => {
+            if (s.id <= upToId && s.everCompleted) {
+                s.completed = true;
+            }
+        });
+    }
+
     // navigating forwards to a step already completed or previously visited
     if (targetStep.completed || targetStep.visited) {
         currentStep.value = stepId;
+        restoreCompletedFlags(stepId);
         return;
     }
 
@@ -632,6 +642,7 @@ function navigateToStep(stepId) {
     const firstUncompletedStep = steps.value.find((s) => !s.completed);
     if (firstUncompletedStep && stepId === firstUncompletedStep.id) {
         currentStep.value = stepId;
+        restoreCompletedFlags(stepId);
     } else {
         const requiredStepId = firstUncompletedStep ? firstUncompletedStep.id : 'unknown';
         addLog(
