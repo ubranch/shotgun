@@ -95,6 +95,8 @@ const steps = ref([
         id: 1,
         title: "prepare context",
         completed: false,
+        everCompleted: false,
+        visited: true,
         description:
             "select project folder, review files, and generate the initial project context for the llm.",
     },
@@ -102,6 +104,8 @@ const steps = ref([
         id: 2,
         title: "compose prompt",
         completed: false,
+        everCompleted: false,
+        visited: false,
         description:
             "provide a prompt to the llm based on the project context to generate a code diff.",
     },
@@ -109,6 +113,8 @@ const steps = ref([
         id: 3,
         title: "execute prompt",
         completed: false,
+        everCompleted: false,
+        visited: false,
         description:
             "paste a large shotgundiff and split it into smaller, manageable parts.",
     },
@@ -116,6 +122,8 @@ const steps = ref([
         id: 4,
         title: "apply patch",
         completed: false,
+        everCompleted: false,
+        visited: false,
         description: "copy and apply the smaller diff parts to your project.",
     },
 ]);
@@ -189,7 +197,11 @@ async function selectProjectFolderHandler() {
                 debouncedTriggerShotgunContextGeneration();
             }
 
-            steps.value.forEach((s) => (s.completed = false));
+            steps.value.forEach((s) => {
+                s.completed = false;
+                s.everCompleted = false;
+                s.visited = s.id === 1; // only step 1 is visited at the start of a new project
+            });
             currentStep.value = 1;
             addLog(`project folder selected: ${selectedDir}`, "info", "bottom");
         } else {
@@ -581,6 +593,14 @@ function navigateToStep(stepId) {
     const targetStep = steps.value.find((s) => s.id === stepId);
     if (!targetStep) return;
 
+    // mark the target step as visited so it remains clickable even if later marked incomplete
+    targetStep.visited = true;
+
+    // if the step was completed in the past, restore its completed state so the checkmark re-appears when leaving it
+    if (targetStep.everCompleted) {
+        targetStep.completed = true;
+    }
+
     // if trying to stay on the same step, simply return
     if (stepId === currentStep.value) {
         currentStep.value = stepId;
@@ -594,6 +614,7 @@ function navigateToStep(stepId) {
         for (let i = 0; i < steps.value.length; i++) {
             if (steps.value[i].id > stepId) {
                 steps.value[i].completed = false;
+                // do not reset the visited flag so the user can still navigate back without extra actions
             }
         }
 
@@ -601,8 +622,8 @@ function navigateToStep(stepId) {
         return;
     }
 
-    // navigating forwards to an already completed step
-    if (targetStep.completed) {
+    // navigating forwards to a step already completed or previously visited
+    if (targetStep.completed || targetStep.visited) {
         currentStep.value = stepId;
         return;
     }
@@ -633,6 +654,7 @@ function handleComposedPromptUpdate(prompt) {
         const step2 = steps.value.find((s) => s.id === 2);
         if (step2 && !step2.completed) {
             step2.completed = true;
+            step2.everCompleted = true;
             addLog(
                 "step 2: prompt composed. ready to proceed to step 3.",
                 "success",
@@ -679,7 +701,10 @@ async function handleStepAction(actionName, payload) {
                 "info",
                 "step"
             );
-            if (currentStepObj) currentStepObj.completed = true;
+            if (currentStepObj) {
+                currentStepObj.completed = true;
+                currentStepObj.everCompleted = true;
+            }
             // for now, just navigate to step 4, as step 3's "execution" is conceptual.
             // in a real app, step 3 might display llm output before proceeding.
             navigateToStep(4);
@@ -714,7 +739,10 @@ async function handleStepAction(actionName, payload) {
                     "bottom"
                 );
 
-                if (currentStepObj) currentStepObj.completed = true;
+                if (currentStepObj) {
+                    currentStepObj.completed = true;
+                    currentStepObj.everCompleted = true;
+                }
                 navigateToStep(4);
             } catch (err) {
                 const errorMsg = `error splitting diff: ${err.message || err}`;
@@ -736,11 +764,17 @@ async function handleStepAction(actionName, payload) {
                 "info",
                 "bottom"
             );
-            if (currentStepObj) currentStepObj.completed = true;
+            if (currentStepObj) {
+                currentStepObj.completed = true;
+                currentStepObj.everCompleted = true;
+            }
             break;
         case "finishSplitting":
             addLog("finished with split diffs.", "info", "bottom");
-            if (currentStepObj) currentStepObj.completed = true;
+            if (currentStepObj) {
+                currentStepObj.completed = true;
+                currentStepObj.everCompleted = true;
+            }
             break;
         default:
             addLog(`unknown action: ${actionName}`, "error", "bottom");
@@ -1003,7 +1037,11 @@ async function openFolderProgrammatically(folderPath) {
             debouncedTriggerShotgunContextGeneration();
         }
 
-        steps.value.forEach((s) => (s.completed = false));
+        steps.value.forEach((s) => {
+            s.completed = false;
+            s.everCompleted = false;
+            s.visited = s.id === 1; // only step 1 is visited at the start of a new project
+        });
         currentStep.value = 1;
         addLog(`project folder opened automatically: ${folderPath}`, "info", "bottom");
     } catch (err) {
@@ -1015,6 +1053,7 @@ async function openFolderProgrammatically(folderPath) {
         isFileTreeLoading.value = false;
     }
 }
+
 </script>
 
 <style scoped>

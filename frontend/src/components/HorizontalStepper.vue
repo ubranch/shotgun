@@ -98,13 +98,20 @@ const props = defineProps({
 const emit = defineEmits(["navigate"]);
 
 function canNavigateToStep(stepId) {
+    // allow navigating to the current step
     if (stepId === props.currentStep) return true;
+
     const targetStep = props.steps.find((s) => s.id === stepId);
-    if (targetStep && targetStep.completed) return true;
-    let firstUncompletedStepId = props.steps.find((s) => !s.completed)?.id;
+
+    // allow navigating to steps that are either completed or have been visited before
+    if (targetStep && (targetStep.completed || targetStep.visited)) return true;
+
+    // otherwise allow navigation only to the first uncompleted step (normal forward flow)
+    const firstUncompletedStepId = props.steps.find((s) => !s.completed)?.id;
+
     return (
         stepId === firstUncompletedStepId ||
-        (firstUncompletedStepId === undefined && targetStep)
-    ); // allow any if all completed
+        (firstUncompletedStepId === undefined && !!targetStep)
+    ); // allow any step if all are completed
 }
 </script>

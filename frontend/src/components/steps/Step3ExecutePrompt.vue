@@ -73,6 +73,7 @@
         id="shotgun-git-diff-input"
         v-model="localShotgunGitDiffInput"
         rows="15"
+        spellcheck="false"
         class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm font-mono bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
         placeholder="paste the git diff output here, e.g., diff --git a/file.txt b/file.txt..."
       ></textarea>

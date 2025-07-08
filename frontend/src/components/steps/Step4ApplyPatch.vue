@@ -88,6 +88,7 @@
                     :value="diff"
                     rows="10"
                     readonly
+                    spellcheck="false"
                     class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 font-mono text-sm"
                     style="min-height: 150px"
                 ></textarea>

@@ -11,17 +11,18 @@
 
         <div class="flex-grow flex flex-row space-x-4 overflow-hidden">
             <div
-                class="w-1/2 flex flex-col space-y-2 overflow-y-hidden px-2 py-1 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-[#141414]"
+                class="w-1/2 flex flex-col space-y-2 overflow-y-hidden px-2 py-1 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-dark-surface"
             >
                 <div class="flex flex-col flex-grow-[3]">
                     <label
                         for="user-task-ai"
                         class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1"
-                        >your task for ai:</label
+                        >your query for ai:</label
                     >
                     <textarea
                         id="user-task-ai"
                         v-model="localUserTask"
+                        spellcheck="false"
                         class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 flex-grow min-h-[100px]"
                         placeholder="describe what the ai should do..."
                     ></textarea>
@@ -47,6 +48,7 @@
                         @input="
                             (e) => emit('update:rulesContent', e.target.value)
                         "
+                        spellcheck="false"
                         class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface text-sm font-mono text-gray-900 dark:text-gray-100 flex-grow min-h-[80px]"
                         placeholder="rules for ai..."
                     ></textarea>
@@ -62,6 +64,7 @@
                         id="file-list-context"
                         :value="props.fileListContext"
                         readonly
+                        spellcheck="false"
                         class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface font-mono text-sm text-gray-900 dark:text-gray-100 flex-grow min-h-[50px]"
                         placeholder="file list from step 1 (prepare context) will appear here..."
                     ></textarea>
@@ -148,6 +151,7 @@
                     v-else
                     :value="props.finalPrompt"
                     @input="(e) => emit('update:finalPrompt', e.target.value)"
+                    spellcheck="false"
                     class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm font-mono text-sm flex-grow bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 min-h-[300px]"
                     placeholder="the final prompt will be generated here..."
                 ></textarea>

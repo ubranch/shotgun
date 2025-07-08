@@ -11,7 +11,7 @@
                 style="position: relative; cursor: pointer"
                 @click="handleAreaClick($event, node)"
             >
-                <span class="arrow-indicator pl-2">
+                <span class="arrow-indicator pl-1">
                     <span v-if="node.isDir && !node.expanded" @click.stop="toggleExpand(node)">
                         <div class="codicon codicon-chevron-down codicon-bold codicon-custom"></div>
                     </span>
@@ -36,18 +36,7 @@
                     </span>
                     <!-- file icon -->
                     <span v-else class="file-icon">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-6 w-6 text-gray-600 dark:text-gray-400"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M4 4a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
-                                clip-rule="evenodd"
-                            />
-                        </svg>
+                        <i class="codicon codicon-file text-decoration-none no-underline"></i>
                     </span>
                     <span
                         @click.stop="node.isDir ? toggleExpand(node) : handleCheckboxChange(node)"

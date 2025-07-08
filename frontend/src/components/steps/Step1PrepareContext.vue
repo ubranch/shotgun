@@ -49,11 +49,27 @@
                 v-else-if="generatedContext && !isErrorContext"
                 class="flex-grow flex flex-col"
             >
-                <h3
-                    class="text-md font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                    generated project context:
-                </h3>
+                <div class="flex justify-between items-center mb-2">
+                    <h3
+                        class="text-md font-medium text-gray-700 dark:text-gray-300"
+                    >
+                        generated project context:
+                    </h3>
+                    <button
+                        v-if="generatedContext"
+                        @click="copyGeneratedContextToClipboard"
+                        class="px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
+                        :class="{'bg-green-600 dark:bg-green-700': copySuccess}"
+                    >
+                        <svg v-if="!copySuccess" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ copyButtonText }}
+                    </button>
+                </div>
                 <textarea
                     :value="generatedContext"
                     rows="10"
@@ -62,13 +78,6 @@
                     placeholder="context will appear here. if empty, ensure files are selected and not all excluded."
                     style="min-height: 150px"
                 ></textarea>
-                <button
-                    v-if="generatedContext"
-                    @click="copyGeneratedContextToClipboard"
-                    class="mt-2 px-4 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 self-start"
-                >
-                    {{ copyButtonText }}
-                </button>
             </div>
             <p
                 v-else
@@ -155,6 +164,7 @@ const progressBarWidth = computed(() => {
     return "0%";
 });
 const copyButtonText = ref("copy");
+const copySuccess = ref(false);
 
 async function copyGeneratedContextToClipboard() {
     if (!props.generatedContext) return;
@@ -166,8 +176,10 @@ async function copyGeneratedContextToClipboard() {
         //  await navigator.clipboard.writeText(props.generatedContext);
         //}
         copyButtonText.value = "copied!";
+        copySuccess.value = true;
         setTimeout(() => {
             copyButtonText.value = "copy";
+            copySuccess.value = false;
         }, 2000);
     } catch (err) {
         console.error("failed to copy context: ", err);
@@ -175,6 +187,7 @@ async function copyGeneratedContextToClipboard() {
             console.error("darvin clipboardsettext failed for context:", err);
         }
         copyButtonText.value = "failed!";
+        copySuccess.value = false;
         setTimeout(() => {
             copyButtonText.value = "copy";
         }, 2000);
