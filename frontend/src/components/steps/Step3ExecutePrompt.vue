@@ -1,6 +1,6 @@
 <template>
   <div class="p-6 flex flex-col h-full">
-    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">step 3: execute prompt</h2>
+    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">step 3: execute & prepare prompt</h2>
 
     <div class="flex flex-row items-center mb-4 space-x-4">
       <button
@@ -16,7 +16,7 @@
         title="gemini model"
         :disabled="isRequestActive || !isReadyToExecute"
       >
-        <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+        <option value="gemini-2.5-pro" selected>gemini-2.5-pro</option>
         <option value="gemini-2.5-flash">gemini-2.5-flash</option>
       </select>
       <div v-if="requestError" class="ml-2 max-w-[300px] truncate text-sm rounded-full bg-red-600 dark:bg-red-700 text-white px-3 py-1 font-mono" title="{{ requestError }}">
@@ -47,13 +47,28 @@
     </p>
 
     <hr class="my-4 border-gray-300 dark:border-gray-700"/>
-    <p class="text-gray-600 dark:text-gray-400 mb-2">
-      <strong>prepare the diff to apply</strong>
-      <br>
-      this tool will split the diff into smaller parts to make it easier to apply.
-    </p>
+    <div class="flex justify-between items-center mb-2">
+      <div class="text-gray-600 dark:text-gray-400">
+        <strong>prepare the diff to apply</strong>
+        <br>
+        this tool will split the diff into smaller parts to make it easier to apply.
+      </div>
+      <button
+        @click="copyDiffToClipboard"
+        class="ml-2 px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
+        :class="{'bg-green-600 dark:bg-green-700': copySuccess}"
+      >
+        <svg v-if="!copySuccess" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+        </svg>
+        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        {{ copySuccess ? 'copied!' : 'copy' }}
+      </button>
+    </div>
+
     <div class="mb-4">
-      <label for="shotgun-git-diff-input" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">git diff output:</label>
       <textarea
         id="shotgun-git-diff-input"
         v-model="localShotgunGitDiffInput"
@@ -64,12 +79,10 @@
     </div>
 
     <div class="mb-4">
-      <label for="split-line-limit" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">approx. lines per split:</label>
+      <label for="split-line-limit" class="block text-base font-bold text-gray-700 dark:text-gray-300 mb-1">approx. lines per split</label>
       <p class="text-gray-600 dark:text-gray-400 mb-2 text-sm">
-        ⓘ this will attempt to split the diff into the specified number of lines, while keeping the original structure and the chunks.
+        this will attempt to split the diff into the specified number of lines, while keeping the original structure and the chunks. <br>
         the exact number of lines per split is not guaranteed, but the diff will be split into as many parts as possible.
-        <br>
-        leave this unchanged if you don't want to split the diff.
       </p>
       <div class="flex items-center space-x-2 mt-2">
         <input
@@ -80,9 +93,11 @@
           step="50"
           class="w-1/8 p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
         />
-        <span class="text-sm text-gray-500 dark:text-gray-400">
-          total number of lines: {{ shotgunGitDiffInputLines }} <a href="#" class="text-light-accent dark:text-dark-accent" title="reset to this value" @click="resetSplitLineLimit">(reset to this value)</a>
-        </span>
+        <div class="flex items-center gap-2">
+          <span class="px-3 py-1 text-sm rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium">
+            {{ shotgunGitDiffInputLines }} lines in total
+          </span>
+        </div>
       </div>
     </div>
 
@@ -124,6 +139,9 @@ const startTime = ref(null);
 const elapsedTime = ref(0);
 const timerInterval = ref(null);
 const requestError = ref(null);
+
+// copy functionality state
+const copySuccess = ref(false);
 
 // token limit enforcement state
 const tokenCountLimit = 250000;
@@ -347,11 +365,21 @@ function handleSplitDiff() {
   });
 }
 
-const resetSplitLineLimit = () => {
-  if (shotgunGitDiffInputLines.value > 0) {
-    localSplitLineLimit.value = shotgunGitDiffInputLines.value;
-  } else {
-    localSplitLineLimit.value = 500;
+function copyDiffToClipboard() {
+  if (localShotgunGitDiffInput.value) {
+    navigator.clipboard.writeText(localShotgunGitDiffInput.value)
+      .then(() => {
+        copySuccess.value = true;
+        // reset the success state after 2 seconds
+        setTimeout(() => {
+          copySuccess.value = false;
+        }, 2000);
+      })
+      .catch(err => {
+        LogErrorRuntime("failed to copy to clipboard: " + err);
+      });
   }
 }
+
+// function removed as reset functionality is no longer needed
 </script>

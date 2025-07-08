@@ -284,6 +284,26 @@ function toggleExcludeNode(nodeToToggle) {
     }
     manuallyToggledNodes.set(nodeToToggle.relPath, nodeToToggle.excluded);
 
+    // propagate this manual toggle to all descendants so that child checkboxes
+    // follow the parent folder state. this fixes the scenario where "deselect all"
+    // followed by selecting a folder would leave its children unchecked.
+    function propagateToDescendants(node, newExcluded) {
+        if (!node.children || node.children.length === 0) return;
+        node.children.forEach(child => {
+            if (newExcluded) {
+                // when excluding, force child exclusion via manual toggle
+                child.excluded = true;
+                manuallyToggledNodes.set(child.relPath, true);
+            } else {
+                // when including, remove any manual override so ignore rules can apply
+                manuallyToggledNodes.delete(child.relPath);
+            }
+            propagateToDescendants(child, newExcluded);
+        });
+    }
+
+    propagateToDescendants(nodeToToggle, nodeToToggle.excluded);
+
     // immediately propagate the visual exclusion state through the subtree so that
     // child checkboxes reflect the folder selection change without waiting for
     // the deep watcher tick.

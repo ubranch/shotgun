@@ -13,25 +13,24 @@
             <div
                 class="w-1/2 flex flex-col space-y-2 overflow-y-hidden px-2 py-1 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-[#141414]"
             >
-                <div>
+                <div class="flex flex-col flex-grow-[3]">
                     <label
                         for="user-task-ai"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1"
                         >your task for ai:</label
                     >
                     <textarea
                         id="user-task-ai"
                         v-model="localUserTask"
-                        rows="15"
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 flex-grow min-h-[100px]"
                         placeholder="describe what the ai should do..."
                     ></textarea>
                 </div>
 
-                <div>
+                <div class="flex flex-col flex-grow-[2]">
                     <label
                         for="rules-content"
-                        class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center"
+                        class="text-base font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center"
                     >
                         custom rules:
                         <button
@@ -48,26 +47,23 @@
                         @input="
                             (e) => emit('update:rulesContent', e.target.value)
                         "
-                        rows="13"
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface text-sm font-mono text-gray-900 dark:text-gray-100"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface text-sm font-mono text-gray-900 dark:text-gray-100 flex-grow min-h-[80px]"
                         placeholder="rules for ai..."
                     ></textarea>
                 </div>
 
-                <div>
+                <div class="flex flex-col flex-grow-[1]">
                     <label
                         for="file-list-context"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1"
                         >files to include:</label
                     >
                     <textarea
                         id="file-list-context"
                         :value="props.fileListContext"
-                        rows="5"
                         readonly
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface font-mono text-sm text-gray-900 dark:text-gray-100"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface font-mono text-sm text-gray-900 dark:text-gray-100 flex-grow min-h-[50px]"
                         placeholder="file list from step 1 (prepare context) will appear here..."
-                        style="min-height: 150px"
                     ></textarea>
                 </div>
             </div>
@@ -122,8 +118,15 @@
                             :disabled="
                                 !props.finalPrompt || isLoadingFinalPrompt
                             "
-                            class="px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent focus:ring-opacity-50 disabled:bg-gray-300 dark:disabled:bg-gray-700"
+                            class="px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
+                            :class="{'bg-green-600 dark:bg-green-700': copySuccess}"
                         >
+                            <svg v-if="!copySuccess" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
                             {{ copyButtonText }}
                         </button>
                     </div>
@@ -145,10 +148,8 @@
                     v-else
                     :value="props.finalPrompt"
                     @input="(e) => emit('update:finalPrompt', e.target.value)"
-                    rows="20"
-                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm font-mono text-sm flex-grow bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
+                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm font-mono text-sm flex-grow bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 min-h-[300px]"
                     placeholder="the final prompt will be generated here..."
-                    style="min-height: 300px"
                 ></textarea>
             </div>
         </div>
@@ -157,7 +158,6 @@
 
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";
-import { ClipboardSetText as WailsClipboardSetText } from "../../../wailsjs/runtime/runtime";
 import {
     GetCustomPromptRules,
     SetCustomPromptRules,
@@ -246,6 +246,7 @@ const selectedPromptTemplateKey = ref("dev"); // default template
 
 const isLoadingFinalPrompt = ref(false);
 const copyButtonText = ref("copy");
+const copySuccess = ref(false);
 const geminiTokenCount = ref(0);
 const isCountingTokens = ref(false);
 const tokenCountError = ref("");
@@ -432,8 +433,10 @@ async function copyFinalPromptToClipboard() {
     try {
         await navigator.clipboard.writeText(props.finalPrompt);
         copyButtonText.value = "copied!";
+        copySuccess.value = true;
         setTimeout(() => {
             copyButtonText.value = "copy";
+            copySuccess.value = false;
         }, 2000);
     } catch (err) {
         console.error("failed to copy final prompt: ", err);
@@ -444,6 +447,7 @@ async function copyFinalPromptToClipboard() {
             );
         }
         copyButtonText.value = "failed!";
+        copySuccess.value = false;
         setTimeout(() => {
             copyButtonText.value = "copy";
         }, 2000);
