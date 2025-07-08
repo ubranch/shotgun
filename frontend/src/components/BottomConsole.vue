@@ -1,7 +1,7 @@
 <template>
     <div
         :style="{ height: height + 'px' }"
-        class="bg-gray-900 text-white p-3 text-sm overflow-y-auto flex flex-col-reverse select-text"
+        class="bg-gray-900 text-white p-3 text-sm overflow-y-auto flex flex-col-reverse text-selectable"
         ref="consoleRootRef"
     >
         <div ref="consoleContentRef" class="flex-grow">
@@ -70,10 +70,3 @@ watch(
     { deep: true }
 );
 </script>
-
-<style scoped>
-.select-text {
-    user-select: text;
-}
-/* removed custom scrollbar styling to use global styles from custom.css */
-</style>

@@ -1,6 +1,31 @@
 @tailwind base;
+@layer base {
+  html {
+    -webkit-user-select: none; /* safari */
+    -ms-user-select: none; /* ie 10 and 11 */
+    user-select: none; /* standard syntax */
+  }
+
+  textarea,
+  input,
+  pre,
+  code,
+  [contenteditable="true"],
+  .text-selectable {
+    -webkit-user-select: text; /* safari */
+    -ms-user-select: text; /* ie 10 and 11 */
+    user-select: text; /* standard syntax */
+  }
+}
 @tailwind components;
 @tailwind utilities;
+@layer utilities {
+  .text-selectable {
+    -webkit-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+  }
+}
 
 /* basic reset */
 body,
