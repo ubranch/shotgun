@@ -226,19 +226,19 @@ const promptTemplates = {
 // helper functions for template icons and short names
 function getTemplateIcon(key) {
     const icons = {
-        dev: "💻",
-        architect: "🏗️",
-        findBug: "🐞",
-        projectManager: "📋",
-        promptEnhancer: "✨"
+        dev: "",
+        architect: "",
+        findBug: "",
+        projectManager: "",
+        promptEnhancer: ""
     };
-    return icons[key] || "📝";
+    return icons[key] || "";
 }
 
 function getShortName(key) {
     const shortNames = {
         dev: "BUILD",
-        promptEnhancer: "CREATIVE",
+        promptEnhancer: "PROMPT",
         architect: "PLAN",
         findBug: "Q&A",
         projectManager: "REFLECT"

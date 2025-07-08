@@ -33,6 +33,7 @@ vendor/
 .vs/
 __pycache__/
 .next/
+.cursor/
 
 tmp/
 cache/

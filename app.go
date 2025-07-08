@@ -22,9 +22,10 @@ import (
 	gitignore "github.com/sabhiram/go-gitignore"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"google.golang.org/api/option"
+	"github.com/karrick/godirwalk"
 )
 
-const maxOutputSizeBytes = 10_000_000 // 10mb
+const maxOutputSizeBytes = 50_000_000 // 50mb
 var ErrContextTooLong = errors.New("context is too long")
 
 //go:embed ignore.glob
@@ -793,53 +794,55 @@ func (w *Watchman) addPathsToWatcherRecursive(baseDirToAdd string) {
 		return
 	}
 
-	filepath.WalkDir(baseDirToAdd, func(path string, d fs.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			runtime.LogWarningf(w.app.ctx, "watchman scan error accessing %s: %v", path, walkErr)
-			if d != nil && d.IsDir() && path != overallRoot { // changed scanrootdir to overallroot for clarity
-				return filepath.SkipDir
+	errWalk := godirwalk.Walk(baseDirToAdd, &godirwalk.Options{
+		Unsorted: true,
+		ErrorCallback: func(osPathname string, err error) godirwalk.ErrorAction {
+			runtime.LogWarningf(w.app.ctx, "watchman scan error accessing %s: %v", osPathname, err)
+			return godirwalk.SkipNode
+		},
+		Callback: func(path string, de *godirwalk.Dirent) error {
+			if !de.IsDir() {
+				return nil // we only care about directories
 			}
-			return nil // try to continue
-		}
 
-		if !d.IsDir() {
+			relPath, errRel := filepath.Rel(overallRoot, path)
+			if errRel != nil {
+				runtime.LogWarningf(w.app.ctx, "watchman.addpathstowatcherrecursive: could not get relative path for %s (root: %s): %v", path, overallRoot, errRel)
+				return nil
+			}
+
+			// skip .git directory at root level
+			if de.Name() == ".git" {
+				parentDir := filepath.Dir(path)
+				if parentDir == overallRoot {
+					runtime.LogDebugf(w.app.ctx, "watchman.addpathstowatcherrecursive: skipping .git directory: %s", path)
+					return godirwalk.SkipThis
+				}
+			}
+
+			isIgnoredByGit := projIgn != nil && projIgn.MatchesPath(relPath)
+			isIgnoredByCustom := custIgn != nil && custIgn.MatchesPath(relPath)
+
+			if isIgnoredByGit || isIgnoredByCustom {
+				runtime.LogDebugf(w.app.ctx, "watchman.addpathstowatcherrecursive: skipping ignored directory: %s", path)
+				return godirwalk.SkipThis
+			}
+
+			errAdd := fsW.Add(path)
+			if errAdd != nil {
+				runtime.LogWarningf(w.app.ctx, "watchman.addpathstowatcherrecursive: error adding path %s to fsnotify: %v", path, errAdd)
+			} else {
+				runtime.LogDebugf(w.app.ctx, "watchman.addpathstowatcherrecursive: added to watcher: %s", path)
+				w.mu.Lock()
+				w.watchedDirs[path] = true
+				w.mu.Unlock()
+			}
 			return nil
-		}
-
-		relPath, errRel := filepath.Rel(overallRoot, path)
-		if errRel != nil {
-			runtime.LogWarningf(w.app.ctx, "watchman.addpathstowatcherrecursive: could not get relative path for %s (root: %s): %v", path, overallRoot, errRel)
-			return nil // continue with other paths
-		}
-
-		// skip .git directory at the top level of overallroot
-		if d.IsDir() && d.Name() == ".git" {
-			parentDir := filepath.Dir(path)
-			if parentDir == overallRoot {
-				runtime.LogDebugf(w.app.ctx, "watchman.addpathstowatcherrecursive: skipping .git directory: %s", path)
-				return filepath.SkipDir
-			}
-		}
-
-		isIgnoredByGit := projIgn != nil && projIgn.MatchesPath(relPath)
-		isIgnoredByCustom := custIgn != nil && custIgn.MatchesPath(relPath)
-
-		if isIgnoredByGit || isIgnoredByCustom {
-			runtime.LogDebugf(w.app.ctx, "watchman.addpathstowatcherrecursive: skipping ignored directory: %s", path)
-			return filepath.SkipDir
-		}
-
-		errAdd := fsW.Add(path)
-		if errAdd != nil {
-			runtime.LogWarningf(w.app.ctx, "watchman.addpathstowatcherrecursive: error adding path %s to fsnotify: %v", path, errAdd)
-		} else {
-			runtime.LogDebugf(w.app.ctx, "watchman.addpathstowatcherrecursive: added to watcher: %s", path)
-			w.mu.Lock()
-			w.watchedDirs[path] = true
-			w.mu.Unlock()
-		}
-		return nil
+		},
 	})
+	if errWalk != nil {
+		runtime.LogWarningf(w.app.ctx, "watchman.addpathstowatcherrecursive: walk error: %v", errWalk)
+	}
 }
 
 // notifyfilechange is an internal method for the app to emit a wails event.

@@ -8,6 +8,7 @@ require (
 	github.com/adrg/xdg v0.5.0
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/google/generative-ai-go v0.20.1
+	github.com/karrick/godirwalk v1.17.0
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
 	google.golang.org/api v0.239.0
 )
