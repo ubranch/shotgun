@@ -11,7 +11,7 @@
 
         <div class="flex-grow flex flex-row space-x-4 overflow-hidden">
             <div
-                class="w-1/2 flex flex-col space-y-2 overflow-y-hidden px-2 py-1 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-dark-surface"
+                class="w-1/2 flex flex-col space-y-2 overflow-y-hidden px-2 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-dark-surface"
             >
                 <div class="flex flex-col flex-grow-[3]">
                     <label
@@ -111,7 +111,7 @@
                         </span>
                         <span
                             v-else
-                            :class="['text-sm font-bold', charCountColorClass]"
+                            :class="['text-base font-bold', charCountColorClass]"
                             :title="tooltipText"
                         >
                             {{ geminiTokenCount.toLocaleString() }} tokens
@@ -240,13 +240,13 @@ function getShortName(key) {
         dev: "BUILD",
         promptEnhancer: "PROMPT",
         architect: "PLAN",
-        findBug: "Q&A",
+        findBug: "BUG",
         projectManager: "REFLECT"
     };
     return shortNames[key] || key;
 }
 
-const selectedPromptTemplateKey = ref("dev"); // default template
+const selectedPromptTemplateKey = ref(Object.keys(promptTemplates)[0]); // default to first template
 
 const isLoadingFinalPrompt = ref(false);
 const copyButtonText = ref("copy");

@@ -26,6 +26,7 @@ import (
 )
 
 const maxOutputSizeBytes = 50_000_000 // 50mb
+const maxFileReadSizeBytes = 2_000_000 // 2mb
 var ErrContextTooLong = errors.New("context is too long")
 
 //go:embed ignore.glob
@@ -95,6 +96,11 @@ func (a *App) startup(ctx context.Context) {
 			a.defaultRootDir = ""
 		}
 	}
+
+	// register global file-drop handler to log the absolute paths; frontend handles ui.
+	runtime.OnFileDrop(a.ctx, func(x, y int, paths []string) {
+		runtime.LogDebugf(a.ctx, "onfiledrop at %dx%d -> %v", x, y, paths)
+	})
 }
 
 // domready is called by wails when the frontend has finished loading and the js
@@ -222,10 +228,6 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 			isCustomIgnored = customIgn.MatchesPath(pathToMatch)
 		}
 
-		if depth < 2 || strings.Contains(relPath, "node_modules") || strings.HasSuffix(relPath, ".log") {
-			fmt.Printf("checking path: '%s' (original relpath: '%s'), isdir: %v, gitignored: %v, customignored: %v\n", pathToMatch, relPath, entry.IsDir(), isGitignored, isCustomIgnored)
-		}
-
 		node := &FileNode{
 			Name:            entry.Name(),
 			Path:            nodePath,
@@ -244,7 +246,6 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 					if errors.Is(err, context.Canceled) {
 						return nil, err // propagate cancellation
 					}
-					// runtime.logwarnf(ctx, "error building subtree for %s: %v", nodepath, err) // use ctx if available
 					runtime.LogWarningf(context.Background(), "error building subtree for %s: %v", nodePath, err) // fallback for now
 					// decide: skip this dir or return error up. for now, skip with log.
 				} else {
@@ -516,7 +517,7 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 						return err
 					}
-					fmt.Printf("error processing subdirectory %s: %v\n", path, err)
+					runtime.LogWarningf(a.ctx, "buildshotguntreerecursive: error processing subdirectory %s: %v", path, err)
 				}
 			} else {
 				select { // check before heavy i/o
@@ -524,14 +525,28 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 					return pCtx.Err()
 				default:
 				}
-				content, err := os.ReadFile(path)
-				if err != nil {
-					fmt.Printf("error reading file %s: %v\n", path, err)
-					content = []byte(fmt.Sprintf("error reading file: %v", err))
-				}
-
 				// ensure forward slashes for the name attribute, consistent with documentation.
 				relPathForwardSlash := filepath.ToSlash(relPath)
+
+				// skip oversized files early to reduce memory churn
+				if fi, statErr := entry.Info(); statErr == nil && fi.Size() > maxFileReadSizeBytes {
+					fileContents.WriteString(fmt.Sprintf("<file path=\"%s\">\n", relPathForwardSlash))
+					fileContents.WriteString("[file omitted: too large]")
+					fileContents.WriteString("\n</file>\n")
+
+					progressState.processedItems++ // for file content
+					a.emitProgress(progressState)
+					if output.Len()+fileContents.Len() > maxOutputSizeBytes {
+						return fmt.Errorf("%w: content limit of %d bytes exceeded after omitting large file %s (total size: %d bytes)", ErrContextTooLong, maxOutputSizeBytes, relPath, output.Len()+fileContents.Len())
+					}
+					continue
+				}
+
+				content, err := os.ReadFile(path)
+				if err != nil {
+					runtime.LogWarningf(a.ctx, "buildshotguntreerecursive: error reading file %s: %v", path, err)
+					content = []byte(fmt.Sprintf("error reading file: %v", err))
+				}
 
 				fileContents.WriteString(fmt.Sprintf("<file path=\"%s\">\n", relPathForwardSlash))
 				if isTextContent(content) {
@@ -1218,4 +1233,40 @@ func isTextContent(data []byte) bool {
 	}
 	// if more than 5% of sampled bytes are control characters, treat as binary
 	return nonPrintable*20 <= sampleSize
+}
+
+// resetapplication stops all running processes and resets application state
+func (a *App) ResetApplication() error {
+	runtime.LogInfo(a.ctx, "resetting application state...")
+
+	// stop the gemini request if it's running
+	if a.geminiRequestCancel != nil {
+		a.geminiRequestCancel()
+		a.geminiRequestCancel = nil
+		runtime.LogInfo(a.ctx, "stopped active gemini request")
+	}
+
+	// stop any context generation in progress
+	if a.contextGenerator != nil && a.contextGenerator.currentCancelFunc != nil {
+		a.contextGenerator.mu.Lock()
+		if a.contextGenerator.currentCancelFunc != nil {
+			a.contextGenerator.currentCancelFunc()
+			a.contextGenerator.currentCancelFunc = nil
+			runtime.LogInfo(a.ctx, "stopped active context generation")
+		}
+		a.contextGenerator.mu.Unlock()
+	}
+
+	// stop any active file watcher
+	if err := a.StopFileWatcher(); err != nil {
+		runtime.LogWarningf(a.ctx, "error stopping file watcher during reset: %v", err)
+	} else {
+		runtime.LogInfo(a.ctx, "stopped active file watcher")
+	}
+
+	// reset window title
+	runtime.WindowSetTitle(a.ctx, "Shotgun")
+
+	runtime.LogInfo(a.ctx, "application state reset complete")
+	return nil
 }

@@ -15,6 +15,8 @@ export function ListFiles(arg1:string):Promise<Array<main.FileNode>>;
 
 export function RequestShotgunContextGeneration(arg1:string,arg2:Array<string>):Promise<void>;
 
+export function ResetApplication():Promise<void>;
+
 export function SelectDirectory():Promise<string>;
 
 export function SetCustomIgnoreRules(arg1:string):Promise<void>;

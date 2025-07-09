@@ -1,6 +1,6 @@
 <template>
     <nav
-        class="bg-light-surface dark:bg-[#141414] dark:shadow-gray-800 sticky top-0 z-10 center"
+        class="bg-light-surface dark:bg-[#141414] dark:shadow-gray-800 top-0 z-10 center relative"
     >
         <div class="container mx-auto px-3 py-4">
             <ol class="flex items-center justify-between">
@@ -18,9 +18,9 @@
                                     : null
                             "
                             :class="[
-                                'flex items-center justify-center text-sm sm:text-sm font-medium text-center px-4 py-2 rounded-md w-full max-w-[180px] mx-auto',
+                                'flex items-center justify-center text-sm sm:text-sm font-medium text-center px-4 py-2 rounded-lg w-full max-w-[180px] mx-auto border-2 border-transparent',
                                 canNavigateToStep(step.id)
-                                    ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                                     : 'cursor-not-allowed opacity-60',
                             ]"
                             :disabled="!canNavigateToStep(step.id)"
@@ -28,7 +28,7 @@
                         >
                             <div
                                 :class="[
-                                    'flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 mr-2 shrink-0',
+                                    'flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-md border-2 mr-2 shrink-0',
                                     currentStep === step.id
                                         ? 'border-light-accent bg-indigo-100 dark:bg-indigo-900 dark:bg-opacity-30 text-indigo-700 dark:text-indigo-300'
                                         : step.completed

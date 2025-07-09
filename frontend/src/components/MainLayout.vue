@@ -2,6 +2,28 @@
     <div
         class="flex flex-col h-screen bg-light-bg dark:bg-[#141414] text-light-fg dark:text-dark-fg"
     >
+        <!-- reset button fixed in top-right corner -->
+        <button
+            @click="resetApplication"
+            class="fixed top-4 right-4 z-50 flex items-center justify-center text-sm font-medium rounded-lg border-2 border-gray-300 dark:border-gray-600 p-3 bg-light-bg dark:bg-gray-800 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 shadow-md"
+            title="reset everything and return to first step"
+        >
+            <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                ></path>
+            </svg>
+        </button>
+
         <div
             class="flex items-center justify-center bg-light-surface dark:bg-[#141414] border-b border-light-border dark:border-dark-border"
         >
@@ -9,6 +31,7 @@
                 :current-step="currentStep"
                 :steps="steps"
                 @navigate="navigateToStep"
+                @reset="resetApplication"
                 :key="`hstepper-${currentStep}-${steps
                     .map((s) => s.completed)
                     .join('')}`"
@@ -24,7 +47,6 @@
                 :use-custom-ignore="useCustomIgnore"
                 :loading-error="loadingError"
                 @navigate="navigateToStep"
-                @select-folder="selectProjectFolderHandler"
                 @toggle-gitignore="toggleGitignoreHandler"
                 @toggle-custom-ignore="toggleCustomIgnoreHandler"
                 @toggle-exclude="toggleExcludeNode"
@@ -32,6 +54,7 @@
                 @select-all-files="selectAllFiles"
                 @deselect-all-files="deselectAllFiles"
                 @reset-file-selections="resetFileSelections"
+                @select-directory="selectProjectFolderHandler"
                 @add-log="({ message, type }) => addLog(message, type)"
             />
             <CentralPanel
@@ -83,8 +106,65 @@ import {
     SetUseGitignore,
     SetUseCustomIgnore,
     SplitShotgunDiff,
+    ResetApplication,
 } from "../../wailsjs/go/main/App";
 import { EventsOn, Environment } from "../../wailsjs/runtime/runtime";
+
+// unlisten functions for critical wails events (allow re-registration across project changes)
+let unlistenShotgunContextGenerated = null;
+let unlistenShotgunContextProgress = null;
+
+// helper to register listeners for shotgun context events (singleton)
+function registerShotgunContextListeners() {
+    // avoid duplicate registration
+    if (
+        typeof unlistenShotgunContextGenerated === "function" &&
+        typeof unlistenShotgunContextProgress === "function"
+    ) {
+        return;
+    }
+
+    try {
+        unlistenShotgunContextGenerated = EventsOn(
+            "shotgunContextGenerated",
+            (output) => {
+                addLog(
+                    "wails event: shotguncontextgenerated received",
+                    "debug",
+                    "bottom"
+                );
+                shotgunPromptContext.value = output;
+                isGeneratingContext.value = false;
+                addLog(
+                    `shotgun context updated (${output.length} chars).`,
+                    "success"
+                );
+                const step1 = steps.value.find((s) => s.id === 1);
+                if (step1 && !step1.completed) {
+                    step1.completed = true;
+                }
+                if (
+                    currentStep.value === 1 &&
+                    centralPanelRef.value?.updateStep2ShotgunContext
+                ) {
+                    centralPanelRef.value.updateStep2ShotgunContext(output);
+                }
+                checkAndProcessPendingFileTreeReload();
+            }
+        );
+
+        unlistenShotgunContextProgress = EventsOn(
+            "shotgunContextGenerationProgress",
+            (progress) => {
+                if (progress && typeof progress.current === "number") {
+                    generationProgressData.value = progress;
+                }
+            }
+        );
+    } catch (err) {
+        console.error("failed to register shotgun context handlers:", err);
+    }
+}
 
 // unlisten function for the auto-open-folder event emitted by the backend
 let unlistenAutoOpenFolder = null;
@@ -177,12 +257,12 @@ let debounceTimer = null;
 const projectFilesChangedPendingReload = ref(false);
 let unlistenProjectFilesChanged = null;
 
-async function selectProjectFolderHandler() {
+async function selectProjectFolder(selectedDir) {
     isFileTreeLoading.value = true;
     try {
         shotgunPromptContext.value = "";
         isGeneratingContext.value = false;
-        const selectedDir = await SelectDirectoryGo();
+
         if (selectedDir) {
             projectRoot.value = selectedDir;
             loadingError.value = "";
@@ -203,6 +283,9 @@ async function selectProjectFolderHandler() {
                 s.visited = s.id === 1; // only step 1 is visited at the start of a new project
             });
             currentStep.value = 1;
+            currentStep.value = 1;
+            // now that we are on step 1, trigger context generation
+            debouncedTriggerShotgunContextGeneration();
             addLog(`project folder selected: ${selectedDir}`, "info", "bottom");
         } else {
             isFileTreeLoading.value = false;
@@ -212,6 +295,19 @@ async function selectProjectFolderHandler() {
         const errorMsg = "failed to select directory: " + (err.message || err);
         loadingError.value = errorMsg;
         addLog(errorMsg, "error", "bottom");
+        isFileTreeLoading.value = false;
+    }
+}
+
+async function selectProjectFolderHandler() {
+    try {
+        const selectedDir = await SelectDirectoryGo();
+        if (selectedDir) {
+            await selectProjectFolder(selectedDir);
+        }
+    } catch (err) {
+        loadingError.value = `error selecting directory: ${err}`;
+        addLog(`error selecting directory: ${err}`, "error");
         isFileTreeLoading.value = false;
     }
 }
@@ -301,7 +397,7 @@ function toggleExcludeNode(nodeToToggle) {
     // followed by selecting a folder would leave its children unchecked.
     function propagateToDescendants(node, newExcluded) {
         if (!node.children || node.children.length === 0) return;
-        node.children.forEach(child => {
+        node.children.forEach((child) => {
             if (newExcluded) {
                 // when excluding, force child exclusion via manual toggle
                 child.excluded = true;
@@ -404,7 +500,7 @@ function selectAllFiles() {
     function selectNodesRecursive(nodes) {
         if (!nodes || nodes.length === 0) return;
 
-        nodes.forEach(node => {
+        nodes.forEach((node) => {
             // Set node as included (not excluded)
             node.excluded = false;
             manuallyToggledNodes.set(node.relPath, false);
@@ -432,7 +528,7 @@ function deselectAllFiles() {
     function deselectNodesRecursive(nodes) {
         if (!nodes || nodes.length === 0) return;
 
-        nodes.forEach(node => {
+        nodes.forEach((node) => {
             // Set node as excluded
             node.excluded = true;
             manuallyToggledNodes.set(node.relPath, true);
@@ -452,7 +548,11 @@ function deselectAllFiles() {
     isGeneratingContext.value = false;
     // cancel any pending debounced generation
     clearTimeout(debounceTimer);
-    addLog("context generation canceled - all files are excluded", "info", "bottom");
+    addLog(
+        "context generation canceled - all files are excluded",
+        "info",
+        "bottom"
+    );
 }
 
 function resetFileSelections() {
@@ -460,7 +560,11 @@ function resetFileSelections() {
     manuallyToggledNodes.clear();
     updateAllNodesExcludedState(fileTree.value);
 
-    addLog("reset file selections to default ignore rules", "success", "bottom");
+    addLog(
+        "reset file selections to default ignore rules",
+        "success",
+        "bottom"
+    );
 
     // regenerate context based on new selection state
     shotgunPromptContext.value = "";
@@ -468,12 +572,21 @@ function resetFileSelections() {
 }
 
 function debouncedTriggerShotgunContextGeneration() {
+    // ensure we only generate context when the user is on step 1 (prepare context)
+    if (currentStep.value !== 1) {
+        addLog("context generation skipped: not on step 1", "debug", "bottom");
+        return;
+    }
     // skip generation when no files are visually included
     function anyNodesIncluded(nodes) {
         if (!nodes) return false;
         for (const n of nodes) {
             if (!n.excluded) return true;
-            if (n.children && n.children.length > 0 && anyNodesIncluded(n.children)) {
+            if (
+                n.children &&
+                n.children.length > 0 &&
+                anyNodesIncluded(n.children)
+            ) {
                 return true;
             }
         }
@@ -481,7 +594,11 @@ function debouncedTriggerShotgunContextGeneration() {
     }
 
     if (!anyNodesIncluded(fileTree.value)) {
-        addLog("all files are currently excluded, skipping context generation", "info", "bottom");
+        addLog(
+            "all files are currently excluded, skipping context generation",
+            "info",
+            "bottom"
+        );
         shotgunPromptContext.value = "";
         generationProgressData.value = { current: 0, total: 0 };
         isGeneratingContext.value = false;
@@ -644,7 +761,9 @@ function navigateToStep(stepId) {
         currentStep.value = stepId;
         restoreCompletedFlags(stepId);
     } else {
-        const requiredStepId = firstUncompletedStep ? firstUncompletedStep.id : 'unknown';
+        const requiredStepId = firstUncompletedStep
+            ? firstUncompletedStep.id
+            : "unknown";
         addLog(
             `cannot navigate to step ${stepId} yet. please complete step ${requiredStepId}.`,
             "warn"
@@ -688,6 +807,14 @@ async function handleStepAction(actionName, payload) {
     const currentStepObj = steps.value.find((s) => s.id === currentStep.value);
 
     switch (actionName) {
+        case "selectDirectory":
+            if (typeof payload === "string" && payload) {
+                addLog(`selecting directory: ${payload}`, "info", "bottom");
+                await selectProjectFolder(payload);
+            } else {
+                addLog("invalid directory path", "error", "bottom");
+            }
+            break;
         case "executePrompt":
             if (!composedLlmPrompt.value) {
                 addLog(
@@ -813,28 +940,52 @@ function handleGlobalKeydown(event) {
     }
 }
 
+// handlers for global custom events
+function handleGlobalShotgunContextGenerated(event) {
+    const output = event.detail || "";
+    addLog("global: shotgun-context-generated event", "debug", "bottom");
+    shotgunPromptContext.value = output;
+    isGeneratingContext.value = false;
+    const step1 = steps.value.find((s) => s.id === 1);
+    if (step1 && !step1.completed) {
+        step1.completed = true;
+    }
+    if (
+        currentStep.value === 1 &&
+        centralPanelRef.value?.updateStep2ShotgunContext
+    ) {
+        centralPanelRef.value.updateStep2ShotgunContext(output);
+    }
+    checkAndProcessPendingFileTreeReload();
+}
+
+function handleGlobalShotgunContextProgress(event) {
+    const progress = event.detail;
+    if (progress && typeof progress.current === "number") {
+        generationProgressData.value = progress;
+    }
+}
+
+function resetApplication() {
+    addLog("resetting application...", "info", "bottom");
+
+    // call the go backend to reset server-side state
+    ResetApplication()
+        .then(() => {
+            addLog("backend reset complete, reloading page...", "info", "bottom");
+            // reload the page to reset all frontend state
+            window.location.reload();
+        })
+        .catch(err => {
+            addLog(`error resetting backend: ${err}. reloading page anyway...`, "error", "bottom");
+            // reload even if backend reset fails
+            window.location.reload();
+        });
+}
+
 onMounted(() => {
-    EventsOn("shotgunContextGenerated", (output) => {
-        addLog(
-            "wails event: shotguncontextgenerated received",
-            "debug",
-            "bottom"
-        );
-        shotgunPromptContext.value = output;
-        isGeneratingContext.value = false;
-        addLog(`shotgun context updated (${output.length} chars).`, "success");
-        const step1 = steps.value.find((s) => s.id === 1);
-        if (step1 && !step1.completed) {
-            step1.completed = true;
-        }
-        if (
-            currentStep.value === 1 &&
-            centralPanelRef.value?.updateStep2ShotgunContext
-        ) {
-            centralPanelRef.value.updateStep2ShotgunContext(output);
-        }
-        checkAndProcessPendingFileTreeReload(); // check after context generation
-    });
+    // initial registration of listeners
+    registerShotgunContextListeners();
 
     EventsOn("shotgunContextError", (errorMsg) => {
         addLog(
@@ -846,11 +997,6 @@ onMounted(() => {
         isGeneratingContext.value = false;
         addLog(`error generating context: ${errorMsg}`, "error");
         checkAndProcessPendingFileTreeReload(); // check after context generation error
-    });
-
-    EventsOn("shotgunContextGenerationProgress", (progress) => {
-        // console.log("fe: progress event:", progress); // for debugging in browser console
-        generationProgressData.value = progress;
     });
 
     // get platform information
@@ -900,11 +1046,28 @@ onMounted(() => {
     window.addEventListener("keydown", handleGlobalKeydown);
 
     // listen for the backend event that signals an initial folder should be opened automatically
-    unlistenAutoOpenFolder = EventsOn("auto-open-folder", async (folderPath) => {
-        if (typeof folderPath !== "string" || !folderPath) return;
-        addLog(`auto-open-folder event received for path: ${folderPath}`, "info", "bottom");
-        await openFolderProgrammatically(folderPath);
-    });
+    unlistenAutoOpenFolder = EventsOn(
+        "auto-open-folder",
+        async (folderPath) => {
+            if (typeof folderPath !== "string" || !folderPath) return;
+            addLog(
+                `auto-open-folder event received for path: ${folderPath}`,
+                "info",
+                "bottom"
+            );
+            await openFolderProgrammatically(folderPath);
+        }
+    );
+
+    // add global custom event listeners from main.js
+    window.addEventListener(
+        "shotgun-context-generated",
+        handleGlobalShotgunContextGenerated
+    );
+    window.addEventListener(
+        "shotgun-context-progress",
+        handleGlobalShotgunContextProgress
+    );
 });
 
 onBeforeUnmount(async () => {
@@ -924,10 +1087,26 @@ onBeforeUnmount(async () => {
     if (unlistenAutoOpenFolder) {
         unlistenAutoOpenFolder();
     }
+    if (unlistenShotgunContextGenerated) {
+        unlistenShotgunContextGenerated();
+    }
+    if (unlistenShotgunContextProgress) {
+        unlistenShotgunContextProgress();
+    }
     // remember to unlisten other events if they return unlistener functions
 
     // cleanup the global keydown listener
     window.removeEventListener("keydown", handleGlobalKeydown);
+
+    // remove global custom event listeners
+    window.removeEventListener(
+        "shotgun-context-generated",
+        handleGlobalShotgunContextGenerated
+    );
+    window.removeEventListener(
+        "shotgun-context-progress",
+        handleGlobalShotgunContextProgress
+    );
 });
 
 watch(
@@ -984,6 +1163,12 @@ watch(
     },
     { immediate: false }
 ); // 'immediate: false' to avoid running on initial undefined -> '' or '' -> initial value if set by default
+
+// ensure listeners are registered once at startup
+onMounted(() => {
+    registerShotgunContextListeners();
+});
+// no need to re-register on projectroot changes anymore, the listeners are global
 
 // helper function to process pending reloads
 function checkAndProcessPendingFileTreeReload() {
@@ -1054,7 +1239,11 @@ async function openFolderProgrammatically(folderPath) {
             s.visited = s.id === 1; // only step 1 is visited at the start of a new project
         });
         currentStep.value = 1;
-        addLog(`project folder opened automatically: ${folderPath}`, "info", "bottom");
+        addLog(
+            `project folder opened automatically: ${folderPath}`,
+            "info",
+            "bottom"
+        );
     } catch (err) {
         console.error("error opening folder programmatically:", err);
         const errorMsg = `failed to open folder: ${err.message || err}`;
@@ -1064,7 +1253,6 @@ async function openFolderProgrammatically(folderPath) {
         isFileTreeLoading.value = false;
     }
 }
-
 </script>
 
 <style scoped>

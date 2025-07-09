@@ -12,62 +12,24 @@
     >
         <!-- project selection and file tree -->
         <div class="flex flex-col flex-grow h-full">
+            <!-- select project directory button at the very top -->
             <button
-                @click="$emit('select-folder')"
-                class="w-full px-4 py-2 mb-2 bg-light-accent dark:bg-dark-accent text-white font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent focus:ring-opacity-50"
-            >
-                select project folder
-            </button>
-            <div
                 v-if="projectRoot"
-                class="text-sm text-gray-600 dark:text-gray-400 mb-2 break-all"
+                @click="$emit('select-directory')"
+                class="mb-4 w-full px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none"
             >
-                selected: {{ projectRoot }}
-            </div>
-
-            <div v-if="projectRoot" class="mb-2">
-                <label
-                    class="flex items-center text-sm text-gray-700 dark:text-gray-300"
-                    title="uses .gitignore file if present in the project folder"
-                >
-                    <input
-                        type="checkbox"
-                        :checked="useGitignore"
-                        @change="
-                            $emit('toggle-gitignore', $event.target.checked)
-                        "
-                        class="form-checkbox h-4 w-4 text-light-accent dark:text-dark-accent rounded border-gray-300 dark:border-gray-600 focus:ring-light-accent dark:focus:ring-dark-accent mr-2"
-                    />
-                    use .gitignore rules
-                </label>
-                <label
-                    class="flex items-center text-sm text-gray-700 dark:text-gray-300 mt-1"
-                    title="uses ignore.glob file if present in the project folder"
-                >
-                    <input
-                        type="checkbox"
-                        :checked="useCustomIgnore"
-                        @change="
-                            $emit('toggle-custom-ignore', $event.target.checked)
-                        "
-                        class="form-checkbox h-4 w-4 text-light-accent dark:text-dark-accent rounded border-gray-300 dark:border-gray-600 focus:ring-light-accent dark:focus:ring-dark-accent mr-2"
-                    />
-                    use custom rules
-                    <button
-                        @click="openCustomRulesModal"
-                        title="edit custom ignore rules"
-                        class="ml-2 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-sm"
-                    >
-                        ⚙️
-                    </button>
-                </label>
-            </div>
+                open another project
+            </button>
 
             <div class="flex justify-between items-center mb-2">
-                <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                <h2
+                    class="text-lg font-semibold text-gray-700 dark:text-gray-300"
+                >
                     project files
                 </h2>
-                <div v-if="fileTreeNodes && fileTreeNodes.length" class="flex space-x-2">
+                <div class="flex space-x-2 items-center">
+                    <!-- select project directory button appears when a project is open -->
+                    <template v-if="fileTreeNodes && fileTreeNodes.length">
                     <button
                         @click="selectAllFiles"
                         class="text-xs px-2 py-1 bg-light-accent dark:bg-dark-accent text-white rounded hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover"
@@ -86,6 +48,7 @@
                     >
                         reset
                     </button>
+                    </template>
                 </div>
             </div>
             <div
@@ -112,6 +75,47 @@
                 <p v-if="loadingError" class="p-2 text-sm text-red-500">
                     {{ loadingError }}
                 </p>
+            </div>
+
+            <div
+                v-if="projectRoot"
+                class="flex flex-row items-center justify-between mt-2"
+            >
+                <label
+                    class="flex items-center text-sm text-gray-700 dark:text-gray-300 mr-1"
+                    title="uses .gitignore file if present in the project folder"
+                >
+                    <input
+                        type="checkbox"
+                        :checked="useGitignore"
+                        @change="
+                            $emit('toggle-gitignore', $event.target.checked)
+                        "
+                        class="form-checkbox h-4 w-4 text-light-accent dark:text-dark-accent rounded border-gray-300 dark:border-gray-600 focus:ring-light-accent dark:focus:ring-dark-accent mr-2"
+                    />
+                    use .gitignore rules
+                </label>
+                <label
+                    class="flex items-center text-sm text-gray-700 dark:text-gray-300 ml-1"
+                    title="uses ignore.glob file if present in the project folder"
+                >
+                    <input
+                        type="checkbox"
+                        :checked="useCustomIgnore"
+                        @change="
+                            $emit('toggle-custom-ignore', $event.target.checked)
+                        "
+                        class="form-checkbox h-4 w-4 text-light-accent dark:text-dark-accent rounded border-gray-300 dark:border-gray-600 focus:ring-light-accent dark:focus:ring-dark-accent mr-2"
+                    />
+                    use custom rules
+                    <button
+                        @click="openCustomRulesModal"
+                        title="edit custom ignore rules"
+                        class="ml-2 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-sm"
+                    >
+                        ⚙️
+                    </button>
+                </label>
             </div>
         </div>
     </aside>
@@ -147,7 +151,6 @@ const props = defineProps({
 
 const emit = defineEmits([
     "navigate",
-    "select-folder",
     "toggle-gitignore",
     "toggle-custom-ignore",
     "toggle-exclude",
@@ -155,7 +158,8 @@ const emit = defineEmits([
     "add-log",
     "select-all-files",
     "deselect-all-files",
-    "reset-file-selections"
+    "reset-file-selections",
+    "select-directory",
 ]);
 
 const isCustomRulesModalVisible = ref(false);
@@ -226,7 +230,7 @@ function selectAllFiles() {
     emit("select-all-files");
     emit("add-log", {
         message: "selecting all files",
-        type: "info"
+        type: "info",
     });
 }
 
@@ -234,7 +238,7 @@ function deselectAllFiles() {
     emit("deselect-all-files");
     emit("add-log", {
         message: "deselecting all files",
-        type: "info"
+        type: "info",
     });
 }
 
@@ -242,7 +246,7 @@ function resetFileSelections() {
     emit("reset-file-selections");
     emit("add-log", {
         message: "resetting file selections to default",
-        type: "info"
+        type: "info",
     });
 }
 </script>

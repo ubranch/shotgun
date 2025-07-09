@@ -84,7 +84,10 @@ func main() {
 			app, // this binds all public methods of app (including startup which may emit auto-open-folder)
 		},
 		Menu: appMenu, // set the application menu
-
+		DragAndDrop: &options.DragAndDrop{
+			EnableFileDrop:     true,
+			DisableWebViewDrop: false,
+		},
 		Linux: &linux.Options{
 			Icon: iconPNG,
 		},
