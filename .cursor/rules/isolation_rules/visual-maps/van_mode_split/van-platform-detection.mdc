@@ -1,79 +1,50 @@
 ---
-description: van platform detection
+description: Visual process map for VAN mode platform detection
 globs: van-platform-detection.mdc
-alwaysapply: false
+alwaysApply: false
 ---
-# van platform detection
+# VAN MODE: PLATFORM DETECTION
 
-> **tldr:** this document outlines the platform detection process during the van (verify, analyze, narrate) mode, ensuring that the system adapts to the user's operating system and environment.
+> **TL;DR:** Detects the OS, determines path separators, and notes command adaptations required.
 
-## 💻 platform detection workflow
-
-```mermaid
-graph td
-    start["start<br>platform detection"] --> detectos["1️⃣ detect<br>operating system"]
-    detectos -->|windows| setwin["set for<br>windows"]
-    detectos -->|macos| setmac["set for<br>macos"]
-    detectos -->|linux| setlinux["set for<br>linux"]
-    
-    setwin --> detectshell["2️⃣ detect<br>shell environment"]
-    setmac --> detectshell
-    setlinux --> detectshell
-    
-    detectshell -->|powershell| setps["set for<br>powershell"]
-    detectshell -->|bash| setbash["set for<br>bash"]
-    detectshell -->|zsh| setzsh["set for<br>zsh"]
-    
-    setps --> complete["✅ detection<br>complete"]
-    setbash --> complete
-    setzsh --> complete
-    
-    style start fill:#4da6ff,stroke:#0066cc,color:white
-    style detectos fill:#ffa64d,stroke:#cc7a30,color:white
-    style setwin fill:#4dbb5f,stroke:#36873f,color:white
-    style setmac fill:#4dbb5f,stroke:#36873f,color:white
-    style setlinux fill:#4dbb5f,stroke:#36873f,color:white
-    style detectshell fill:#d94dbb,stroke:#a3378a,color:white
-    style setps fill:#4dbbbb,stroke:#368787,color:white
-    style setbash fill:#4dbbbb,stroke:#368787,color:white
-    style setzsh fill:#4dbbbb,stroke:#368787,color:white
-    style complete fill:#4caf50,stroke:#388e3c,color:white
-```
-
-## 📋 platform information
-
-the following information is gathered during platform detection:
-
-| category | information | example |
-|--------------|-----------------|---------|
-| **os** | operating system | windows, macos, linux |
-| **shell** | shell environment | powershell, bash, zsh |
-| **path sep** | path separator | `\`, `/` |
-| **line ending**| line ending char | `\r\n`, `\n` |
-
-## 🔄 command adaptation
-
-based on the detected platform, commands are adapted for compatibility.
+## 🌐 PLATFORM DETECTION PROCESS
 
 ```mermaid
-graph td
-    subgraph "command adaptation"
-        generic["generic command"] --> adapt{"platform?"}
-        adapt -->|windows| win["windows-specific<br>command"]
-        adapt -->|unix-like| unix["unix-like<br>command"]
-    end
+graph TD
+    PD["Platform Detection"] --> CheckOS["Detect Operating System"]
+    CheckOS --> Win["Windows"]
+    CheckOS --> Mac["macOS"]
+    CheckOS --> Lin["Linux"]
     
-    style generic fill:#d971ff,stroke:#a33bc2,color:white
-    style adapt fill:#ffa64d,stroke:#cc7a30,color:white
-    style win fill:#4dbb5f,stroke:#36873f,color:white
-    style unix fill:#4dbb5f,stroke:#36873f,color:white
+    Win & Mac & Lin --> Adapt["Adapt Commands<br>for Platform"]
+    
+    Win --> WinPath["Path: Backslash (\\)"]
+    Mac --> MacPath["Path: Forward Slash (/)"]
+    Lin --> LinPath["Path: Forward Slash (/)"]
+    
+    Win --> WinCmd["Command Adaptations:<br>dir, icacls, etc."]
+    Mac --> MacCmd["Command Adaptations:<br>ls, chmod, etc."]
+    Lin --> LinCmd["Command Adaptations:<br>ls, chmod, etc."]
+    
+    WinPath & MacPath & LinPath --> PathCP["Path Separator<br>Checkpoint"]
+    WinCmd & MacCmd & LinCmd --> CmdCP["Command<br>Checkpoint"]
+    
+    PathCP & CmdCP --> PlatformComplete["Platform Detection<br>Complete"]
+    
+    style PD fill:#4da6ff,stroke:#0066cc,color:white
+    style PlatformComplete fill:#10b981,stroke:#059669,color:white
 ```
 
-## ✅ detection complete
-
-once platform detection is complete, the system is configured to use the appropriate commands and file formats for the user's environment.
+## 📋 CHECKPOINT VERIFICATION TEMPLATE (Example)
 
 ```
-platform detection complete.
-system configured for: [os], [shell]
+✓ SECTION CHECKPOINT: PLATFORM DETECTION
+- Operating System Detected? [YES/NO]
+- Path Separator Confirmed? [YES/NO]
+- Command Adaptations Noted? [YES/NO]
+
+→ If all YES: Platform Detection Complete.
+→ If any NO: Resolve before proceeding.
 ```
+
+**Next Step:** Load and process `van-file-verification.mdc`. 

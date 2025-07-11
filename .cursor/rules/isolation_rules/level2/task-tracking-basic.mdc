@@ -1,188 +1,188 @@
 ---
-description: basic task tracking for level 2 simple enhancement tasks
+description: Basic task tracking for Level 2 Simple Enhancement tasks
 globs: "**/level2/**", "**/tracking/**", "**/task/**"
-alwaysapply: false
+alwaysApply: false
 ---
 
-# basic task tracking for level 2
+# BASIC TASK TRACKING FOR LEVEL 2
 
-> **tldr:** this document outlines a streamlined task tracking approach for level 2 (simple enhancement) tasks. it provides a balanced framework for managing task progress with minimal overhead.
+> **TL;DR:** This document outlines a streamlined task tracking approach for Level 2 (Simple Enhancement) tasks. It provides a balanced framework for managing task progress with minimal overhead.
 
-## 🔍 task tracking overview
+## 🔍 TASK TRACKING OVERVIEW
 
-level 2 tasks require a more structured tracking approach than level 1, but don't need the comprehensive tracking of higher-level tasks. this basic tracking system provides sufficient structure while maintaining efficiency.
+Level 2 tasks require a more structured tracking approach than Level 1, but don't need the comprehensive tracking of higher-level tasks. This basic tracking system provides sufficient structure while maintaining efficiency.
 
-## 📋 task tracking principles
+## 📋 TASK TRACKING PRINCIPLES
 
-1. **clarity**: tasks should be clearly defined
-2. **visibility**: progress should be visible at a glance
-3. **structure**: break work into logical subtasks
-4. **updates**: keep progress regularly updated
-5. **completion**: clearly mark when tasks are done
+1. **Clarity**: Tasks should be clearly defined
+2. **Visibility**: Progress should be visible at a glance
+3. **Structure**: Break work into logical subtasks
+4. **Updates**: Keep progress regularly updated
+5. **Completion**: Clearly mark when tasks are done
 
-## 📋 task structure for level 2
-
-```markdown
-## [feature name] enhancement
-
-**status**: [not started/in progress/complete]
-**priority**: [high/medium/low]
-**estimated effort**: [small/medium/large]
-
-### description
-[brief description of the enhancement]
-
-### requirements
-- [requirement 1]
-- [requirement 2]
-- [requirement 3]
-
-### subtasks
-- [ ] [subtask 1]
-- [ ] [subtask 2]
-- [ ] [subtask 3]
-
-### dependencies
-- [dependency 1]
-- [dependency 2]
-
-### notes
-[any additional information or context]
-```
-
-## 📋 tasks.md organization
-
-organize tasks.md with these sections for level 2 tasks:
+## 📋 TASK STRUCTURE FOR LEVEL 2
 
 ```markdown
-# tasks
+## [Feature Name] Enhancement
 
-## active enhancements
-- [enhancement 1] - [status]
-- [enhancement 2] - [status]
+**Status**: [Not Started/In Progress/Complete]
+**Priority**: [High/Medium/Low]
+**Estimated Effort**: [Small/Medium/Large]
 
-## enhancement details
-### [enhancement 1]
-[task structure as above]
+### Description
+[Brief description of the enhancement]
 
-### [enhancement 2]
-[task structure as above]
+### Requirements
+- [Requirement 1]
+- [Requirement 2]
+- [Requirement 3]
 
-## completed enhancements
-- [x] [completed enhancement 1] (yyyy-mm-dd)
-- [x] [completed enhancement 2] (yyyy-mm-dd)
+### Subtasks
+- [ ] [Subtask 1]
+- [ ] [Subtask 2]
+- [ ] [Subtask 3]
+
+### Dependencies
+- [Dependency 1]
+- [Dependency 2]
+
+### Notes
+[Any additional information or context]
 ```
 
-## 📋 updating task status
+## 📋 TASKS.MD ORGANIZATION
 
-update tasks using this process:
-
-1. **starting a task**:
-   - update status to "in progress"
-   - add start date to notes
-
-2. **progress updates**:
-   - check off subtasks as completed
-   - add brief notes about progress
-   - update any changed requirements
-
-3. **completing a task**:
-   - update status to "complete"
-   - check off all subtasks
-   - move to completed enhancements
-   - add completion date
-
-## 📋 subtask management
-
-for level 2 tasks, subtasks should:
-
-1. be actionable and specific
-2. represent approximately 30-60 minutes of work
-3. follow a logical sequence
-4. be updated as soon as completed
-5. include verification steps
-
-example of well-structured subtasks:
-```markdown
-### subtasks
-- [ ] review existing implementation of related features
-- [ ] create draft ui design for new button
-- [ ] add html structure for new component
-- [ ] implement button functionality in javascript
-- [ ] add appropriate styling in css
-- [ ] add event handling
-- [ ] test on desktop browsers
-- [ ] test on mobile browsers
-- [ ] update user documentation
-```
-
-## 📋 progress visualization
-
-use progress indicators to show status:
+Organize tasks.md with these sections for Level 2 tasks:
 
 ```markdown
-### progress
-[###-------] 30% complete
+# Tasks
+
+## Active Enhancements
+- [Enhancement 1] - [Status]
+- [Enhancement 2] - [Status]
+
+## Enhancement Details
+### [Enhancement 1]
+[Task structure as above]
+
+### [Enhancement 2]
+[Task structure as above]
+
+## Completed Enhancements
+- [X] [Completed Enhancement 1] (YYYY-MM-DD)
+- [X] [Completed Enhancement 2] (YYYY-MM-DD)
 ```
 
-for subtasks:
+## 📋 UPDATING TASK STATUS
+
+Update tasks using this process:
+
+1. **Starting a Task**:
+   - Update Status to "In Progress"
+   - Add start date to Notes
+
+2. **Progress Updates**:
+   - Check off subtasks as completed
+   - Add brief notes about progress
+   - Update any changed requirements
+
+3. **Completing a Task**:
+   - Update Status to "Complete"
+   - Check off all subtasks
+   - Move to Completed Enhancements
+   - Add completion date
+
+## 📋 SUBTASK MANAGEMENT
+
+For Level 2 tasks, subtasks should:
+
+1. Be actionable and specific
+2. Represent approximately 30-60 minutes of work
+3. Follow a logical sequence
+4. Be updated as soon as completed
+5. Include verification steps
+
+Example of well-structured subtasks:
 ```markdown
-### subtasks (3/10 complete)
-- [x] subtask 1
-- [x] subtask 2
-- [x] subtask 3
-- [ ] subtask 4
-- [ ] subtask 5
+### Subtasks
+- [ ] Review existing implementation of related features
+- [ ] Create draft UI design for new button
+- [ ] Add HTML structure for new component
+- [ ] Implement button functionality in JavaScript
+- [ ] Add appropriate styling in CSS
+- [ ] Add event handling
+- [ ] Test on desktop browsers
+- [ ] Test on mobile browsers
+- [ ] Update user documentation
 ```
 
-## 📋 tracking verification checklist
+## 📋 PROGRESS VISUALIZATION
 
-```
-✓ task tracking verification
-- task clearly defined? [yes/no]
-- requirements listed? [yes/no]
-- subtasks created? [yes/no]
-- dependencies identified? [yes/no]
-- status up-to-date? [yes/no]
+Use progress indicators to show status:
 
-→ if all yes: task tracking is adequate
-→ if any no: update task tracking
+```markdown
+### Progress
+[###-------] 30% Complete
 ```
 
-## 📋 minimal mode tracking
+For subtasks:
+```markdown
+### Subtasks (3/10 Complete)
+- [X] Subtask 1
+- [X] Subtask 2
+- [X] Subtask 3
+- [ ] Subtask 4
+- [ ] Subtask 5
+```
 
-for minimal mode, use this format:
+## 📋 TRACKING VERIFICATION CHECKLIST
 
 ```
-✓ task: [enhancement name]
-✓ status: [in progress/complete]
-✓ subtasks: [x/y complete]
-✓ next: [next action]
+✓ TASK TRACKING VERIFICATION
+- Task clearly defined? [YES/NO]
+- Requirements listed? [YES/NO]
+- Subtasks created? [YES/NO]
+- Dependencies identified? [YES/NO]
+- Status up-to-date? [YES/NO]
+
+→ If all YES: Task tracking is adequate
+→ If any NO: Update task tracking
 ```
 
-## 🔄 integration with memory bank
+## 📋 MINIMAL MODE TRACKING
 
-task tracking integrates with memory bank:
+For minimal mode, use this format:
+
+```
+✓ TASK: [Enhancement name]
+✓ STATUS: [In Progress/Complete]
+✓ SUBTASKS: [X/Y Complete]
+✓ NEXT: [Next action]
+```
+
+## 🔄 INTEGRATION WITH MEMORY BANK
+
+Task tracking integrates with Memory Bank:
 
 ```mermaid
-graph td
-    tasksfile["tasks.md"] --> active["activecontext.md"]
-    tasksfile --> progress["progress.md"]
+graph TD
+    TasksFile["tasks.md"] --> Active["activeContext.md"]
+    TasksFile --> Progress["progress.md"]
     
-    active -->|"current focus"| tasksfile
-    progress -->|"completion status"| tasksfile
+    Active -->|"Current focus"| TasksFile
+    Progress -->|"Completion status"| TasksFile
 ```
 
-## 🚨 tasks.md primacy principle
+## 🚨 TASKS.MD PRIMACY PRINCIPLE
 
-remember:
+Remember:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│ tasks.md is the single source of truth for all      │
-│ task tracking. all task updates must be reflected   │
-│ in tasks.md immediately.                            │
+│ tasks.md is the SINGLE SOURCE OF TRUTH for ALL      │
+│ task tracking. ALL task updates MUST be reflected   │
+│ in tasks.md IMMEDIATELY.                            │
 └─────────────────────────────────────────────────────┘
 ```
 
-this ensures everyone has visibility into current task status at all times.
+This ensures everyone has visibility into current task status at all times. 

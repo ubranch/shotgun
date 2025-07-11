@@ -1,15 +1,15 @@
 ---
-description: utility for remembering how to call van qa rules
+description: Utility for remembering how to call VAN QA rules
 globs: van-qa-utils/rule-calling-help.mdc
-alwaysapply: false
+alwaysApply: false
 ---
-# van qa: how to call rules
+# VAN QA: HOW TO CALL RULES
 
-> **tldr:** this file provides examples and reminders on how to properly call van qa rules using the fetch_rules tool.
+> **TL;DR:** This file provides examples and reminders on how to properly call VAN QA rules using the fetch_rules tool.
 
-## 🚨 rule calling syntax
+## 🚨 RULE CALLING SYNTAX
 
-always use the `fetch_rules` tool with the correct syntax:
+Always use the `fetch_rules` tool with the correct syntax:
 
 ```
 <function_calls>
@@ -17,96 +17,3 @@ always use the `fetch_rules` tool with the correct syntax:
 <parameter name="rule_names">["isolation_rules/visual-maps/rule-name"]
 </invoke>
 </function_calls> 
-
-```
-
-## 📋 main qa entry point
-
-when user types "van qa", load the main entry point:
-
-```
-<function_calls>
-<invoke name="fetch_rules">
-<parameter name="rule_names">["isolation_rules/visual-maps/van-qa-main"]
-</invoke>
-</function_calls> 
-
-```
-
-## 📋 validation checks
-
-load these components sequentially during validation:
-
-```
-<function_calls>
-<invoke name="fetch_rules">
-<parameter name="rule_names">["isolation_rules/visual-maps/van-qa-checks/dependency-check"]
-</invoke>
-</function_calls> 
-
-<function_calls>
-<invoke name="fetch_rules">
-<parameter name="rule_names">["isolation_rules/visual-maps/van-qa-checks/config-check"]
-</invoke>
-</function_calls> 
-
-<function_calls>
-<invoke name="fetch_rules">
-<parameter name="rule_names">["isolation_rules/visual-maps/van-qa-checks/environment-check"]
-</invoke>
-</function_calls> 
-
-<function_calls>
-<invoke name="fetch_rules">
-<parameter name="rule_names">["isolation_rules/visual-maps/van-qa-checks/build-test"]
-</invoke>
-</function_calls> 
-
-```
-
-## 📋 utility components
-
-load these when needed based on validation results:
-
-```
-<function_calls>
-<invoke name="fetch_rules">
-<parameter name="rule_names">["isolation_rules/visual-maps/van-qa-utils/reports"]
-</invoke>
-</function_calls> 
-
-<function_calls>
-<invoke name="fetch_rules">
-<parameter name="rule_names">["isolation_rules/visual-maps/van-qa-utils/common-fixes"]
-</invoke>
-</function_calls> 
-
-<function_calls>
-<invoke name="fetch_rules">
-<parameter name="rule_names">["isolation_rules/visual-maps/van-qa-utils/mode-transitions"]
-</invoke>
-</function_calls> 
-
-```
-
-## ⚠️ critical reminders
-
-remember to call these rules at these specific points:
-- always load the main qa entry point when "van qa" is typed
-- always load dependency-check before starting validation
-- always load reports after completing validation
-- always load mode-transitions after successful validation
-- always load common-fixes after failed validation
-
-## 🔄 full validation sequence
-
-complete sequence for a qa validation process:
-
-1. load main entry: `isolation_rules/visual-maps/van-qa-main`
-2. load first check: `isolation_rules/visual-maps/van-qa-checks/dependency-check`
-3. load second check: `isolation_rules/visual-maps/van-qa-checks/config-check`
-4. load third check: `isolation_rules/visual-maps/van-qa-checks/environment-check`
-5. load fourth check: `isolation_rules/visual-maps/van-qa-checks/build-test`
-6. if pass, load: `isolation_rules/visual-maps/van-qa-utils/reports`
-7. if pass, load: `isolation_rules/visual-maps/van-qa-utils/mode-transitions` 
-8. if fail, load: `isolation_rules/visual-maps/van-qa-utils/common-fixes`

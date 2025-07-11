@@ -1,135 +1,135 @@
 ---
 description: task tracking intermediate
 globs: task-tracking-intermediate.mdc
-alwaysapply: false
+alwaysApply: false
 ---
-# level 3 intermediate task tracking
+# LEVEL 3 INTERMEDIATE TASK TRACKING
 
-> **tldr:** this document provides structured task tracking guidelines for level 3 (intermediate feature) tasks, using visual tracking elements and clear checkpoints.
+> **TL;DR:** This document provides structured task tracking guidelines for Level 3 (Intermediate Feature) tasks, using visual tracking elements and clear checkpoints.
 
-## 🔍 task tracking workflow
+## 🔍 TASK TRACKING WORKFLOW
 
 ```mermaid
-graph td
-    start["task start"] --> init["📋 initialize<br>task entry"]
-    init --> struct["🏗️ create task<br>structure"]
-    struct --> track["📊 progress<br>tracking"]
-    track --> update["🔄 regular<br>updates"]
-    update --> complete["✅ task<br>completion"]
+graph TD
+    Start["Task Start"] --> Init["📋 Initialize<br>Task Entry"]
+    Init --> Struct["🏗️ Create Task<br>Structure"]
+    Struct --> Track["📊 Progress<br>Tracking"]
+    Track --> Update["🔄 Regular<br>Updates"]
+    Update --> Complete["✅ Task<br>Completion"]
     
-    struct --> components["components:"]
-    components --> req["requirements"]
-    components --> steps["implementation<br>steps"]
-    components --> creative["creative phase<br>markers"]
-    components --> check["checkpoints"]
+    Struct --> Components["Components:"]
+    Components --> Req["Requirements"]
+    Components --> Steps["Implementation<br>Steps"]
+    Components --> Creative["Creative Phase<br>Markers"]
+    Components --> Check["Checkpoints"]
     
-    track --> status["track status:"]
-    status --> inprog["🔄 in progress"]
-    status --> block["⛔ blocked"]
-    status --> done["✅ complete"]
-    status --> skip["⏭️ skipped"]
+    Track --> Status["Track Status:"]
+    Status --> InProg["🔄 In Progress"]
+    Status --> Block["⛔ Blocked"]
+    Status --> Done["✅ Complete"]
+    Status --> Skip["⏭️ Skipped"]
     
-    style start fill:#4da6ff,stroke:#0066cc,color:white
-    style init fill:#ffa64d,stroke:#cc7a30,color:white
-    style struct fill:#4dbb5f,stroke:#36873f,color:white
-    style track fill:#d94dbb,stroke:#a3378a,color:white
-    style update fill:#4dbbbb,stroke:#368787,color:white
-    style complete fill:#d971ff,stroke:#a33bc2,color:white
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style Init fill:#ffa64d,stroke:#cc7a30,color:white
+    style Struct fill:#4dbb5f,stroke:#36873f,color:white
+    style Track fill:#d94dbb,stroke:#a3378a,color:white
+    style Update fill:#4dbbbb,stroke:#368787,color:white
+    style Complete fill:#d971ff,stroke:#a33bc2,color:white
 ```
 
-## 📋 task entry template
+## 📋 TASK ENTRY TEMPLATE
 
 ```markdown
-# [task title]
+# [Task Title]
 
-## requirements
-- [ ] requirement 1
-- [ ] requirement 2
-- [ ] requirement 3
+## Requirements
+- [ ] Requirement 1
+- [ ] Requirement 2
+- [ ] Requirement 3
 
-## components affected
-- component 1
-- component 2
-- component 3
+## Components Affected
+- Component 1
+- Component 2
+- Component 3
 
-## implementation steps
-1. [ ] step 1
-2. [ ] step 2
-3. [ ] step 3
+## Implementation Steps
+1. [ ] Step 1
+2. [ ] Step 2
+3. [ ] Step 3
 
-## creative phases required
-- [ ] 🎨 ui/ux design
-- [ ] 🏗️ architecture design
-- [ ] ⚙️ algorithm design
+## Creative Phases Required
+- [ ] 🎨 UI/UX Design
+- [ ] 🏗️ Architecture Design
+- [ ] ⚙️ Algorithm Design
 
-## checkpoints
-- [ ] requirements verified
-- [ ] creative phases completed
-- [ ] implementation tested
-- [ ] documentation updated
+## Checkpoints
+- [ ] Requirements verified
+- [ ] Creative phases completed
+- [ ] Implementation tested
+- [ ] Documentation updated
 
-## current status
-- phase: [current phase]
-- status: [in progress/blocked/complete]
-- blockers: [if any]
+## Current Status
+- Phase: [Current Phase]
+- Status: [In Progress/Blocked/Complete]
+- Blockers: [If any]
 ```
 
-## 🔄 progress tracking visualization
+## 🔄 PROGRESS TRACKING VISUALIZATION
 
 ```mermaid
-graph td
-    subgraph "task progress"
-    p1["✓ requirements<br>defined"]
-    p2["✓ components<br>identified"]
-    p3["→ creative phase<br>in progress"]
-    p4["□ implementation"]
-    p5["□ testing"]
-    p6["□ documentation"]
+graph TD
+    subgraph "TASK PROGRESS"
+    P1["✓ Requirements<br>Defined"]
+    P2["✓ Components<br>Identified"]
+    P3["→ Creative Phase<br>In Progress"]
+    P4["□ Implementation"]
+    P5["□ Testing"]
+    P6["□ Documentation"]
     end
     
-    style p1 fill:#4dbb5f,stroke:#36873f,color:white
-    style p2 fill:#4dbb5f,stroke:#36873f,color:white
-    style p3 fill:#ffa64d,stroke:#cc7a30,color:white
-    style p4 fill:#d94dbb,stroke:#a3378a,color:white
-    style p5 fill:#4dbbbb,stroke:#368787,color:white
-    style p6 fill:#d971ff,stroke:#a33bc2,color:white
+    style P1 fill:#4dbb5f,stroke:#36873f,color:white
+    style P2 fill:#4dbb5f,stroke:#36873f,color:white
+    style P3 fill:#ffa64d,stroke:#cc7a30,color:white
+    style P4 fill:#d94dbb,stroke:#a3378a,color:white
+    style P5 fill:#4dbbbb,stroke:#368787,color:white
+    style P6 fill:#d971ff,stroke:#a33bc2,color:white
 ```
 
-## ✅ update protocol
+## ✅ UPDATE PROTOCOL
 
 ```mermaid
-sequencediagram
-    participant task as task entry
-    participant status as status update
-    participant creative as creative phase
-    participant implementation as implementation
+sequenceDiagram
+    participant Task as Task Entry
+    participant Status as Status Update
+    participant Creative as Creative Phase
+    participant Implementation as Implementation
     
-    task->>status: update progress
-    status->>creative: flag for creative phase
-    creative->>implementation: complete design
-    implementation->>status: update status
-    status->>task: mark complete
+    Task->>Status: Update Progress
+    Status->>Creative: Flag for Creative Phase
+    Creative->>Implementation: Complete Design
+    Implementation->>Status: Update Status
+    Status->>Task: Mark Complete
 ```
 
-## 🎯 checkpoint verification
+## 🎯 CHECKPOINT VERIFICATION
 
-| phase | verification items | status |
+| Phase | Verification Items | Status |
 |-------|-------------------|--------|
-| requirements | all requirements documented | [ ] |
-| components | affected components listed | [ ] |
-| creative | design decisions documented | [ ] |
-| implementation | code changes tracked | [ ] |
-| testing | test results recorded | [ ] |
-| documentation | updates completed | [ ] |
+| Requirements | All requirements documented | [ ] |
+| Components | Affected components listed | [ ] |
+| Creative | Design decisions documented | [ ] |
+| Implementation | Code changes tracked | [ ] |
+| Testing | Test results recorded | [ ] |
+| Documentation | Updates completed | [ ] |
 
-## 🔄 document management
+## 🔄 DOCUMENT MANAGEMENT
 
 ```mermaid
-graph td
-    current["current documents"] --> active["active:<br>- task-tracking-intermediate.md<br>- planning-comprehensive.md"]
-    current --> required["required next:<br>- creative-phase-enforcement.md<br>- implementation-phase-reference.md"]
+graph TD
+    Current["Current Documents"] --> Active["Active:<br>- task-tracking-intermediate.md<br>- planning-comprehensive.md"]
+    Current --> Required["Required Next:<br>- creative-phase-enforcement.md<br>- implementation-phase-reference.md"]
     
-    style current fill:#4da6ff,stroke:#0066cc,color:white
-    style active fill:#4dbb5f,stroke:#36873f,color:white
-    style required fill:#ffa64d,stroke:#cc7a30,color:white
-```
+    style Current fill:#4da6ff,stroke:#0066cc,color:white
+    style Active fill:#4dbb5f,stroke:#36873f,color:white
+    style Required fill:#ffa64d,stroke:#cc7a30,color:white
+``` 

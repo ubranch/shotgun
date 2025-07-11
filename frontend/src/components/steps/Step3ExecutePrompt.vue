@@ -53,19 +53,36 @@
         <br>
         this tool will split the diff into smaller parts to make it easier to apply.
       </div>
-      <button
-        @click="copyDiffToClipboard"
-        class="ml-2 px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
-        :class="{'bg-green-600 dark:bg-green-700': copySuccess}"
-      >
-        <svg v-if="!copySuccess" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-        </svg>
-        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
-        {{ copySuccess ? 'copied!' : 'copy' }}
-      </button>
+      <div class="flex gap-2">
+        <button
+          v-if="localShotgunGitDiffInput.trim()"
+          @click="copyDiffToClipboard"
+          class="ml-2 px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
+          :class="{'bg-green-600 dark:bg-green-700': copySuccess}"
+        >
+          <svg v-if="!copySuccess" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+          </svg>
+          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          {{ copySuccess ? 'copied!' : 'copy' }}
+        </button>
+        <button
+          v-if="localShotgunGitDiffInput.trim()"
+          @click="clearTextarea"
+          class="px-3 py-2 bg-gray-500 dark:bg-gray-600 text-white text-sm font-semibold rounded-md hover:bg-gray-600 dark:hover:bg-gray-500 focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
+          :class="{'bg-red-600 dark:bg-red-700': clearSuccess}"
+        >
+          <svg v-if="!clearSuccess" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          {{ clearSuccess ? 'cleared!' : 'clear' }}
+        </button>
+      </div>
     </div>
 
     <div class="mb-4">
@@ -143,6 +160,9 @@ const requestError = ref(null);
 
 // copy functionality state
 const copySuccess = ref(false);
+
+// clear functionality state
+const clearSuccess = ref(false);
 
 // token limit enforcement state
 const tokenCountLimit = 250000;
@@ -382,5 +402,18 @@ function copyDiffToClipboard() {
   }
 }
 
-// function removed as reset functionality is no longer needed
+function clearTextarea() {
+  if (localShotgunGitDiffInput.value) {
+    // clear the textarea
+    localShotgunGitDiffInput.value = '';
+
+    // show success message
+    clearSuccess.value = true;
+
+    // reset the success state after 2 seconds
+    setTimeout(() => {
+      clearSuccess.value = false;
+    }, 2000);
+  }
+}
 </script>

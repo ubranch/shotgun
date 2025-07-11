@@ -1,719 +1,719 @@
 ---
-description: comprehensive reflection format for level 4 complex system tasks
+description: Comprehensive reflection format for Level 4 Complex System tasks
 globs: "**/level4/**", "**/reflection/**"
-alwaysapply: false
+alwaysApply: false
 ---
 
-# comprehensive reflection for level 4 tasks
+# COMPREHENSIVE REFLECTION FOR LEVEL 4 TASKS
 
-> **tldr:** this document outlines a structured, comprehensive approach to reflection for level 4 (complex system) tasks, including system review, success and challenge analysis, strategic insights, and action planning.
+> **TL;DR:** This document outlines a structured, comprehensive approach to reflection for Level 4 (Complex System) tasks, including system review, success and challenge analysis, strategic insights, and action planning.
 
-## 🔍 comprehensive reflection overview
+## 🔍 COMPREHENSIVE REFLECTION OVERVIEW
 
-level 4 complex system tasks require in-depth reflection to capture key insights, document successes and challenges, extract strategic lessons, and guide future improvements. this systematic reflection process ensures organizational learning and continuous improvement.
+Level 4 Complex System tasks require in-depth reflection to capture key insights, document successes and challenges, extract strategic lessons, and guide future improvements. This systematic reflection process ensures organizational learning and continuous improvement.
 
 ```mermaid
-flowchart td
-    classdef phase fill:#f9d77e,stroke:#d9b95c,color:#000
-    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
-    classdef verification fill:#c5e8b7,stroke:#a5c897,color:#000
+flowchart TD
+    classDef phase fill:#f9d77e,stroke:#d9b95c,color:#000
+    classDef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+    classDef verification fill:#c5e8b7,stroke:#a5c897,color:#000
     
-    start([begin reflection<br>process]) --> template[load comprehensive<br>reflection template]
-    template --> sysreview[conduct system<br>review]
-    sysreview --> archreview[review architecture<br>decisions]
-    archreview --> implementreview[review implementation<br>approach]
-    implementreview --> successanalysis[document successes<br>and achievements]
-    successanalysis --> challengeanalysis[document challenges<br>and solutions]
-    challengeanalysis --> technical[extract technical<br>insights]
-    technical --> process[extract process<br>insights]
-    process --> business[extract business<br>insights]
-    business --> strategic[define strategic<br>actions]
-    strategic --> timeline[analyze timeline<br>performance]
-    timeline --> documentation[complete reflection<br>documentation]
-    documentation --> integration[integrate with<br>memory bank]
-    integration --> verification{reflection<br>verification}
-    verification -->|pass| complete([reflection<br>complete])
-    verification -->|fail| revise[revise<br>reflection]
-    revise --> verification
+    Start([Begin Reflection<br>Process]) --> Template[Load Comprehensive<br>Reflection Template]
+    Template --> SysReview[Conduct System<br>Review]
+    SysReview --> ArchReview[Review Architecture<br>Decisions]
+    ArchReview --> ImplementReview[Review Implementation<br>Approach]
+    ImplementReview --> SuccessAnalysis[Document Successes<br>and Achievements]
+    SuccessAnalysis --> ChallengeAnalysis[Document Challenges<br>and Solutions]
+    ChallengeAnalysis --> Technical[Extract Technical<br>Insights]
+    Technical --> Process[Extract Process<br>Insights]
+    Process --> Business[Extract Business<br>Insights]
+    Business --> Strategic[Define Strategic<br>Actions]
+    Strategic --> Timeline[Analyze Timeline<br>Performance]
+    Timeline --> Documentation[Complete Reflection<br>Documentation]
+    Documentation --> Integration[Integrate with<br>Memory Bank]
+    Integration --> Verification{Reflection<br>Verification}
+    Verification -->|Pass| Complete([Reflection<br>Complete])
+    Verification -->|Fail| Revise[Revise<br>Reflection]
+    Revise --> Verification
     
-    template -.-> rt((reflection<br>template))
-    sysreview -.-> sr((system<br>review))
-    successanalysis & challengeanalysis -.-> scd((success/challenge<br>document))
-    technical & process & business -.-> insights((insight<br>document))
-    strategic -.-> actions((strategic<br>actions))
+    Template -.-> RT((Reflection<br>Template))
+    SysReview -.-> SR((System<br>Review))
+    SuccessAnalysis & ChallengeAnalysis -.-> SCD((Success/Challenge<br>Document))
+    Technical & Process & Business -.-> Insights((Insight<br>Document))
+    Strategic -.-> Actions((Strategic<br>Actions))
     
-    class start,complete milestone
-    class template,sysreview,archreview,implementreview,successanalysis,challengeanalysis,technical,process,business,strategic,timeline,documentation,integration step
-    class verification verification
-    class rt,sr,scd,insights,actions artifact
+    class Start,Complete milestone
+    class Template,SysReview,ArchReview,ImplementReview,SuccessAnalysis,ChallengeAnalysis,Technical,Process,Business,Strategic,Timeline,Documentation,Integration step
+    class Verification verification
+    class RT,SR,SCD,Insights,Actions artifact
 ```
 
-## 📋 reflection template structure
+## 📋 REFLECTION TEMPLATE STRUCTURE
 
-### 1. system overview
+### 1. System Overview
 
 ```markdown
-## system overview
+## System Overview
 
-### system description
-[comprehensive description of the implemented system, including purpose, scope, and key features]
+### System Description
+[Comprehensive description of the implemented system, including purpose, scope, and key features]
 
-### system context
-[description of how the system fits into the broader technical and business ecosystem]
+### System Context
+[Description of how the system fits into the broader technical and business ecosystem]
 
-### key components
-- component 1: [description and purpose]
-- component 2: [description and purpose]
-- component 3: [description and purpose]
+### Key Components
+- Component 1: [Description and purpose]
+- Component 2: [Description and purpose]
+- Component 3: [Description and purpose]
 
-### system architecture
-[summary of the architectural approach, key patterns, and design decisions]
+### System Architecture
+[Summary of the architectural approach, key patterns, and design decisions]
 
-### system boundaries
-[description of system boundaries, interfaces, and integration points]
+### System Boundaries
+[Description of system boundaries, interfaces, and integration points]
 
-### implementation summary
-[overview of the implementation approach, technologies, and methods used]
+### Implementation Summary
+[Overview of the implementation approach, technologies, and methods used]
 ```
 
-### 2. project performance analysis
+### 2. Project Performance Analysis
 
 ```markdown
-## project performance analysis
+## Project Performance Analysis
 
-### timeline performance
-- **planned duration**: [x] weeks/months
-- **actual duration**: [y] weeks/months
-- **variance**: [+/-z] weeks/months ([p]%)
-- **explanation**: [analysis of timeline variances]
+### Timeline Performance
+- **Planned Duration**: [X] weeks/months
+- **Actual Duration**: [Y] weeks/months
+- **Variance**: [+/-Z] weeks/months ([P]%)
+- **Explanation**: [Analysis of timeline variances]
 
-### resource utilization
-- **planned resources**: [x] person-months
-- **actual resources**: [y] person-months
-- **variance**: [+/-z] person-months ([p]%)
-- **explanation**: [analysis of resource variances]
+### Resource Utilization
+- **Planned Resources**: [X] person-months
+- **Actual Resources**: [Y] person-months
+- **Variance**: [+/-Z] person-months ([P]%)
+- **Explanation**: [Analysis of resource variances]
 
-### quality metrics
-- **planned quality targets**: [list of quality targets]
-- **achieved quality results**: [list of achieved quality results]
-- **variance analysis**: [analysis of quality variances]
+### Quality Metrics
+- **Planned Quality Targets**: [List of quality targets]
+- **Achieved Quality Results**: [List of achieved quality results]
+- **Variance Analysis**: [Analysis of quality variances]
 
-### risk management effectiveness
-- **identified risks**: [number of risks identified]
-- **risks materialized**: [number and percentage of risks that occurred]
-- **mitigation effectiveness**: [effectiveness of risk mitigation strategies]
-- **unforeseen risks**: [description of unforeseen risks that emerged]
+### Risk Management Effectiveness
+- **Identified Risks**: [Number of risks identified]
+- **Risks Materialized**: [Number and percentage of risks that occurred]
+- **Mitigation Effectiveness**: [Effectiveness of risk mitigation strategies]
+- **Unforeseen Risks**: [Description of unforeseen risks that emerged]
 ```
 
-### 3. achievements and successes
+### 3. Achievements and Successes
 
 ```markdown
-## achievements and successes
+## Achievements and Successes
 
-### key achievements
-1. **achievement 1**: [description]
-   - **evidence**: [concrete evidence of success]
-   - **impact**: [business/technical impact]
-   - **contributing factors**: [what enabled this success]
+### Key Achievements
+1. **Achievement 1**: [Description]
+   - **Evidence**: [Concrete evidence of success]
+   - **Impact**: [Business/technical impact]
+   - **Contributing Factors**: [What enabled this success]
 
-2. **achievement 2**: [description]
-   - **evidence**: [concrete evidence of success]
-   - **impact**: [business/technical impact]
-   - **contributing factors**: [what enabled this success]
+2. **Achievement 2**: [Description]
+   - **Evidence**: [Concrete evidence of success]
+   - **Impact**: [Business/technical impact]
+   - **Contributing Factors**: [What enabled this success]
 
-### technical successes
-- **success 1**: [description of technical success]
-  - **approach used**: [description of approach]
-  - **outcome**: [results achieved]
-  - **reusability**: [how this can be reused]
+### Technical Successes
+- **Success 1**: [Description of technical success]
+  - **Approach Used**: [Description of approach]
+  - **Outcome**: [Results achieved]
+  - **Reusability**: [How this can be reused]
 
-- **success 2**: [description of technical success]
-  - **approach used**: [description of approach]
-  - **outcome**: [results achieved]
-  - **reusability**: [how this can be reused]
+- **Success 2**: [Description of technical success]
+  - **Approach Used**: [Description of approach]
+  - **Outcome**: [Results achieved]
+  - **Reusability**: [How this can be reused]
 
-### process successes
-- **success 1**: [description of process success]
-  - **approach used**: [description of approach]
-  - **outcome**: [results achieved]
-  - **reusability**: [how this can be reused]
+### Process Successes
+- **Success 1**: [Description of process success]
+  - **Approach Used**: [Description of approach]
+  - **Outcome**: [Results achieved]
+  - **Reusability**: [How this can be reused]
 
-### team successes
-- **success 1**: [description of team success]
-  - **approach used**: [description of approach]
-  - **outcome**: [results achieved]
-  - **reusability**: [how this can be reused]
+### Team Successes
+- **Success 1**: [Description of team success]
+  - **Approach Used**: [Description of approach]
+  - **Outcome**: [Results achieved]
+  - **Reusability**: [How this can be reused]
 ```
 
-### 4. challenges and solutions
+### 4. Challenges and Solutions
 
 ```markdown
-## challenges and solutions
+## Challenges and Solutions
 
-### key challenges
-1. **challenge 1**: [description]
-   - **impact**: [business/technical impact]
-   - **resolution approach**: [how it was addressed]
-   - **outcome**: [final result]
-   - **preventative measures**: [how to prevent in future]
+### Key Challenges
+1. **Challenge 1**: [Description]
+   - **Impact**: [Business/technical impact]
+   - **Resolution Approach**: [How it was addressed]
+   - **Outcome**: [Final result]
+   - **Preventative Measures**: [How to prevent in future]
 
-2. **challenge 2**: [description]
-   - **impact**: [business/technical impact]
-   - **resolution approach**: [how it was addressed]
-   - **outcome**: [final result]
-   - **preventative measures**: [how to prevent in future]
+2. **Challenge 2**: [Description]
+   - **Impact**: [Business/technical impact]
+   - **Resolution Approach**: [How it was addressed]
+   - **Outcome**: [Final result]
+   - **Preventative Measures**: [How to prevent in future]
 
-### technical challenges
-- **challenge 1**: [description of technical challenge]
-  - **root cause**: [analysis of root cause]
-  - **solution**: [how it was solved]
-  - **alternative approaches**: [other approaches considered]
-  - **lessons learned**: [key takeaways]
+### Technical Challenges
+- **Challenge 1**: [Description of technical challenge]
+  - **Root Cause**: [Analysis of root cause]
+  - **Solution**: [How it was solved]
+  - **Alternative Approaches**: [Other approaches considered]
+  - **Lessons Learned**: [Key takeaways]
 
-- **challenge 2**: [description of technical challenge]
-  - **root cause**: [analysis of root cause]
-  - **solution**: [how it was solved]
-  - **alternative approaches**: [other approaches considered]
-  - **lessons learned**: [key takeaways]
+- **Challenge 2**: [Description of technical challenge]
+  - **Root Cause**: [Analysis of root cause]
+  - **Solution**: [How it was solved]
+  - **Alternative Approaches**: [Other approaches considered]
+  - **Lessons Learned**: [Key takeaways]
 
-### process challenges
-- **challenge 1**: [description of process challenge]
-  - **root cause**: [analysis of root cause]
-  - **solution**: [how it was solved]
-  - **process improvements**: [improvements made or suggested]
+### Process Challenges
+- **Challenge 1**: [Description of process challenge]
+  - **Root Cause**: [Analysis of root cause]
+  - **Solution**: [How it was solved]
+  - **Process Improvements**: [Improvements made or suggested]
 
-### unresolved issues
-- **issue 1**: [description of unresolved issue]
-  - **current status**: [status]
-  - **proposed path forward**: [suggested next steps]
-  - **required resources**: [what's needed to resolve]
+### Unresolved Issues
+- **Issue 1**: [Description of unresolved issue]
+  - **Current Status**: [Status]
+  - **Proposed Path Forward**: [Suggested next steps]
+  - **Required Resources**: [What's needed to resolve]
 ```
 
-### 5. technical insights
+### 5. Technical Insights
 
 ```markdown
-## technical insights
+## Technical Insights
 
-### architecture insights
-- **insight 1**: [description of architectural insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for future work]
-  - **recommendations**: [suggested changes or actions]
+### Architecture Insights
+- **Insight 1**: [Description of architectural insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for future work]
+  - **Recommendations**: [Suggested changes or actions]
 
-- **insight 2**: [description of architectural insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for future work]
-  - **recommendations**: [suggested changes or actions]
+- **Insight 2**: [Description of architectural insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for future work]
+  - **Recommendations**: [Suggested changes or actions]
 
-### implementation insights
-- **insight 1**: [description of implementation insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for future work]
-  - **recommendations**: [suggested changes or actions]
+### Implementation Insights
+- **Insight 1**: [Description of implementation insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for future work]
+  - **Recommendations**: [Suggested changes or actions]
 
-### technology stack insights
-- **insight 1**: [description of technology stack insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for future work]
-  - **recommendations**: [suggested changes or actions]
+### Technology Stack Insights
+- **Insight 1**: [Description of technology stack insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for future work]
+  - **Recommendations**: [Suggested changes or actions]
 
-### performance insights
-- **insight 1**: [description of performance insight]
-  - **context**: [when/where this was observed]
-  - **metrics**: [relevant performance metrics]
-  - **implications**: [what this means for future work]
-  - **recommendations**: [suggested optimizations]
+### Performance Insights
+- **Insight 1**: [Description of performance insight]
+  - **Context**: [When/where this was observed]
+  - **Metrics**: [Relevant performance metrics]
+  - **Implications**: [What this means for future work]
+  - **Recommendations**: [Suggested optimizations]
 
-### security insights
-- **insight 1**: [description of security insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for future work]
-  - **recommendations**: [suggested security improvements]
+### Security Insights
+- **Insight 1**: [Description of security insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for future work]
+  - **Recommendations**: [Suggested security improvements]
 ```
 
-### 6. process insights
+### 6. Process Insights
 
 ```markdown
-## process insights
+## Process Insights
 
-### planning insights
-- **insight 1**: [description of planning process insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for future work]
-  - **recommendations**: [suggested process improvements]
+### Planning Insights
+- **Insight 1**: [Description of planning process insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for future work]
+  - **Recommendations**: [Suggested process improvements]
 
-### development process insights
-- **insight 1**: [description of development process insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for future work]
-  - **recommendations**: [suggested process improvements]
+### Development Process Insights
+- **Insight 1**: [Description of development process insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for future work]
+  - **Recommendations**: [Suggested process improvements]
 
-### testing insights
-- **insight 1**: [description of testing process insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for future work]
-  - **recommendations**: [suggested process improvements]
+### Testing Insights
+- **Insight 1**: [Description of testing process insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for future work]
+  - **Recommendations**: [Suggested process improvements]
 
-### collaboration insights
-- **insight 1**: [description of collaboration insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for future work]
-  - **recommendations**: [suggested collaboration improvements]
+### Collaboration Insights
+- **Insight 1**: [Description of collaboration insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for future work]
+  - **Recommendations**: [Suggested collaboration improvements]
 
-### documentation insights
-- **insight 1**: [description of documentation insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for future work]
-  - **recommendations**: [suggested documentation improvements]
+### Documentation Insights
+- **Insight 1**: [Description of documentation insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for future work]
+  - **Recommendations**: [Suggested documentation improvements]
 ```
 
-### 7. business insights
+### 7. Business Insights
 
 ```markdown
-## business insights
+## Business Insights
 
-### value delivery insights
-- **insight 1**: [description of value delivery insight]
-  - **context**: [when/where this was observed]
-  - **business impact**: [impact on business outcomes]
-  - **recommendations**: [suggested improvements]
+### Value Delivery Insights
+- **Insight 1**: [Description of value delivery insight]
+  - **Context**: [When/where this was observed]
+  - **Business Impact**: [Impact on business outcomes]
+  - **Recommendations**: [Suggested improvements]
 
-### stakeholder insights
-- **insight 1**: [description of stakeholder insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for stakeholder management]
-  - **recommendations**: [suggested improvements]
+### Stakeholder Insights
+- **Insight 1**: [Description of stakeholder insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for stakeholder management]
+  - **Recommendations**: [Suggested improvements]
 
-### market/user insights
-- **insight 1**: [description of market/user insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for product direction]
-  - **recommendations**: [suggested improvements]
+### Market/User Insights
+- **Insight 1**: [Description of market/user insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for product direction]
+  - **Recommendations**: [Suggested improvements]
 
-### business process insights
-- **insight 1**: [description of business process insight]
-  - **context**: [when/where this was observed]
-  - **implications**: [what this means for business processes]
-  - **recommendations**: [suggested improvements]
+### Business Process Insights
+- **Insight 1**: [Description of business process insight]
+  - **Context**: [When/where this was observed]
+  - **Implications**: [What this means for business processes]
+  - **Recommendations**: [Suggested improvements]
 ```
 
-### 8. strategic actions
+### 8. Strategic Actions
 
 ```markdown
-## strategic actions
+## Strategic Actions
 
-### immediate actions
-- **action 1**: [description of immediate action]
-  - **owner**: [person responsible]
-  - **timeline**: [expected completion date]
-  - **success criteria**: [how to measure success]
-  - **resources required**: [what's needed]
-  - **priority**: [high/medium/low]
+### Immediate Actions
+- **Action 1**: [Description of immediate action]
+  - **Owner**: [Person responsible]
+  - **Timeline**: [Expected completion date]
+  - **Success Criteria**: [How to measure success]
+  - **Resources Required**: [What's needed]
+  - **Priority**: [High/Medium/Low]
 
-- **action 2**: [description of immediate action]
-  - **owner**: [person responsible]
-  - **timeline**: [expected completion date]
-  - **success criteria**: [how to measure success]
-  - **resources required**: [what's needed]
-  - **priority**: [high/medium/low]
+- **Action 2**: [Description of immediate action]
+  - **Owner**: [Person responsible]
+  - **Timeline**: [Expected completion date]
+  - **Success Criteria**: [How to measure success]
+  - **Resources Required**: [What's needed]
+  - **Priority**: [High/Medium/Low]
 
-### short-term improvements (1-3 months)
-- **improvement 1**: [description of short-term improvement]
-  - **owner**: [person responsible]
-  - **timeline**: [expected completion date]
-  - **success criteria**: [how to measure success]
-  - **resources required**: [what's needed]
-  - **priority**: [high/medium/low]
+### Short-Term Improvements (1-3 months)
+- **Improvement 1**: [Description of short-term improvement]
+  - **Owner**: [Person responsible]
+  - **Timeline**: [Expected completion date]
+  - **Success Criteria**: [How to measure success]
+  - **Resources Required**: [What's needed]
+  - **Priority**: [High/Medium/Low]
 
-### medium-term initiatives (3-6 months)
-- **initiative 1**: [description of medium-term initiative]
-  - **owner**: [person responsible]
-  - **timeline**: [expected completion date]
-  - **success criteria**: [how to measure success]
-  - **resources required**: [what's needed]
-  - **priority**: [high/medium/low]
+### Medium-Term Initiatives (3-6 months)
+- **Initiative 1**: [Description of medium-term initiative]
+  - **Owner**: [Person responsible]
+  - **Timeline**: [Expected completion date]
+  - **Success Criteria**: [How to measure success]
+  - **Resources Required**: [What's needed]
+  - **Priority**: [High/Medium/Low]
 
-### long-term strategic directions (6+ months)
-- **direction 1**: [description of long-term strategic direction]
-  - **business alignment**: [how this aligns with business strategy]
-  - **expected impact**: [anticipated outcomes]
-  - **key milestones**: [major checkpoints]
-  - **success criteria**: [how to measure success]
+### Long-Term Strategic Directions (6+ months)
+- **Direction 1**: [Description of long-term strategic direction]
+  - **Business Alignment**: [How this aligns with business strategy]
+  - **Expected Impact**: [Anticipated outcomes]
+  - **Key Milestones**: [Major checkpoints]
+  - **Success Criteria**: [How to measure success]
 ```
 
-### 9. knowledge transfer
+### 9. Knowledge Transfer
 
 ```markdown
-## knowledge transfer
+## Knowledge Transfer
 
-### key learnings for organization
-- **learning 1**: [description of key organizational learning]
-  - **context**: [when/where this was learned]
-  - **applicability**: [where this can be applied]
-  - **suggested communication**: [how to share this]
+### Key Learnings for Organization
+- **Learning 1**: [Description of key organizational learning]
+  - **Context**: [When/where this was learned]
+  - **Applicability**: [Where this can be applied]
+  - **Suggested Communication**: [How to share this]
 
-### technical knowledge transfer
-- **technical knowledge 1**: [description of technical knowledge]
-  - **audience**: [who needs this knowledge]
-  - **transfer method**: [how to transfer]
-  - **documentation**: [where documented]
+### Technical Knowledge Transfer
+- **Technical Knowledge 1**: [Description of technical knowledge]
+  - **Audience**: [Who needs this knowledge]
+  - **Transfer Method**: [How to transfer]
+  - **Documentation**: [Where documented]
 
-### process knowledge transfer
-- **process knowledge 1**: [description of process knowledge]
-  - **audience**: [who needs this knowledge]
-  - **transfer method**: [how to transfer]
-  - **documentation**: [where documented]
+### Process Knowledge Transfer
+- **Process Knowledge 1**: [Description of process knowledge]
+  - **Audience**: [Who needs this knowledge]
+  - **Transfer Method**: [How to transfer]
+  - **Documentation**: [Where documented]
 
-### documentation updates
-- **document 1**: [name of document to update]
-  - **required updates**: [what needs to be updated]
-  - **owner**: [person responsible]
-  - **timeline**: [when it will be updated]
+### Documentation Updates
+- **Document 1**: [Name of document to update]
+  - **Required Updates**: [What needs to be updated]
+  - **Owner**: [Person responsible]
+  - **Timeline**: [When it will be updated]
 ```
 
-### 10. reflection summary
+### 10. Reflection Summary
 
 ```markdown
-## reflection summary
+## Reflection Summary
 
-### key takeaways
-- **takeaway 1**: [description of key takeaway]
-- **takeaway 2**: [description of key takeaway]
-- **takeaway 3**: [description of key takeaway]
+### Key Takeaways
+- **Takeaway 1**: [Description of key takeaway]
+- **Takeaway 2**: [Description of key takeaway]
+- **Takeaway 3**: [Description of key takeaway]
 
-### success patterns to replicate
-1. [pattern 1 description]
-2. [pattern 2 description]
-3. [pattern 3 description]
+### Success Patterns to Replicate
+1. [Pattern 1 description]
+2. [Pattern 2 description]
+3. [Pattern 3 description]
 
-### issues to avoid in future
-1. [issue 1 description]
-2. [issue 2 description]
-3. [issue 3 description]
+### Issues to Avoid in Future
+1. [Issue 1 description]
+2. [Issue 2 description]
+3. [Issue 3 description]
 
-### overall assessment
-[comprehensive assessment of the project's success, challenges, and strategic value]
+### Overall Assessment
+[Comprehensive assessment of the project's success, challenges, and strategic value]
 
-### next steps
-[clear description of immediate next steps following this reflection]
+### Next Steps
+[Clear description of immediate next steps following this reflection]
 ```
 
-## 📋 reflection process
+## 📋 REFLECTION PROCESS
 
-### 1. preparation
+### 1. Preparation
 
 ```mermaid
-flowchart td
-    classdef step fill:#f9d77e,stroke:#d9b95c,color:#000
-    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+flowchart TD
+    classDef step fill:#f9d77e,stroke:#d9b95c,color:#000
+    classDef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
     
-    start([begin reflection<br>preparation]) --> template[load reflection<br>template]
-    template --> data[gather project<br>data]
-    data --> metrics[collect performance<br>metrics]
-    metrics --> feedback[gather stakeholder<br>feedback]
-    feedback --> schedule[schedule reflection<br>session]
-    schedule --> participants[identify<br>participants]
-    participants --> agenda[create session<br>agenda]
-    agenda --> complete([preparation<br>complete])
+    Start([Begin Reflection<br>Preparation]) --> Template[Load Reflection<br>Template]
+    Template --> Data[Gather Project<br>Data]
+    Data --> Metrics[Collect Performance<br>Metrics]
+    Metrics --> Feedback[Gather Stakeholder<br>Feedback]
+    Feedback --> Schedule[Schedule Reflection<br>Session]
+    Schedule --> Participants[Identify<br>Participants]
+    Participants --> Agenda[Create Session<br>Agenda]
+    Agenda --> Complete([Preparation<br>Complete])
     
-    template -.-> tdoc((reflection<br>template))
-    data -.-> projdata((project<br>data))
-    metrics -.-> metricsdoc((performance<br>metrics))
-    feedback -.-> feedbackdoc((stakeholder<br>feedback))
+    Template -.-> TDoc((Reflection<br>Template))
+    Data -.-> ProjData((Project<br>Data))
+    Metrics -.-> MetricsDoc((Performance<br>Metrics))
+    Feedback -.-> FeedbackDoc((Stakeholder<br>Feedback))
     
-    class start,complete milestone
-    class template,data,metrics,feedback,schedule,participants,agenda step
-    class tdoc,projdata,metricsdoc,feedbackdoc artifact
+    class Start,Complete milestone
+    class Template,Data,Metrics,Feedback,Schedule,Participants,Agenda step
+    class TDoc,ProjData,MetricsDoc,FeedbackDoc artifact
 ```
 
-**key preparation steps:**
-1. load the comprehensive reflection template
-2. gather project data (tasks.md, documentation, artifacts)
-3. collect performance metrics (timeline, resource utilization, quality)
-4. gather stakeholder feedback (internal and external)
-5. schedule reflection session(s) with key participants
-6. prepare session agenda and pre-work materials
+**Key Preparation Steps:**
+1. Load the comprehensive reflection template
+2. Gather project data (tasks.md, documentation, artifacts)
+3. Collect performance metrics (timeline, resource utilization, quality)
+4. Gather stakeholder feedback (internal and external)
+5. Schedule reflection session(s) with key participants
+6. Prepare session agenda and pre-work materials
 
-### 2. conducting the reflection session
+### 2. Conducting the Reflection Session
 
 ```mermaid
-flowchart td
-    classdef step fill:#f9d77e,stroke:#d9b95c,color:#000
-    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+flowchart TD
+    classDef step fill:#f9d77e,stroke:#d9b95c,color:#000
+    classDef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
     
-    start([begin reflection<br>session]) --> intro[introduction and<br>context setting]
-    intro --> project[project overview<br>presentation]
-    project --> success[success<br>identification]
-    success --> challenge[challenge<br>identification]
-    challenge --> root[root cause<br>analysis]
-    root --> insights[insight<br>generation]
-    insights --> actions[action<br>planning]
-    actions --> documentation[document<br>outcomes]
-    documentation --> next[define next<br>steps]
-    next --> complete([session<br>complete])
+    Start([Begin Reflection<br>Session]) --> Intro[Introduction and<br>Context Setting]
+    Intro --> Project[Project Overview<br>Presentation]
+    Project --> Success[Success<br>Identification]
+    Success --> Challenge[Challenge<br>Identification]
+    Challenge --> Root[Root Cause<br>Analysis]
+    Root --> Insights[Insight<br>Generation]
+    Insights --> Actions[Action<br>Planning]
+    Actions --> Documentation[Document<br>Outcomes]
+    Documentation --> Next[Define Next<br>Steps]
+    Next --> Complete([Session<br>Complete])
     
-    success -.-> successdoc((success<br>document))
-    challenge -.-> challengedoc((challenge<br>document))
-    insights -.-> insightdoc((insight<br>document))
-    actions -.-> actiondoc((action<br>plan))
+    Success -.-> SuccessDoc((Success<br>Document))
+    Challenge -.-> ChallengeDoc((Challenge<br>Document))
+    Insights -.-> InsightDoc((Insight<br>Document))
+    Actions -.-> ActionDoc((Action<br>Plan))
     
-    class start,complete milestone
-    class intro,project,success,challenge,root,insights,actions,documentation,next step
-    class successdoc,challengedoc,insightdoc,actiondoc artifact
+    class Start,Complete milestone
+    class Intro,Project,Success,Challenge,Root,Insights,Actions,Documentation,Next step
+    class SuccessDoc,ChallengeDoc,InsightDoc,ActionDoc artifact
 ```
 
-**session format:**
-- **duration**: 2-4 hours (may be split across multiple sessions)
-- **participants**: project team, key stakeholders, technical leads
-- **facilitation**: neutral facilitator to guide the process
-- **documentation**: dedicated scribe to capture insights and actions
+**Session Format:**
+- **Duration**: 2-4 hours (may be split across multiple sessions)
+- **Participants**: Project team, key stakeholders, technical leads
+- **Facilitation**: Neutral facilitator to guide the process
+- **Documentation**: Dedicated scribe to capture insights and actions
 
-### 3. documentation and integration
+### 3. Documentation and Integration
 
 ```mermaid
-flowchart td
-    classdef step fill:#f9d77e,stroke:#d9b95c,color:#000
-    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
-    classdef verification fill:#c5e8b7,stroke:#a5c897,color:#000
+flowchart TD
+    classDef step fill:#f9d77e,stroke:#d9b95c,color:#000
+    classDef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+    classDef verification fill:#c5e8b7,stroke:#a5c897,color:#000
     
-    start([begin documentation<br>and integration]) --> draft[draft reflection<br>document]
-    draft --> review[review with<br>key stakeholders]
-    review --> revise[incorporate<br>feedback]
-    revise --> finalize[finalize<br>document]
-    finalize --> updatemb[update memory<br>bank]
-    updatemb --> actionreg[create action<br>register]
-    actionreg --> archive[archive project<br>documents]
-    archive --> verification{documentation<br>verification}
-    verification -->|pass| complete([documentation<br>complete])
-    verification -->|fail| morerevision[address<br>documentation gaps]
-    morerevision --> verification
+    Start([Begin Documentation<br>and Integration]) --> Draft[Draft Reflection<br>Document]
+    Draft --> Review[Review with<br>Key Stakeholders]
+    Review --> Revise[Incorporate<br>Feedback]
+    Revise --> Finalize[Finalize<br>Document]
+    Finalize --> UpdateMB[Update Memory<br>Bank]
+    UpdateMB --> ActionReg[Create Action<br>Register]
+    ActionReg --> Archive[Archive Project<br>Documents]
+    Archive --> Verification{Documentation<br>Verification}
+    Verification -->|Pass| Complete([Documentation<br>Complete])
+    Verification -->|Fail| MoreRevision[Address<br>Documentation Gaps]
+    MoreRevision --> Verification
     
-    draft -.-> draftdoc((draft<br>document))
-    finalize -.-> finaldoc((final<br>reflection))
-    actionreg -.-> actreg((action<br>register))
+    Draft -.-> DraftDoc((Draft<br>Document))
+    Finalize -.-> FinalDoc((Final<br>Reflection))
+    ActionReg -.-> ActReg((Action<br>Register))
     
-    class start,complete milestone
-    class draft,review,revise,finalize,updatemb,actionreg,archive,morerevision step
-    class verification verification
-    class draftdoc,finaldoc,actreg artifact
+    class Start,Complete milestone
+    class Draft,Review,Revise,Finalize,UpdateMB,ActionReg,Archive,MoreRevision step
+    class Verification verification
+    class DraftDoc,FinalDoc,ActReg artifact
 ```
 
-**key documentation steps:**
-1. draft comprehensive reflection document using the template
-2. review draft with key stakeholders and participants
-3. incorporate feedback and finalize document
-4. update memory bank with key insights and learnings
-5. create action register for tracking improvement actions
-6. archive project documents with reflection document
-7. verify documentation completeness and quality
+**Key Documentation Steps:**
+1. Draft comprehensive reflection document using the template
+2. Review draft with key stakeholders and participants
+3. Incorporate feedback and finalize document
+4. Update Memory Bank with key insights and learnings
+5. Create action register for tracking improvement actions
+6. Archive project documents with reflection document
+7. Verify documentation completeness and quality
 
-## 📋 reflection techniques
+## 📋 REFLECTION TECHNIQUES
 
-### root cause analysis
+### Root Cause Analysis
 
 ```mermaid
-flowchart td
-    classdef step fill:#f9d77e,stroke:#d9b95c,color:#000
+flowchart TD
+    classDef step fill:#f9d77e,stroke:#d9b95c,color:#000
     
-    start([identify<br>challenge]) --> what[what<br>happened?]
-    what --> when[when did<br>it happen?]
-    when --> where[where did<br>it happen?]
-    where --> who[who was<br>involved?]
-    who --> how[how did<br>it happen?]
-    how --> why1[why did<br>it happen?]
-    why1 --> why2[why?<br>deeper]
-    why2 --> why3[why?<br>deeper]
-    why3 --> why4[why?<br>deeper]
-    why4 --> why5[why?<br>root cause]
-    why5 --> solution[identify<br>solution]
-    solution --> prevent[prevention<br>strategy]
+    Start([Identify<br>Challenge]) --> What[What<br>Happened?]
+    What --> When[When Did<br>It Happen?]
+    When --> Where[Where Did<br>It Happen?]
+    Where --> Who[Who Was<br>Involved?]
+    Who --> How[How Did<br>It Happen?]
+    How --> Why1[Why Did<br>It Happen?]
+    Why1 --> Why2[Why?<br>Deeper]
+    Why2 --> Why3[Why?<br>Deeper]
+    Why3 --> Why4[Why?<br>Deeper]
+    Why4 --> Why5[Why?<br>Root Cause]
+    Why5 --> Solution[Identify<br>Solution]
+    Solution --> Prevent[Prevention<br>Strategy]
     
-    class start milestone
-    class what,when,where,who,how,why1,why2,why3,why4,why5,solution,prevent step
+    class Start milestone
+    class What,When,Where,Who,How,Why1,Why2,Why3,Why4,Why5,Solution,Prevent step
 ```
 
-### success analysis
+### Success Analysis
 
 ```mermaid
-flowchart td
-    classdef step fill:#f9d77e,stroke:#d9b95c,color:#000
+flowchart TD
+    classDef step fill:#f9d77e,stroke:#d9b95c,color:#000
     
-    start([identify<br>success]) --> define[define the<br>success]
-    define --> impact[measure the<br>impact]
-    impact --> factors[identify contributing<br>factors]
-    factors --> context[consider<br>context]
-    context --> patterns[identify<br>patterns]
-    patterns --> generalize[generalize<br>approach]
-    generalize --> apply[define where<br>to apply]
+    Start([Identify<br>Success]) --> Define[Define the<br>Success]
+    Define --> Impact[Measure the<br>Impact]
+    Impact --> Factors[Identify Contributing<br>Factors]
+    Factors --> Context[Consider<br>Context]
+    Context --> Patterns[Identify<br>Patterns]
+    Patterns --> Generalize[Generalize<br>Approach]
+    Generalize --> Apply[Define Where<br>to Apply]
     
-    class start milestone
-    class define,impact,factors,context,patterns,generalize,apply step
+    class Start milestone
+    class Define,Impact,Factors,Context,Patterns,Generalize,Apply step
 ```
 
-### insight generation
+### Insight Generation
 
 ```mermaid
-flowchart td
-    classdef step fill:#f9d77e,stroke:#d9b95c,color:#000
+flowchart TD
+    classDef step fill:#f9d77e,stroke:#d9b95c,color:#000
     
-    start([begin insight<br>generation]) --> observe[observe<br>patterns]
-    observe --> question[question<br>assumptions]
-    question --> connect[connect<br>dots]
-    connect --> contrast[contrast with<br>prior knowledge]
-    contrast --> hypothesize[form<br>hypothesis]
-    hypothesize --> test[test<br>hypothesis]
-    test --> refine[refine<br>insight]
-    refine --> apply[apply to<br>future work]
+    Start([Begin Insight<br>Generation]) --> Observe[Observe<br>Patterns]
+    Observe --> Question[Question<br>Assumptions]
+    Question --> Connect[Connect<br>Dots]
+    Connect --> Contrast[Contrast with<br>Prior Knowledge]
+    Contrast --> Hypothesize[Form<br>Hypothesis]
+    Hypothesize --> Test[Test<br>Hypothesis]
+    Test --> Refine[Refine<br>Insight]
+    Refine --> Apply[Apply to<br>Future Work]
     
-    class start milestone
-    class observe,question,connect,contrast,hypothesize,test,refine,apply step
+    class Start milestone
+    class Observe,Question,Connect,Contrast,Hypothesize,Test,Refine,Apply step
 ```
 
-## 📋 memory bank integration
+## 📋 MEMORY BANK INTEGRATION
 
 ```mermaid
-flowchart td
-    classdef memfile fill:#f4b8c4,stroke:#d498a4,color:#000
-    classdef process fill:#f9d77e,stroke:#d9b95c,color:#000
+flowchart TD
+    classDef memfile fill:#f4b8c4,stroke:#d498a4,color:#000
+    classDef process fill:#f9d77e,stroke:#d9b95c,color:#000
     
-    reflection[comprehensive<br>reflection] --> pb[projectbrief.md]
-    reflection --> pc[productcontext.md]
-    reflection --> ac[activecontext.md]
-    reflection --> sp[systempatterns.md]
-    reflection --> tc[techcontext.md]
-    reflection --> p[progress.md]
+    Reflection[Comprehensive<br>Reflection] --> PB[projectbrief.md]
+    Reflection --> PC[productContext.md]
+    Reflection --> AC[activeContext.md]
+    Reflection --> SP[systemPatterns.md]
+    Reflection --> TC[techContext.md]
+    Reflection --> P[progress.md]
     
-    pb & pc & ac & sp & tc & p --> mbi[memory bank<br>integration]
-    mbi --> next[enhanced future<br>projects]
+    PB & PC & AC & SP & TC & P --> MBI[Memory Bank<br>Integration]
+    MBI --> Next[Enhanced Future<br>Projects]
     
-    class pb,pc,ac,sp,tc,p memfile
-    class reflection,mbi,next process
+    class PB,PC,AC,SP,TC,P memfile
+    class Reflection,MBI,Next process
 ```
 
-### memory bank updates
+### Memory Bank Updates
 
-specific updates to make to memory bank files:
+Specific updates to make to Memory Bank files:
 
 1. **projectbrief.md**
-   - update with strategic insights
-   - document key achievements
-   - incorporate lessons learned
+   - Update with strategic insights
+   - Document key achievements
+   - Incorporate lessons learned
 
-2. **productcontext.md**
-   - update with business insights
-   - document market/user insights
-   - include value delivery insights
+2. **productContext.md**
+   - Update with business insights
+   - Document market/user insights
+   - Include value delivery insights
 
-3. **activecontext.md**
-   - update with current status
-   - document action items
-   - include next steps
+3. **activeContext.md**
+   - Update with current status
+   - Document action items
+   - Include next steps
 
-4. **systempatterns.md**
-   - update with architectural insights
-   - document successful patterns
-   - include technical knowledge
+4. **systemPatterns.md**
+   - Update with architectural insights
+   - Document successful patterns
+   - Include technical knowledge
 
-5. **techcontext.md**
-   - update with implementation insights
-   - document technology stack insights
-   - include performance and security insights
+5. **techContext.md**
+   - Update with implementation insights
+   - Document technology stack insights
+   - Include performance and security insights
 
 6. **progress.md**
-   - update with final status
-   - document achievements
-   - include project metrics
+   - Update with final status
+   - Document achievements
+   - Include project metrics
 
-## 📋 reflection verification checklist
+## 📋 REFLECTION VERIFICATION CHECKLIST
 
 ```
-✓ reflection verification checklist
+✓ REFLECTION VERIFICATION CHECKLIST
 
-system review
-- system overview complete and accurate? [yes/no]
-- project performance metrics collected and analyzed? [yes/no]
-- system boundaries and interfaces described? [yes/no]
+System Review
+- System overview complete and accurate? [YES/NO]
+- Project performance metrics collected and analyzed? [YES/NO]
+- System boundaries and interfaces described? [YES/NO]
 
-success and challenge analysis
-- key achievements documented with evidence? [yes/no]
-- technical successes documented with approach? [yes/no]
-- key challenges documented with resolutions? [yes/no]
-- technical challenges documented with solutions? [yes/no]
-- unresolved issues documented with path forward? [yes/no]
+Success and Challenge Analysis
+- Key achievements documented with evidence? [YES/NO]
+- Technical successes documented with approach? [YES/NO]
+- Key challenges documented with resolutions? [YES/NO]
+- Technical challenges documented with solutions? [YES/NO]
+- Unresolved issues documented with path forward? [YES/NO]
 
-insight generation
-- technical insights extracted and documented? [yes/no]
-- process insights extracted and documented? [yes/no]
-- business insights extracted and documented? [yes/no]
+Insight Generation
+- Technical insights extracted and documented? [YES/NO]
+- Process insights extracted and documented? [YES/NO]
+- Business insights extracted and documented? [YES/NO]
 
-strategic planning
-- immediate actions defined with owners? [yes/no]
-- short-term improvements identified? [yes/no]
-- medium-term initiatives planned? [yes/no]
-- long-term strategic directions outlined? [yes/no]
+Strategic Planning
+- Immediate actions defined with owners? [YES/NO]
+- Short-term improvements identified? [YES/NO]
+- Medium-term initiatives planned? [YES/NO]
+- Long-term strategic directions outlined? [YES/NO]
 
-knowledge transfer
-- key learnings for organization documented? [yes/no]
-- technical knowledge transfer planned? [yes/no]
-- process knowledge transfer planned? [yes/no]
-- documentation updates identified? [yes/no]
+Knowledge Transfer
+- Key learnings for organization documented? [YES/NO]
+- Technical knowledge transfer planned? [YES/NO]
+- Process knowledge transfer planned? [YES/NO]
+- Documentation updates identified? [YES/NO]
 
-memory bank integration
-- projectbrief.md updated with insights? [yes/no]
-- productcontext.md updated with insights? [yes/no]
-- activecontext.md updated with insights? [yes/no]
-- systempatterns.md updated with insights? [yes/no]
-- techcontext.md updated with insights? [yes/no]
-- progress.md updated with final status? [yes/no]
+Memory Bank Integration
+- projectbrief.md updated with insights? [YES/NO]
+- productContext.md updated with insights? [YES/NO]
+- activeContext.md updated with insights? [YES/NO]
+- systemPatterns.md updated with insights? [YES/NO]
+- techContext.md updated with insights? [YES/NO]
+- progress.md updated with final status? [YES/NO]
 ```
 
-## 📋 minimal mode reflection format
+## 📋 MINIMAL MODE REFLECTION FORMAT
 
-for situations requiring a more compact reflection:
+For situations requiring a more compact reflection:
 
 ```markdown
-## level 4 task reflection: [system name]
+## Level 4 Task Reflection: [System Name]
 
-### system summary
-- **purpose**: [brief description of system purpose]
-- **key components**: [list of key components]
-- **architecture**: [brief architecture description]
+### System Summary
+- **Purpose**: [Brief description of system purpose]
+- **Key Components**: [List of key components]
+- **Architecture**: [Brief architecture description]
 
-### performance summary
-- **timeline**: [planned] vs [actual] ([variance])
-- **resources**: [planned] vs [actual] ([variance])
-- **quality**: [summary of quality achievements]
+### Performance Summary
+- **Timeline**: [Planned] vs [Actual] ([Variance])
+- **Resources**: [Planned] vs [Actual] ([Variance])
+- **Quality**: [Summary of quality achievements]
 
-### key successes
-1. [success 1 with evidence and impact]
-2. [success 2 with evidence and impact]
-3. [success 3 with evidence and impact]
+### Key Successes
+1. [Success 1 with evidence and impact]
+2. [Success 2 with evidence and impact]
+3. [Success 3 with evidence and impact]
 
-### key challenges
-1. [challenge 1 with resolution and lessons]
-2. [challenge 2 with resolution and lessons]
-3. [challenge 3 with resolution and lessons]
+### Key Challenges
+1. [Challenge 1 with resolution and lessons]
+2. [Challenge 2 with resolution and lessons]
+3. [Challenge 3 with resolution and lessons]
 
-### critical insights
-- **technical**: [key technical insight with recommendation]
-- **process**: [key process insight with recommendation]
-- **business**: [key business insight with recommendation]
+### Critical Insights
+- **Technical**: [Key technical insight with recommendation]
+- **Process**: [Key process insight with recommendation]
+- **Business**: [Key business insight with recommendation]
 
-### priority actions
-1. [immediate action with owner and timeline]
-2. [short-term improvement with owner and timeline]
-3. [medium-term initiative with owner and timeline]
+### Priority Actions
+1. [Immediate action with owner and timeline]
+2. [Short-term improvement with owner and timeline]
+3. [Medium-term initiative with owner and timeline]
 
-### memory bank updates
-- [list of specific memory bank updates needed]
+### Memory Bank Updates
+- [List of specific Memory Bank updates needed]
 ```
 
-## 🚨 reflection enforcement principle
+## 🚨 REFLECTION ENFORCEMENT PRINCIPLE
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│ comprehensive reflection is mandatory for level 4    │
-│ tasks. archiving cannot proceed until reflection     │
+│ COMPREHENSIVE REFLECTION IS MANDATORY for Level 4    │
+│ tasks. Archiving CANNOT proceed until reflection     │
 │ is completed and verified.                           │
 └─────────────────────────────────────────────────────┘
-```
+``` 

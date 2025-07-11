@@ -1,101 +1,101 @@
 ---
-description: utility for van qa mode transitions
+description: Utility for VAN QA mode transitions
 globs: van-qa-utils/mode-transitions.mdc
-alwaysapply: false
+alwaysApply: false
 ---
-# van qa: mode transitions
+# VAN QA: MODE TRANSITIONS
 
-> **tldr:** this component handles transitions between modes, particularly the qa validation to build mode transition, and prevents build mode access without successful qa validation.
+> **TL;DR:** This component handles transitions between modes, particularly the QA validation to BUILD mode transition, and prevents BUILD mode access without successful QA validation.
 
-## 🔒 build mode prevention mechanism
+## 🔒 BUILD MODE PREVENTION MECHANISM
 
-the system prevents moving to build mode without passing qa validation:
+The system prevents moving to BUILD mode without passing QA validation:
 
 ```mermaid
-graph td
-    start["user types: build"] --> checkqa{"qa validation<br>completed?"}
-    checkqa -->|"yes and passed"| allowbuild["allow build mode"]
-    checkqa -->|"no or failed"| blockbuild["block build mode"]
-    blockbuild --> message["display:<br>⚠️ qa validation required"]
-    message --> returntovanqa["prompt: type van qa"]
+graph TD
+    Start["User Types: BUILD"] --> CheckQA{"QA Validation<br>Completed?"}
+    CheckQA -->|"Yes and Passed"| AllowBuild["Allow BUILD Mode"]
+    CheckQA -->|"No or Failed"| BlockBuild["BLOCK BUILD MODE"]
+    BlockBuild --> Message["Display:<br>⚠️ QA VALIDATION REQUIRED"]
+    Message --> ReturnToVANQA["Prompt: Type VAN QA"]
     
-    style checkqa fill:#f6546a,stroke:#c30052,color:white
-    style blockbuild fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
-    style message fill:#ff5555,stroke:#dd3333,color:white
-    style returntovanqa fill:#4da6ff,stroke:#0066cc,color:white
+    style CheckQA fill:#f6546a,stroke:#c30052,color:white
+    style BlockBuild fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
+    style Message fill:#ff5555,stroke:#dd3333,color:white
+    style ReturnToVANQA fill:#4da6ff,stroke:#0066cc,color:white
 ```
 
-### implementation example (powershell):
+### Implementation Example (PowerShell):
 ```powershell
-# check qa status before allowing build mode
-function check-qavalidationstatus {
-    $qastatusfile = "memory-bank\.qa_validation_status" # assumes status is written by reports.mdc
+# Check QA status before allowing BUILD mode
+function Check-QAValidationStatus {
+    $qaStatusFile = "memory-bank\.qa_validation_status" # Assumes status is written by reports.mdc
     
-    if (test-path $qastatusfile) {
-        $status = get-content $qastatusfile -raw
-        if ($status -match "pass") {
+    if (Test-Path $qaStatusFile) {
+        $status = Get-Content $qaStatusFile -Raw
+        if ($status -match "PASS") {
             return $true
         }
     }
     
-    # display block message
-    write-output "`n`n"
-    write-output "🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
-    write-output "⛔️ build mode blocked: qa validation required"
-    write-output "⛔️ you must complete qa validation before proceeding to build mode"
-    write-output "`n"
-    write-output "type 'van qa' to perform technical validation"
-    write-output "`n"
-    write-output "🚫 no implementation can proceed without validation 🚫"
-    write-output "🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
+    # Display block message
+    Write-Output "`n`n"
+    Write-Output "🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
+    Write-Output "⛔️ BUILD MODE BLOCKED: QA VALIDATION REQUIRED"
+    Write-Output "⛔️ You must complete QA validation before proceeding to BUILD mode"
+    Write-Output "`n"
+    Write-Output "Type 'VAN QA' to perform technical validation"
+    Write-Output "`n"
+    Write-Output "🚫 NO IMPLEMENTATION CAN PROCEED WITHOUT VALIDATION 🚫"
+    Write-Output "🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
     
     return $false
 }
 ```
 
-## 🚨 mode transition triggers
+## 🚨 MODE TRANSITION TRIGGERS
 
-### creative to van qa transition:
-after completing the creative phase, trigger this message to prompt qa validation:
-
-```
-⏭️ next mode: van qa
-to validate technical requirements before implementation, please type 'van qa'
-```
-
-### van qa to build transition (on success):
-after successful qa validation, trigger this message to allow build mode:
+### CREATIVE to VAN QA Transition:
+After completing the CREATIVE phase, trigger this message to prompt QA validation:
 
 ```
-✅ technical validation complete
-all prerequisites verified successfully
-you may now proceed to build mode
-type 'build' to begin implementation
+⏭️ NEXT MODE: VAN QA
+To validate technical requirements before implementation, please type 'VAN QA'
 ```
 
-### manual build mode access (when qa already passed):
-when the user manually types 'build', check the qa status before allowing access:
+### VAN QA to BUILD Transition (On Success):
+After successful QA validation, trigger this message to allow BUILD mode:
+
+```
+✅ TECHNICAL VALIDATION COMPLETE
+All prerequisites verified successfully
+You may now proceed to BUILD mode
+Type 'BUILD' to begin implementation
+```
+
+### Manual BUILD Mode Access (When QA Already Passed):
+When the user manually types 'BUILD', check the QA status before allowing access:
 
 ```powershell
-# handle build mode request
-function handle-buildmoderequest {
-    if (check-qavalidationstatus) {
-        # allow transition to build mode
-        write-output "`n"
-        write-output "✅ qa validation check: passed"
-        write-output "loading build mode..."
-        write-output "`n"
+# Handle BUILD mode request
+function Handle-BuildModeRequest {
+    if (Check-QAValidationStatus) {
+        # Allow transition to BUILD mode
+        Write-Output "`n"
+        Write-Output "✅ QA VALIDATION CHECK: PASSED"
+        Write-Output "Loading BUILD mode..."
+        Write-Output "`n"
         
-        # here you would load the build mode map
-        # [code to load build mode map]
+        # Here you would load the BUILD mode map
+        # [Code to load BUILD mode map]
         
         return $true
     }
     
-    # qa validation failed or not completed, build mode blocked
+    # QA validation failed or not completed, BUILD mode blocked
     return $false
 }
 ```
 
-**next step (on qa success):** continue to build mode.
-**next step (on qa failure):** return to qa validation process.
+**Next Step (on QA SUCCESS):** Continue to BUILD mode.
+**Next Step (on QA FAILURE):** Return to QA validation process. 

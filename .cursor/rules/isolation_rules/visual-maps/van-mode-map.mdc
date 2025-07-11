@@ -1,902 +1,902 @@
 ---
-description: visual process map for van mode (initialization)
+description: Visual process map for VAN mode (Initialization)
 globs: van-mode-map.mdc
-alwaysapply: false
+alwaysApply: false
 ---
-# van mode: initialization process map
+# VAN MODE: INITIALIZATION PROCESS MAP
 
-> **tldr:** this visual map defines the van mode process for project initialization, task analysis, and technical validation. it guides users through platform detection, file verification, complexity determination, and technical validation to ensure proper setup before implementation.
+> **TL;DR:** This visual map defines the VAN mode process for project initialization, task analysis, and technical validation. It guides users through platform detection, file verification, complexity determination, and technical validation to ensure proper setup before implementation.
 
-## 🧭 van mode process flow
-
-```mermaid
-graph td
-    start["start van mode"] --> platformdetect["platform detection"]
-    platformdetect --> detectos["detect operating system"]
-    detectos --> checkpath["check path separator format"]
-    checkpath --> adaptcmds["adapt commands if needed"]
-    adaptcmds --> platformcp["⛔ platform checkpoint"]
-    
-    %% basic file verification with checkpoint
-    platformcp --> basicfileverify["basic file verification"]
-    basicfileverify --> batchcheck["batch check essential components"]
-    batchcheck --> batchcreate["batch create essential structure"]
-    batchcreate --> basicfilecp["⛔ basic file checkpoint"]
-    
-    %% early complexity determination
-    basicfilecp --> earlycomplexity["early complexity determination"]
-    earlycomplexity --> analyzetask["analyze task requirements"]
-    analyzetask --> earlylevelcheck{"complexity level?"}
-    
-    %% level handling paths
-    earlylevelcheck -->|"level 1"| complexitycp["⛔ complexity checkpoint"]
-    earlylevelcheck -->|"level 2-4"| criticalgate["🚫 critical gate: force mode switch"]
-    criticalgate --> forceexit["exit to plan mode"]
-    
-    %% level 1 continues normally
-    complexitycp --> initsystem["initialize memory bank"]
-    initsystem --> complete1["level 1 initialization complete"]
-    
-    %% for level 2+ tasks after plan and creative modes
-    forceexit -.-> othermodes["plan → creative modes"]
-    othermodes -.-> vanqa["van qa mode"]
-    vanqa --> qaprocess["technical validation process"]
-    qaprocess --> qacheck{"all checks pass?"}
-    qacheck -->|"yes"| build["to build mode"]
-    qacheck -->|"no"| fixissues["fix technical issues"]
-    fixissues --> qaprocess
-    
-    %% style nodes
-    style platformcp fill:#f55,stroke:#d44,color:white
-    style basicfilecp fill:#f55,stroke:#d44,color:white
-    style complexitycp fill:#f55,stroke:#d44,color:white
-    style criticalgate fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
-    style forceexit fill:#ff0000,stroke:#990000,color:white,stroke-width:2px
-    style vanqa fill:#4da6ff,stroke:#0066cc,color:white,stroke-width:3px
-    style qaprocess fill:#4da6ff,stroke:#0066cc,color:white
-    style qacheck fill:#4da6ff,stroke:#0066cc,color:white
-    style fixissues fill:#ff5555,stroke:#dd3333,color:white
-```
-
-## 🌐 platform detection process
+## 🧭 VAN MODE PROCESS FLOW
 
 ```mermaid
-graph td
-    pd["platform detection"] --> checkos["detect operating system"]
-    checkos --> win["windows"]
-    checkos --> mac["macos"]
-    checkos --> lin["linux"]
+graph TD
+    Start["START VAN MODE"] --> PlatformDetect["PLATFORM DETECTION"]
+    PlatformDetect --> DetectOS["Detect Operating System"]
+    DetectOS --> CheckPath["Check Path Separator Format"]
+    CheckPath --> AdaptCmds["Adapt Commands if Needed"]
+    AdaptCmds --> PlatformCP["⛔ PLATFORM CHECKPOINT"]
     
-    win & mac & lin --> adapt["adapt commands<br>for platform"]
+    %% Basic File Verification with checkpoint
+    PlatformCP --> BasicFileVerify["BASIC FILE VERIFICATION"]
+    BasicFileVerify --> BatchCheck["Batch Check Essential Components"]
+    BatchCheck --> BatchCreate["Batch Create Essential Structure"]
+    BatchCreate --> BasicFileCP["⛔ BASIC FILE CHECKPOINT"]
     
-    win --> winpath["path: backslash (\\)"]
-    mac --> macpath["path: forward slash (/)"]
-    lin --> linpath["path: forward slash (/)"]
+    %% Early Complexity Determination
+    BasicFileCP --> EarlyComplexity["EARLY COMPLEXITY DETERMINATION"]
+    EarlyComplexity --> AnalyzeTask["Analyze Task Requirements"]
+    AnalyzeTask --> EarlyLevelCheck{"Complexity Level?"}
     
-    win --> wincmd["command adaptations:<br>dir, icacls, etc."]
-    mac --> maccmd["command adaptations:<br>ls, chmod, etc."]
-    lin --> lincmd["command adaptations:<br>ls, chmod, etc."]
+    %% Level handling paths
+    EarlyLevelCheck -->|"Level 1"| ComplexityCP["⛔ COMPLEXITY CHECKPOINT"]
+    EarlyLevelCheck -->|"Level 2-4"| CRITICALGATE["🚫 CRITICAL GATE: FORCE MODE SWITCH"]
+    CRITICALGATE --> ForceExit["Exit to PLAN mode"]
     
-    winpath & macpath & linpath --> pathcp["path separator<br>checkpoint"]
-    wincmd & maccmd & lincmd --> cmdcp["command<br>checkpoint"]
+    %% Level 1 continues normally
+    ComplexityCP --> InitSystem["INITIALIZE MEMORY BANK"]
+    InitSystem --> Complete1["LEVEL 1 INITIALIZATION COMPLETE"]
     
-    pathcp & cmdcp --> platformcomplete["platform detection<br>complete"]
+    %% For Level 2+ tasks after PLAN and CREATIVE modes
+    ForceExit -.-> OtherModes["PLAN → CREATIVE modes"]
+    OtherModes -.-> VANQA["VAN QA MODE"]
+    VANQA --> QAProcess["Technical Validation Process"]
+    QAProcess --> QACheck{"All Checks Pass?"}
+    QACheck -->|"Yes"| BUILD["To BUILD MODE"]
+    QACheck -->|"No"| FixIssues["Fix Technical Issues"]
+    FixIssues --> QAProcess
     
-    style pd fill:#4da6ff,stroke:#0066cc,color:white
-    style platformcomplete fill:#10b981,stroke:#059669,color:white
+    %% Style nodes
+    style PlatformCP fill:#f55,stroke:#d44,color:white
+    style BasicFileCP fill:#f55,stroke:#d44,color:white
+    style ComplexityCP fill:#f55,stroke:#d44,color:white
+    style CRITICALGATE fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
+    style ForceExit fill:#ff0000,stroke:#990000,color:white,stroke-width:2px
+    style VANQA fill:#4da6ff,stroke:#0066cc,color:white,stroke-width:3px
+    style QAProcess fill:#4da6ff,stroke:#0066cc,color:white
+    style QACheck fill:#4da6ff,stroke:#0066cc,color:white
+    style FixIssues fill:#ff5555,stroke:#dd3333,color:white
 ```
 
-## 📁 file verification process
+## 🌐 PLATFORM DETECTION PROCESS
 
 ```mermaid
-graph td
-    fv["file verification"] --> checkfiles["check essential files"]
-    checkfiles --> checkmb["check memory bank<br>structure"]
-    checkmb --> mbexists{"memory bank<br>exists?"}
+graph TD
+    PD["Platform Detection"] --> CheckOS["Detect Operating System"]
+    CheckOS --> Win["Windows"]
+    CheckOS --> Mac["macOS"]
+    CheckOS --> Lin["Linux"]
     
-    mbexists -->|"yes"| verifymb["verify memory bank<br>contents"]
-    mbexists -->|"no"| createmb["create memory bank<br>structure"]
+    Win & Mac & Lin --> Adapt["Adapt Commands<br>for Platform"]
     
-    checkfiles --> checkdocs["check documentation<br>files"]
-    checkdocs --> docsexist{"docs<br>exist?"}
+    Win --> WinPath["Path: Backslash (\\)"]
+    Mac --> MacPath["Path: Forward Slash (/)"]
+    Lin --> LinPath["Path: Forward Slash (/)"]
     
-    docsexist -->|"yes"| verifydocs["verify documentation<br>structure"]
-    docsexist -->|"no"| createdocs["create documentation<br>structure"]
+    Win --> WinCmd["Command Adaptations:<br>dir, icacls, etc."]
+    Mac --> MacCmd["Command Adaptations:<br>ls, chmod, etc."]
+    Lin --> LinCmd["Command Adaptations:<br>ls, chmod, etc."]
     
-    verifymb & createmb --> mbcp["memory bank<br>checkpoint"]
-    verifydocs & createdocs --> docscp["documentation<br>checkpoint"]
+    WinPath & MacPath & LinPath --> PathCP["Path Separator<br>Checkpoint"]
+    WinCmd & MacCmd & LinCmd --> CmdCP["Command<br>Checkpoint"]
     
-    mbcp & docscp --> filecomplete["file verification<br>complete"]
+    PathCP & CmdCP --> PlatformComplete["Platform Detection<br>Complete"]
     
-    style fv fill:#4da6ff,stroke:#0066cc,color:white
-    style filecomplete fill:#10b981,stroke:#059669,color:white
-    style mbcp fill:#f6546a,stroke:#c30052,color:white
-    style docscp fill:#f6546a,stroke:#c30052,color:white
+    style PD fill:#4da6ff,stroke:#0066cc,color:white
+    style PlatformComplete fill:#10b981,stroke:#059669,color:white
 ```
 
-## 🧩 complexity determination process
+## 📁 FILE VERIFICATION PROCESS
 
 ```mermaid
-graph td
-    cd["complexity<br>determination"] --> analyzetask["analyze task<br>requirements"]
+graph TD
+    FV["File Verification"] --> CheckFiles["Check Essential Files"]
+    CheckFiles --> CheckMB["Check Memory Bank<br>Structure"]
+    CheckMB --> MBExists{"Memory Bank<br>Exists?"}
     
-    analyzetask --> checkkeywords["check task<br>keywords"]
-    checkkeywords --> scopecheck["assess<br>scope impact"]
-    scopecheck --> riskcheck["evaluate<br>risk level"]
-    riskcheck --> effortcheck["estimate<br>implementation effort"]
+    MBExists -->|"Yes"| VerifyMB["Verify Memory Bank<br>Contents"]
+    MBExists -->|"No"| CreateMB["Create Memory Bank<br>Structure"]
     
-    effortcheck --> determinelevel{"determine<br>complexity level"}
-    determinelevel -->|"level 1"| l1["level 1:<br>quick bug fix"]
-    determinelevel -->|"level 2"| l2["level 2:<br>simple enhancement"]
-    determinelevel -->|"level 3"| l3["level 3:<br>intermediate feature"]
-    determinelevel -->|"level 4"| l4["level 4:<br>complex system"]
+    CheckFiles --> CheckDocs["Check Documentation<br>Files"]
+    CheckDocs --> DocsExist{"Docs<br>Exist?"}
     
-    l1 --> cdcomplete["complexity determination<br>complete"]
-    l2 & l3 & l4 --> modeswitch["force mode switch<br>to plan"]
+    DocsExist -->|"Yes"| VerifyDocs["Verify Documentation<br>Structure"]
+    DocsExist -->|"No"| CreateDocs["Create Documentation<br>Structure"]
     
-    style cd fill:#4da6ff,stroke:#0066cc,color:white
-    style cdcomplete fill:#10b981,stroke:#059669,color:white
-    style modeswitch fill:#ff0000,stroke:#990000,color:white
-    style determinelevel fill:#f6546a,stroke:#c30052,color:white
+    VerifyMB & CreateMB --> MBCP["Memory Bank<br>Checkpoint"]
+    VerifyDocs & CreateDocs --> DocsCP["Documentation<br>Checkpoint"]
+    
+    MBCP & DocsCP --> FileComplete["File Verification<br>Complete"]
+    
+    style FV fill:#4da6ff,stroke:#0066cc,color:white
+    style FileComplete fill:#10b981,stroke:#059669,color:white
+    style MBCP fill:#f6546a,stroke:#c30052,color:white
+    style DocsCP fill:#f6546a,stroke:#c30052,color:white
 ```
 
-## 🔄 complete workflow with qa validation
-
-the full workflow includes technical validation before implementation:
+## 🧩 COMPLEXITY DETERMINATION PROCESS
 
 ```mermaid
-flowchart lr
-    van1["van mode 
-    (initial analysis)"] --> plan["plan mode
-    (task planning)"]
-    plan --> creative["creative mode
-    (design decisions)"]
-    creative --> vanqa["van qa mode
-    (technical validation)"] 
-    vanqa --> build["build mode
-    (implementation)"]
+graph TD
+    CD["Complexity<br>Determination"] --> AnalyzeTask["Analyze Task<br>Requirements"]
+    
+    AnalyzeTask --> CheckKeywords["Check Task<br>Keywords"]
+    CheckKeywords --> ScopeCheck["Assess<br>Scope Impact"]
+    ScopeCheck --> RiskCheck["Evaluate<br>Risk Level"]
+    RiskCheck --> EffortCheck["Estimate<br>Implementation Effort"]
+    
+    EffortCheck --> DetermineLevel{"Determine<br>Complexity Level"}
+    DetermineLevel -->|"Level 1"| L1["Level 1:<br>Quick Bug Fix"]
+    DetermineLevel -->|"Level 2"| L2["Level 2:<br>Simple Enhancement"]
+    DetermineLevel -->|"Level 3"| L3["Level 3:<br>Intermediate Feature"]
+    DetermineLevel -->|"Level 4"| L4["Level 4:<br>Complex System"]
+    
+    L1 --> CDComplete["Complexity Determination<br>Complete"]
+    L2 & L3 & L4 --> ModeSwitch["Force Mode Switch<br>to PLAN"]
+    
+    style CD fill:#4da6ff,stroke:#0066cc,color:white
+    style CDComplete fill:#10b981,stroke:#059669,color:white
+    style ModeSwitch fill:#ff0000,stroke:#990000,color:white
+    style DetermineLevel fill:#f6546a,stroke:#c30052,color:white
 ```
 
-## 🔍 technical validation overview
+## 🔄 COMPLETE WORKFLOW WITH QA VALIDATION
 
-the van qa technical validation process consists of four key validation points:
+The full workflow includes technical validation before implementation:
 
 ```mermaid
-graph td
-    vanqa["van qa mode"] --> fourchecks["four-point validation"]
-    
-    fourchecks --> depcheck["1️⃣ dependency verification<br>check all required packages"]
-    depcheck --> configcheck["2️⃣ configuration validation<br>verify format & compatibility"]
-    configcheck --> envcheck["3️⃣ environment validation<br>check build environment"]
-    envcheck --> minbuildcheck["4️⃣ minimal build test<br>test core functionality"]
-    
-    minbuildcheck --> validationresults{"all checks<br>passed?"}
-    validationresults -->|"yes"| successreport["generate success report"]
-    validationresults -->|"no"| failurereport["generate failure report"]
-    
-    successreport --> build["proceed to build mode"]
-    failurereport --> fixissues["fix technical issues"]
-    fixissues --> revalidate["re-validate"]
-    revalidate --> validationresults
-    
-    style vanqa fill:#4da6ff,stroke:#0066cc,color:white
-    style fourchecks fill:#f6546a,stroke:#c30052,color:white
-    style validationresults fill:#f6546a,stroke:#c30052,color:white
-    style build fill:#10b981,stroke:#059669,color:white
-    style fixissues fill:#ff5555,stroke:#dd3333,color:white
+flowchart LR
+    VAN1["VAN MODE 
+    (Initial Analysis)"] --> PLAN["PLAN MODE
+    (Task Planning)"]
+    PLAN --> CREATIVE["CREATIVE MODE
+    (Design Decisions)"]
+    CREATIVE --> VANQA["VAN QA MODE
+    (Technical Validation)"] 
+    VANQA --> BUILD["BUILD MODE
+    (Implementation)"]
 ```
 
-## 📝 validation status format
+## 🔍 TECHNICAL VALIDATION OVERVIEW
 
-the qa validation step includes clear status indicators:
+The VAN QA technical validation process consists of four key validation points:
+
+```mermaid
+graph TD
+    VANQA["VAN QA MODE"] --> FourChecks["FOUR-POINT VALIDATION"]
+    
+    FourChecks --> DepCheck["1️⃣ DEPENDENCY VERIFICATION<br>Check all required packages"]
+    DepCheck --> ConfigCheck["2️⃣ CONFIGURATION VALIDATION<br>Verify format & compatibility"]
+    ConfigCheck --> EnvCheck["3️⃣ ENVIRONMENT VALIDATION<br>Check build environment"]
+    EnvCheck --> MinBuildCheck["4️⃣ MINIMAL BUILD TEST<br>Test core functionality"]
+    
+    MinBuildCheck --> ValidationResults{"All Checks<br>Passed?"}
+    ValidationResults -->|"Yes"| SuccessReport["GENERATE SUCCESS REPORT"]
+    ValidationResults -->|"No"| FailureReport["GENERATE FAILURE REPORT"]
+    
+    SuccessReport --> BUILD["Proceed to BUILD MODE"]
+    FailureReport --> FixIssues["Fix Technical Issues"]
+    FixIssues --> ReValidate["Re-validate"]
+    ReValidate --> ValidationResults
+    
+    style VANQA fill:#4da6ff,stroke:#0066cc,color:white
+    style FourChecks fill:#f6546a,stroke:#c30052,color:white
+    style ValidationResults fill:#f6546a,stroke:#c30052,color:white
+    style BUILD fill:#10b981,stroke:#059669,color:white
+    style FixIssues fill:#ff5555,stroke:#dd3333,color:white
+```
+
+## 📝 VALIDATION STATUS FORMAT
+
+The QA Validation step includes clear status indicators:
 
 ```
-╔═════════════════ 🔍 qa validation status ═════════════════╗
-│ ✓ design decisions   │ verified as implementable          │
-│ ✓ dependencies       │ all required packages installed    │
-│ ✓ configurations     │ format verified for platform       │
-│ ✓ environment        │ suitable for implementation        │
+╔═════════════════ 🔍 QA VALIDATION STATUS ═════════════════╗
+│ ✓ Design Decisions   │ Verified as implementable          │
+│ ✓ Dependencies       │ All required packages installed    │
+│ ✓ Configurations     │ Format verified for platform       │
+│ ✓ Environment        │ Suitable for implementation        │
 ╚════════════════════════════════════════════════════════════╝
-✅ verified - clear to proceed to build mode
+✅ VERIFIED - Clear to proceed to BUILD mode
 ```
 
-## 🚨 mode transition triggers
+## 🚨 MODE TRANSITION TRIGGERS
 
-### van to plan transition
-for complexity levels 2-4:
+### VAN to PLAN Transition
+For complexity levels 2-4:
 ```
-🚫 level [2-4] task detected
-implementation in van mode is blocked
-this task requires plan mode
-you must switch to plan mode for proper documentation and planning
-type 'plan' to switch to planning mode
-```
-
-### creative to van qa transition
-after completing the creative mode:
-```
-⏭️ next mode: van qa
-to validate technical requirements before implementation, please type 'van qa'
+🚫 LEVEL [2-4] TASK DETECTED
+Implementation in VAN mode is BLOCKED
+This task REQUIRES PLAN mode
+You MUST switch to PLAN mode for proper documentation and planning
+Type 'PLAN' to switch to planning mode
 ```
 
-### van qa to build transition
-after successful validation:
+### CREATIVE to VAN QA Transition
+After completing the CREATIVE mode:
 ```
-✅ technical validation complete
-all prerequisites verified successfully
-you may now proceed to build mode
-type 'build' to begin implementation
+⏭️ NEXT MODE: VAN QA
+To validate technical requirements before implementation, please type 'VAN QA'
 ```
 
-## 🔒 build mode prevention mechanism
+### VAN QA to BUILD Transition
+After successful validation:
+```
+✅ TECHNICAL VALIDATION COMPLETE
+All prerequisites verified successfully
+You may now proceed to BUILD mode
+Type 'BUILD' to begin implementation
+```
 
-the system prevents moving to build mode without passing qa validation:
+## 🔒 BUILD MODE PREVENTION MECHANISM
+
+The system prevents moving to BUILD mode without passing QA validation:
 
 ```mermaid
-graph td
-    start["user types: build"] --> checkqa{"qa validation<br>completed?"}
-    checkqa -->|"yes and passed"| allowbuild["allow build mode"]
-    checkqa -->|"no or failed"| blockbuild["block build mode"]
-    blockbuild --> message["display:<br>⚠️ qa validation required"]
-    message --> returntovanqa["prompt: type van qa"]
+graph TD
+    Start["User Types: BUILD"] --> CheckQA{"QA Validation<br>Completed?"}
+    CheckQA -->|"Yes and Passed"| AllowBuild["Allow BUILD Mode"]
+    CheckQA -->|"No or Failed"| BlockBuild["BLOCK BUILD MODE"]
+    BlockBuild --> Message["Display:<br>⚠️ QA VALIDATION REQUIRED"]
+    Message --> ReturnToVANQA["Prompt: Type VAN QA"]
     
-    style checkqa fill:#f6546a,stroke:#c30052,color:white
-    style blockbuild fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
-    style message fill:#ff5555,stroke:#dd3333,color:white
-    style returntovanqa fill:#4da6ff,stroke:#0066cc,color:white
+    style CheckQA fill:#f6546a,stroke:#c30052,color:white
+    style BlockBuild fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
+    style Message fill:#ff5555,stroke:#dd3333,color:white
+    style ReturnToVANQA fill:#4da6ff,stroke:#0066cc,color:white
 ```
 
-## 🔄 qa command precedence
+## 🔄 QA COMMAND PRECEDENCE
 
-qa validation can be called at any point in the process flow, and takes immediate precedence over any other current steps, including forced mode switches:
+QA validation can be called at any point in the process flow, and takes immediate precedence over any other current steps, including forced mode switches:
 
 ```mermaid
-graph td
-    userqa["user types: qa"] --> highpriority["⚠️ high priority command"]
-    highpriority --> currenttask["pause current task/process"]
-    currenttask --> loadqa["load qa mode map"]
-    loadqa --> runqa["execute qa validation process"]
-    runqa --> qaresults{"qa results"}
+graph TD
+    UserQA["User Types: QA"] --> HighPriority["⚠️ HIGH PRIORITY COMMAND"]
+    HighPriority --> CurrentTask["Pause Current Task/Process"]
+    CurrentTask --> LoadQA["Load QA Mode Map"]
+    LoadQA --> RunQA["Execute QA Validation Process"]
+    RunQA --> QAResults{"QA Results"}
     
-    qaresults -->|"pass"| resumeflow["resume prior process flow"]
-    qaresults -->|"fail"| fixissues["fix identified issues"]
-    fixissues --> rerunqa["re-run qa validation"]
-    rerunqa --> qaresults
+    QAResults -->|"PASS"| ResumeFlow["Resume Prior Process Flow"]
+    QAResults -->|"FAIL"| FixIssues["Fix Identified Issues"]
+    FixIssues --> ReRunQA["Re-run QA Validation"]
+    ReRunQA --> QAResults
     
-    style userqa fill:#f8d486,stroke:#e8b84d,color:black
-    style highpriority fill:#ff0000,stroke:#cc0000,color:white,stroke-width:3px
-    style loadqa fill:#4da6ff,stroke:#0066cc,color:white
-    style runqa fill:#4da6ff,stroke:#0066cc,color:white
-    style qaresults fill:#f6546a,stroke:#c30052,color:white
+    style UserQA fill:#f8d486,stroke:#e8b84d,color:black
+    style HighPriority fill:#ff0000,stroke:#cc0000,color:white,stroke-width:3px
+    style LoadQA fill:#4da6ff,stroke:#0066cc,color:white
+    style RunQA fill:#4da6ff,stroke:#0066cc,color:white
+    style QAResults fill:#f6546a,stroke:#c30052,color:white
 ```
 
-### qa interruption rules
+### QA Interruption Rules
 
-when a user types **qa** at any point:
+When a user types **QA** at any point:
 
-1. **the qa command must take immediate precedence** over any current operation, including the "force mode switch" triggered by complexity assessment.
-2. the system must:
-   - immediately load the qa mode map
-   - execute the full qa validation process
-   - address any failures before continuing
-3. **required remediation steps take priority** over any pending mode switches or complexity rules
-4. after qa validation is complete and passes:
-   - resume the previously determined process flow
-   - continue with any required mode switches
-
-```
-⚠️ qa override activated
-all other processes paused
-qa validation checks now running...
-any issues found must be remediated before continuing with normal process flow
-```
-
-## 📋 checkpoint verification template
-
-each major checkpoint in van mode uses this format:
+1. **The QA command MUST take immediate precedence** over any current operation, including the "FORCE MODE SWITCH" triggered by complexity assessment.
+2. The system MUST:
+   - Immediately load the QA mode map
+   - Execute the full QA validation process
+   - Address any failures before continuing
+3. **Required remediation steps take priority** over any pending mode switches or complexity rules
+4. After QA validation is complete and passes:
+   - Resume the previously determined process flow
+   - Continue with any required mode switches
 
 ```
-✓ section checkpoint: [section name]
-- requirement 1? [yes/no]
-- requirement 2? [yes/no]
-- requirement 3? [yes/no]
-
-→ if all yes: ready for next section
-→ if any no: fix missing items before proceeding
+⚠️ QA OVERRIDE ACTIVATED
+All other processes paused
+QA validation checks now running...
+Any issues found MUST be remediated before continuing with normal process flow
 ```
 
-## 🚀 van mode activation
+## 📋 CHECKPOINT VERIFICATION TEMPLATE
 
-when the user types "van", respond with a confirmation and start the process:
-
-```
-user: van
-
-response: ok van - beginning initialization process
-```
-
-after completing creative mode, when the user types "van qa", respond:
+Each major checkpoint in VAN mode uses this format:
 
 ```
-user: van qa
+✓ SECTION CHECKPOINT: [SECTION NAME]
+- Requirement 1? [YES/NO]
+- Requirement 2? [YES/NO]
+- Requirement 3? [YES/NO]
 
-response: ok van qa - beginning technical validation
+→ If all YES: Ready for next section
+→ If any NO: Fix missing items before proceeding
 ```
 
-this ensures clear communication about which phase of van mode is active. 
+## 🚀 VAN MODE ACTIVATION
 
-## 🔍 detailed qa validation process
+When the user types "VAN", respond with a confirmation and start the process:
 
-### 1️⃣ dependency verification
+```
+User: VAN
 
-this step verifies that all required packages are installed and compatible:
+Response: OK VAN - Beginning Initialization Process
+```
+
+After completing CREATIVE mode, when the user types "VAN QA", respond:
+
+```
+User: VAN QA
+
+Response: OK VAN QA - Beginning Technical Validation
+```
+
+This ensures clear communication about which phase of VAN mode is active. 
+
+## 🔍 DETAILED QA VALIDATION PROCESS
+
+### 1️⃣ DEPENDENCY VERIFICATION
+
+This step verifies that all required packages are installed and compatible:
 
 ```mermaid
-graph td
-    start["dependency verification"] --> readdeps["read required dependencies<br>from creative phase"]
-    readdeps --> checkinstalled["check if dependencies<br>are installed"]
-    checkinstalled --> depstatus{"all dependencies<br>installed?"}
+graph TD
+    Start["Dependency Verification"] --> ReadDeps["Read Required Dependencies<br>from Creative Phase"]
+    ReadDeps --> CheckInstalled["Check if Dependencies<br>are Installed"]
+    CheckInstalled --> DepStatus{"All Dependencies<br>Installed?"}
     
-    depstatus -->|"yes"| verifyversions["verify versions<br>and compatibility"]
-    depstatus -->|"no"| installmissing["install missing<br>dependencies"]
-    installmissing --> verifyversions
+    DepStatus -->|"Yes"| VerifyVersions["Verify Versions<br>and Compatibility"]
+    DepStatus -->|"No"| InstallMissing["Install Missing<br>Dependencies"]
+    InstallMissing --> VerifyVersions
     
-    verifyversions --> versionstatus{"versions<br>compatible?"}
-    versionstatus -->|"yes"| depsuccess["dependencies verified<br>✅ pass"]
-    versionstatus -->|"no"| upgradeversions["upgrade/downgrade<br>as needed"]
-    upgradeversions --> retryverify["retry verification"]
-    retryverify --> versionstatus
+    VerifyVersions --> VersionStatus{"Versions<br>Compatible?"}
+    VersionStatus -->|"Yes"| DepSuccess["Dependencies Verified<br>✅ PASS"]
+    VersionStatus -->|"No"| UpgradeVersions["Upgrade/Downgrade<br>as Needed"]
+    UpgradeVersions --> RetryVerify["Retry Verification"]
+    RetryVerify --> VersionStatus
     
-    style start fill:#4da6ff,stroke:#0066cc,color:white
-    style depsuccess fill:#10b981,stroke:#059669,color:white
-    style depstatus fill:#f6546a,stroke:#c30052,color:white
-    style versionstatus fill:#f6546a,stroke:#c30052,color:white
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style DepSuccess fill:#10b981,stroke:#059669,color:white
+    style DepStatus fill:#f6546a,stroke:#c30052,color:white
+    style VersionStatus fill:#f6546a,stroke:#c30052,color:white
 ```
 
-#### windows (powershell) implementation:
+#### Windows (PowerShell) Implementation:
 ```powershell
-# example: verify node.js dependencies for a react project
-function verify-dependencies {
-    $requireddeps = @{
+# Example: Verify Node.js dependencies for a React project
+function Verify-Dependencies {
+    $requiredDeps = @{
         "node" = ">=14.0.0"
         "npm" = ">=6.0.0"
     }
     
-    $missingdeps = @()
-    $incompatibledeps = @()
+    $missingDeps = @()
+    $incompatibleDeps = @()
     
-    # check node.js version
-    $nodeversion = $null
+    # Check Node.js version
+    $nodeVersion = $null
     try {
-        $nodeversion = node -v
-        if ($nodeversion -match "v(\d+)\.(\d+)\.(\d+)") {
-            $major = [int]$matches[1]
+        $nodeVersion = node -v
+        if ($nodeVersion -match "v(\d+)\.(\d+)\.(\d+)") {
+            $major = [int]$Matches[1]
             if ($major -lt 14) {
-                $incompatibledeps += "node (found $nodeversion, required >=14.0.0)"
+                $incompatibleDeps += "node (found $nodeVersion, required >=14.0.0)"
             }
         }
     } catch {
-        $missingdeps += "node"
+        $missingDeps += "node"
     }
     
-    # check npm version
-    $npmversion = $null
+    # Check npm version
+    $npmVersion = $null
     try {
-        $npmversion = npm -v
-        if ($npmversion -match "(\d+)\.(\d+)\.(\d+)") {
-            $major = [int]$matches[1]
+        $npmVersion = npm -v
+        if ($npmVersion -match "(\d+)\.(\d+)\.(\d+)") {
+            $major = [int]$Matches[1]
             if ($major -lt 6) {
-                $incompatibledeps += "npm (found $npmversion, required >=6.0.0)"
+                $incompatibleDeps += "npm (found $npmVersion, required >=6.0.0)"
             }
         }
     } catch {
-        $missingdeps += "npm"
+        $missingDeps += "npm"
     }
     
-    # display results
-    if ($missingdeps.count -eq 0 -and $incompatibledeps.count -eq 0) {
-        write-output "✅ all dependencies verified and compatible"
+    # Display results
+    if ($missingDeps.Count -eq 0 -and $incompatibleDeps.Count -eq 0) {
+        Write-Output "✅ All dependencies verified and compatible"
         return $true
     } else {
-        if ($missingdeps.count -gt 0) {
-            write-output "❌ missing dependencies: $($missingdeps -join ', ')"
+        if ($missingDeps.Count -gt 0) {
+            Write-Output "❌ Missing dependencies: $($missingDeps -join ', ')"
         }
-        if ($incompatibledeps.count -gt 0) {
-            write-output "❌ incompatible versions: $($incompatibledeps -join ', ')"
+        if ($incompatibleDeps.Count -gt 0) {
+            Write-Output "❌ Incompatible versions: $($incompatibleDeps -join ', ')"
         }
         return $false
     }
 }
 ```
 
-#### mac/linux (bash) implementation:
+#### Mac/Linux (Bash) Implementation:
 ```bash
 #!/bin/bash
 
-# example: verify node.js dependencies for a react project
+# Example: Verify Node.js dependencies for a React project
 verify_dependencies() {
     local missing_deps=()
     local incompatible_deps=()
     
-    # check node.js version
+    # Check Node.js version
     if command -v node &> /dev/null; then
         local node_version=$(node -v)
         if [[ $node_version =~ v([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
-            local major=${bash_rematch[1]}
+            local major=${BASH_REMATCH[1]}
             if (( major < 14 )); then
                 incompatible_deps+=("node (found $node_version, required >=14.0.0)")
             fi
-        }
+        fi
     else
         missing_deps+=("node")
     fi
     
-    # check npm version
+    # Check npm version
     if command -v npm &> /dev/null; then
         local npm_version=$(npm -v)
         if [[ $npm_version =~ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
-            local major=${bash_rematch[1]}
+            local major=${BASH_REMATCH[1]}
             if (( major < 6 )); then
                 incompatible_deps+=("npm (found $npm_version, required >=6.0.0)")
             fi
-        }
+        fi
     else
         missing_deps+=("npm")
     fi
     
-    # display results
+    # Display results
     if [ ${#missing_deps[@]} -eq 0 ] && [ ${#incompatible_deps[@]} -eq 0 ]; then
-        echo "✅ all dependencies verified and compatible"
+        echo "✅ All dependencies verified and compatible"
         return 0
     else
         if [ ${#missing_deps[@]} -gt 0 ]; then
-            echo "❌ missing dependencies: ${missing_deps[*]}"
-        }
+            echo "❌ Missing dependencies: ${missing_deps[*]}"
+        fi
         if [ ${#incompatible_deps[@]} -gt 0 ]; then
-            echo "❌ incompatible versions: ${incompatible_deps[*]}"
-        }
+            echo "❌ Incompatible versions: ${incompatible_deps[*]}"
+        fi
         return 1
     fi
 }
 ```
 
-### 2️⃣ configuration validation
+### 2️⃣ CONFIGURATION VALIDATION
 
-this step validates configuration files format and compatibility:
+This step validates configuration files format and compatibility:
 
 ```mermaid
-graph td
-    start["configuration validation"] --> identifyconfigs["identify configuration<br>files"]
-    identifyconfigs --> readconfigs["read configuration<br>files"]
-    readconfigs --> validatesyntax["validate syntax<br>and format"]
-    validatesyntax --> syntaxstatus{"syntax<br>valid?"}
+graph TD
+    Start["Configuration Validation"] --> IdentifyConfigs["Identify Configuration<br>Files"]
+    IdentifyConfigs --> ReadConfigs["Read Configuration<br>Files"]
+    ReadConfigs --> ValidateSyntax["Validate Syntax<br>and Format"]
+    ValidateSyntax --> SyntaxStatus{"Syntax<br>Valid?"}
     
-    syntaxstatus -->|"yes"| checkcompatibility["check compatibility<br>with platform"]
-    syntaxstatus -->|"no"| fixsyntax["fix syntax<br>errors"]
-    fixsyntax --> retryvalidate["retry validation"]
-    retryvalidate --> syntaxstatus
+    SyntaxStatus -->|"Yes"| CheckCompatibility["Check Compatibility<br>with Platform"]
+    SyntaxStatus -->|"No"| FixSyntax["Fix Syntax<br>Errors"]
+    FixSyntax --> RetryValidate["Retry Validation"]
+    RetryValidate --> SyntaxStatus
     
-    checkcompatibility --> compatstatus{"compatible with<br>platform?"}
-    compatstatus -->|"yes"| configsuccess["configurations validated<br>✅ pass"]
-    compatstatus -->|"no"| adaptconfigs["adapt configurations<br>for platform"]
-    adaptconfigs --> retrycompat["retry compatibility<br>check"]
-    retrycompat --> compatstatus
+    CheckCompatibility --> CompatStatus{"Compatible with<br>Platform?"}
+    CompatStatus -->|"Yes"| ConfigSuccess["Configurations Validated<br>✅ PASS"]
+    CompatStatus -->|"No"| AdaptConfigs["Adapt Configurations<br>for Platform"]
+    AdaptConfigs --> RetryCompat["Retry Compatibility<br>Check"]
+    RetryCompat --> CompatStatus
     
-    style start fill:#4da6ff,stroke:#0066cc,color:white
-    style configsuccess fill:#10b981,stroke:#059669,color:white
-    style syntaxstatus fill:#f6546a,stroke:#c30052,color:white
-    style compatstatus fill:#f6546a,stroke:#c30052,color:white
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style ConfigSuccess fill:#10b981,stroke:#059669,color:white
+    style SyntaxStatus fill:#f6546a,stroke:#c30052,color:white
+    style CompatStatus fill:#f6546a,stroke:#c30052,color:white
 ``` 
 
-#### configuration validation implementation:
+#### Configuration Validation Implementation:
 ```powershell
-# example: validate configuration files for a web project
-function validate-configurations {
-    $configfiles = @(
+# Example: Validate configuration files for a web project
+function Validate-Configurations {
+    $configFiles = @(
         "package.json",
         "tsconfig.json",
         "vite.config.js"
     )
     
-    $invalidconfigs = @()
-    $incompatibleconfigs = @()
+    $invalidConfigs = @()
+    $incompatibleConfigs = @()
     
-    foreach ($configfile in $configfiles) {
-        if (test-path $configfile) {
-            # check json syntax for json files
-            if ($configfile -match "\.json$") {
+    foreach ($configFile in $configFiles) {
+        if (Test-Path $configFile) {
+            # Check JSON syntax for JSON files
+            if ($configFile -match "\.json$") {
                 try {
-                    get-content $configfile -raw | convertfrom-json | out-null
+                    Get-Content $configFile -Raw | ConvertFrom-Json | Out-Null
                 } catch {
-                    $invalidconfigs += "$configfile (json syntax error: $($_.exception.message))"
+                    $invalidConfigs += "$configFile (JSON syntax error: $($_.Exception.Message))"
                     continue
                 }
             }
             
-            # specific configuration compatibility checks
-            if ($configfile -eq "vite.config.js") {
-                $content = get-content $configfile -raw
-                # check for react plugin in vite config
+            # Specific configuration compatibility checks
+            if ($configFile -eq "vite.config.js") {
+                $content = Get-Content $configFile -Raw
+                # Check for React plugin in Vite config
                 if ($content -notmatch "react\(\)") {
-                    $incompatibleconfigs += "$configfile (missing react plugin for react project)"
+                    $incompatibleConfigs += "$configFile (Missing React plugin for React project)"
                 }
             }
         } else {
-            $invalidconfigs += "$configfile (file not found)"
+            $invalidConfigs += "$configFile (file not found)"
         }
     }
     
-    # display results
-    if ($invalidconfigs.count -eq 0 -and $incompatibleconfigs.count -eq 0) {
-        write-output "✅ all configurations validated and compatible"
+    # Display results
+    if ($invalidConfigs.Count -eq 0 -and $incompatibleConfigs.Count -eq 0) {
+        Write-Output "✅ All configurations validated and compatible"
         return $true
     } else {
-        if ($invalidconfigs.count -gt 0) {
-            write-output "❌ invalid configurations: $($invalidconfigs -join ', ')"
+        if ($invalidConfigs.Count -gt 0) {
+            Write-Output "❌ Invalid configurations: $($invalidConfigs -join ', ')"
         }
-        if ($incompatibleconfigs.count -gt 0) {
-            write-output "❌ incompatible configurations: $($incompatibleconfigs -join ', ')"
+        if ($incompatibleConfigs.Count -gt 0) {
+            Write-Output "❌ Incompatible configurations: $($incompatibleConfigs -join ', ')"
         }
         return $false
     }
 }
 ```
 
-### 3️⃣ environment validation
+### 3️⃣ ENVIRONMENT VALIDATION
 
-this step checks if the environment is properly set up for the implementation:
+This step checks if the environment is properly set up for the implementation:
 
 ```mermaid
-graph td
-    start["environment validation"] --> checkenv["check build environment"]
-    checkenv --> verifybuildtools["verify build tools"]
-    verifybuildtools --> toolsstatus{"build tools<br>available?"}
+graph TD
+    Start["Environment Validation"] --> CheckEnv["Check Build Environment"]
+    CheckEnv --> VerifyBuildTools["Verify Build Tools"]
+    VerifyBuildTools --> ToolsStatus{"Build Tools<br>Available?"}
     
-    toolsstatus -->|"yes"| checkperms["check permissions<br>and access"]
-    toolsstatus -->|"no"| installtools["install required<br>build tools"]
-    installtools --> retrytools["retry verification"]
-    retrytools --> toolsstatus
+    ToolsStatus -->|"Yes"| CheckPerms["Check Permissions<br>and Access"]
+    ToolsStatus -->|"No"| InstallTools["Install Required<br>Build Tools"]
+    InstallTools --> RetryTools["Retry Verification"]
+    RetryTools --> ToolsStatus
     
-    checkperms --> permsstatus{"permissions<br>sufficient?"}
-    permsstatus -->|"yes"| envsuccess["environment validated<br>✅ pass"]
-    permsstatus -->|"no"| fixperms["fix permission<br>issues"]
-    fixperms --> retryperms["retry permission<br>check"]
-    retryperms --> permsstatus
+    CheckPerms --> PermsStatus{"Permissions<br>Sufficient?"}
+    PermsStatus -->|"Yes"| EnvSuccess["Environment Validated<br>✅ PASS"]
+    PermsStatus -->|"No"| FixPerms["Fix Permission<br>Issues"]
+    FixPerms --> RetryPerms["Retry Permission<br>Check"]
+    RetryPerms --> PermsStatus
     
-    style start fill:#4da6ff,stroke:#0066cc,color:white
-    style envsuccess fill:#10b981,stroke:#059669,color:white
-    style toolsstatus fill:#f6546a,stroke:#c30052,color:white
-    style permsstatus fill:#f6546a,stroke:#c30052,color:white
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style EnvSuccess fill:#10b981,stroke:#059669,color:white
+    style ToolsStatus fill:#f6546a,stroke:#c30052,color:white
+    style PermsStatus fill:#f6546a,stroke:#c30052,color:white
 ```
 
-#### environment validation implementation:
+#### Environment Validation Implementation:
 ```powershell
-# example: validate environment for a web project
-function validate-environment {
-    $requiredtools = @(
-        @{name = "git"; command = "git --version"},
-        @{name = "node"; command = "node --version"},
-        @{name = "npm"; command = "npm --version"}
+# Example: Validate environment for a web project
+function Validate-Environment {
+    $requiredTools = @(
+        @{Name = "git"; Command = "git --version"},
+        @{Name = "node"; Command = "node --version"},
+        @{Name = "npm"; Command = "npm --version"}
     )
     
-    $missingtools = @()
-    $permissionissues = @()
+    $missingTools = @()
+    $permissionIssues = @()
     
-    # check build tools
-    foreach ($tool in $requiredtools) {
+    # Check build tools
+    foreach ($tool in $requiredTools) {
         try {
-            invoke-expression $tool.command | out-null
+            Invoke-Expression $tool.Command | Out-Null
         } catch {
-            $missingtools += $tool.name
+            $missingTools += $tool.Name
         }
     }
     
-    # check write permissions in project directory
+    # Check write permissions in project directory
     try {
-        $testfile = ".__permission_test"
-        new-item -path $testfile -itemtype file -force | out-null
-        remove-item -path $testfile -force
+        $testFile = ".__permission_test"
+        New-Item -Path $testFile -ItemType File -Force | Out-Null
+        Remove-Item -Path $testFile -Force
     } catch {
-        $permissionissues += "current directory (write permission denied)"
+        $permissionIssues += "Current directory (write permission denied)"
     }
     
-    # check if port 3000 is available (commonly used for dev servers)
+    # Check if port 3000 is available (commonly used for dev servers)
     try {
-        $listener = new-object system.net.sockets.tcplistener([system.net.ipaddress]::loopback, 3000)
-        $listener.start()
-        $listener.stop()
+        $listener = New-Object System.Net.Sockets.TcpListener([System.Net.IPAddress]::Loopback, 3000)
+        $listener.Start()
+        $listener.Stop()
     } catch {
-        $permissionissues += "port 3000 (already in use or access denied)"
+        $permissionIssues += "Port 3000 (already in use or access denied)"
     }
     
-    # display results
-    if ($missingtools.count -eq 0 -and $permissionissues.count -eq 0) {
-        write-output "✅ environment validated successfully"
+    # Display results
+    if ($missingTools.Count -eq 0 -and $permissionIssues.Count -eq 0) {
+        Write-Output "✅ Environment validated successfully"
         return $true
     } else {
-        if ($missingtools.count -gt 0) {
-            write-output "❌ missing tools: $($missingtools -join ', ')"
+        if ($missingTools.Count -gt 0) {
+            Write-Output "❌ Missing tools: $($missingTools -join ', ')"
         }
-        if ($permissionissues.count -gt 0) {
-            write-output "❌ permission issues: $($permissionissues -join ', ')"
+        if ($permissionIssues.Count -gt 0) {
+            Write-Output "❌ Permission issues: $($permissionIssues -join ', ')"
         }
         return $false
     }
 }
 ```
 
-### 4️⃣ minimal build test
+### 4️⃣ MINIMAL BUILD TEST
 
-this step performs a minimal build test to ensure core functionality:
+This step performs a minimal build test to ensure core functionality:
 
 ```mermaid
-graph td
-    start["minimal build test"] --> createtest["create minimal<br>test project"]
-    createtest --> buildtest["attempt<br>build"]
-    buildtest --> buildstatus{"build<br>successful?"}
+graph TD
+    Start["Minimal Build Test"] --> CreateTest["Create Minimal<br>Test Project"]
+    CreateTest --> BuildTest["Attempt<br>Build"]
+    BuildTest --> BuildStatus{"Build<br>Successful?"}
     
-    buildstatus -->|"yes"| runtest["run basic<br>functionality test"]
-    buildstatus -->|"no"| fixbuild["fix build<br>issues"]
-    fixbuild --> retrybuild["retry build"]
-    retrybuild --> buildstatus
+    BuildStatus -->|"Yes"| RunTest["Run Basic<br>Functionality Test"]
+    BuildStatus -->|"No"| FixBuild["Fix Build<br>Issues"]
+    FixBuild --> RetryBuild["Retry Build"]
+    RetryBuild --> BuildStatus
     
-    runtest --> teststatus{"test<br>passed?"}
-    teststatus -->|"yes"| testsuccess["minimal build test<br>✅ pass"]
-    teststatus -->|"no"| fixtest["fix test<br>issues"]
-    fixtest --> retrytest["retry test"]
-    retrytest --> teststatus
+    RunTest --> TestStatus{"Test<br>Passed?"}
+    TestStatus -->|"Yes"| TestSuccess["Minimal Build Test<br>✅ PASS"]
+    TestStatus -->|"No"| FixTest["Fix Test<br>Issues"]
+    FixTest --> RetryTest["Retry Test"]
+    RetryTest --> TestStatus
     
-    style start fill:#4da6ff,stroke:#0066cc,color:white
-    style testsuccess fill:#10b981,stroke:#059669,color:white
-    style buildstatus fill:#f6546a,stroke:#c30052,color:white
-    style teststatus fill:#f6546a,stroke:#c30052,color:white
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style TestSuccess fill:#10b981,stroke:#059669,color:white
+    style BuildStatus fill:#f6546a,stroke:#c30052,color:white
+    style TestStatus fill:#f6546a,stroke:#c30052,color:white
 ```
 
-#### minimal build test implementation:
+#### Minimal Build Test Implementation:
 ```powershell
-# example: perform minimal build test for a react project
-function perform-minimalbuildtest {
-    $buildsuccess = $false
-    $testsuccess = $false
+# Example: Perform minimal build test for a React project
+function Perform-MinimalBuildTest {
+    $buildSuccess = $false
+    $testSuccess = $false
     
-    # create minimal test project
-    $testdir = ".__build_test"
-    if (test-path $testdir) {
-        remove-item -path $testdir -recurse -force
+    # Create minimal test project
+    $testDir = ".__build_test"
+    if (Test-Path $testDir) {
+        Remove-Item -Path $testDir -Recurse -Force
     }
     
     try {
-        # create minimal test directory
-        new-item -path $testdir -itemtype directory | out-null
-        push-location $testdir
+        # Create minimal test directory
+        New-Item -Path $testDir -ItemType Directory | Out-Null
+        Push-Location $testDir
         
-        # initialize minimal package.json
+        # Initialize minimal package.json
         @"
 {
   "name": "build-test",
   "version": "1.0.0",
-  "description": "minimal build test",
+  "description": "Minimal build test",
   "main": "index.js",
   "scripts": {
-    "build": "echo build test successful"
+    "build": "echo Build test successful"
   }
 }
-"@ | set-content -path "package.json"
+"@ | Set-Content -Path "package.json"
         
-        # attempt build
-        npm run build | out-null
-        $buildsuccess = $true
+        # Attempt build
+        npm run build | Out-Null
+        $buildSuccess = $true
         
-        # create minimal test file
+        # Create minimal test file
         @"
-console.log('test successful');
-"@ | set-content -path "index.js"
+console.log('Test successful');
+"@ | Set-Content -Path "index.js"
         
-        # run basic test
-        node index.js | out-null
-        $testsuccess = $true
+        # Run basic test
+        node index.js | Out-Null
+        $testSuccess = $true
         
     } catch {
-        write-output "❌ build test failed: $($_.exception.message)"
+        Write-Output "❌ Build test failed: $($_.Exception.Message)"
     } finally {
-        pop-location
-        if (test-path $testdir) {
-            remove-item -path $testdir -recurse -force
+        Pop-Location
+        if (Test-Path $testDir) {
+            Remove-Item -Path $testDir -Recurse -Force
         }
     }
     
-    # display results
-    if ($buildsuccess -and $testsuccess) {
-        write-output "✅ minimal build test passed successfully"
+    # Display results
+    if ($buildSuccess -and $testSuccess) {
+        Write-Output "✅ Minimal build test passed successfully"
         return $true
     } else {
-        if (-not $buildsuccess) {
-            write-output "❌ build process failed"
+        if (-not $buildSuccess) {
+            Write-Output "❌ Build process failed"
         }
-        if (-not $testsuccess) {
-            write-output "❌ basic functionality test failed"
+        if (-not $testSuccess) {
+            Write-Output "❌ Basic functionality test failed"
         }
         return $false
     }
 }
 ```
 
-## 📋 comprehensive qa report format
+## 📋 COMPREHENSIVE QA REPORT FORMAT
 
-after running all validation steps, a comprehensive report is generated:
+After running all validation steps, a comprehensive report is generated:
 
 ```
-╔═════════════════════ 🔍 qa validation report ══════════════════════╗
+╔═════════════════════ 🔍 QA VALIDATION REPORT ══════════════════════╗
 │                                                                     │
-│  project: [project name]                                            │
-│  timestamp: [current date/time]                                     │
+│  PROJECT: [Project Name]                                            │
+│  TIMESTAMP: [Current Date/Time]                                     │
 │                                                                     │
-│  1️⃣ dependency verification                                         │
-│  ✓ required: [list of required dependencies]                        │
-│  ✓ installed: [list of installed dependencies]                      │
-│  ✓ compatible: [yes/no]                                            │
+│  1️⃣ DEPENDENCY VERIFICATION                                         │
+│  ✓ Required: [List of required dependencies]                        │
+│  ✓ Installed: [List of installed dependencies]                      │
+│  ✓ Compatible: [Yes/No]                                            │
 │                                                                     │
-│  2️⃣ configuration validation                                        │
-│  ✓ config files: [list of configuration files]                      │
-│  ✓ syntax valid: [yes/no]                                          │
-│  ✓ platform compatible: [yes/no]                                   │
+│  2️⃣ CONFIGURATION VALIDATION                                        │
+│  ✓ Config Files: [List of configuration files]                      │
+│  ✓ Syntax Valid: [Yes/No]                                          │
+│  ✓ Platform Compatible: [Yes/No]                                   │
 │                                                                     │
-│  3️⃣ environment validation                                          │
-│  ✓ build tools: [available/missing]                                │
-│  ✓ permissions: [sufficient/insufficient]                          │
-│  ✓ environment ready: [yes/no]                                     │
+│  3️⃣ ENVIRONMENT VALIDATION                                          │
+│  ✓ Build Tools: [Available/Missing]                                │
+│  ✓ Permissions: [Sufficient/Insufficient]                          │
+│  ✓ Environment Ready: [Yes/No]                                     │
 │                                                                     │
-│  4️⃣ minimal build test                                              │
-│  ✓ build process: [successful/failed]                              │
-│  ✓ functionality test: [passed/failed]                             │
-│  ✓ build ready: [yes/no]                                           │
+│  4️⃣ MINIMAL BUILD TEST                                              │
+│  ✓ Build Process: [Successful/Failed]                              │
+│  ✓ Functionality Test: [Passed/Failed]                             │
+│  ✓ Build Ready: [Yes/No]                                           │
 │                                                                     │
-│  🚨 final verdict: [pass/fail]                                      │
-│  ➡️ [success message or error details]                              │
+│  🚨 FINAL VERDICT: [PASS/FAIL]                                      │
+│  ➡️ [Success message or error details]                              │
 ╚═════════════════════════════════════════════════════════════════════╝
 ```
 
-## ❌ failure report format
+## ❌ FAILURE REPORT FORMAT
 
-if any validation step fails, a detailed failure report is generated:
+If any validation step fails, a detailed failure report is generated:
 
 ```
-⚠️⚠️⚠️ qa validation failed ⚠️⚠️⚠️
+⚠️⚠️⚠️ QA VALIDATION FAILED ⚠️⚠️⚠️
 
-the following issues must be resolved before proceeding to build mode:
+The following issues must be resolved before proceeding to BUILD mode:
 
-1️⃣ dependency issues:
-- [detailed description of dependency issues]
-- [recommended fix]
+1️⃣ DEPENDENCY ISSUES:
+- [Detailed description of dependency issues]
+- [Recommended fix]
 
-2️⃣ configuration issues:
-- [detailed description of configuration issues]
-- [recommended fix]
+2️⃣ CONFIGURATION ISSUES:
+- [Detailed description of configuration issues]
+- [Recommended fix]
 
-3️⃣ environment issues:
-- [detailed description of environment issues]
-- [recommended fix]
+3️⃣ ENVIRONMENT ISSUES:
+- [Detailed description of environment issues]
+- [Recommended fix]
 
-4️⃣ build test issues:
-- [detailed description of build test issues]
-- [recommended fix]
+4️⃣ BUILD TEST ISSUES:
+- [Detailed description of build test issues]
+- [Recommended fix]
 
-⚠️ build mode is blocked until these issues are resolved.
-type 'van qa' after fixing the issues to re-validate.
+⚠️ BUILD MODE IS BLOCKED until these issues are resolved.
+Type 'VAN QA' after fixing the issues to re-validate.
 ```
 
-## 🔄 integration with design decisions
+## 🔄 INTEGRATION WITH DESIGN DECISIONS
 
-the van qa mode reads and validates design decisions from the creative phase:
+The VAN QA mode reads and validates design decisions from the CREATIVE phase:
 
 ```mermaid
-graph td
-    start["read design decisions"] --> readcreative["parse creative phase<br>documentation"]
-    readcreative --> extracttech["extract technology<br>choices"]
-    extracttech --> extractdeps["extract required<br>dependencies"]
-    extractdeps --> buildvalidationplan["build validation<br>plan"]
-    buildvalidationplan --> startvalidation["start four-point<br>validation process"]
+graph TD
+    Start["Read Design Decisions"] --> ReadCreative["Parse Creative Phase<br>Documentation"]
+    ReadCreative --> ExtractTech["Extract Technology<br>Choices"]
+    ExtractTech --> ExtractDeps["Extract Required<br>Dependencies"]
+    ExtractDeps --> BuildValidationPlan["Build Validation<br>Plan"]
+    BuildValidationPlan --> StartValidation["Start Four-Point<br>Validation Process"]
     
-    style start fill:#4da6ff,stroke:#0066cc,color:white
-    style extracttech fill:#f6546a,stroke:#c30052,color:white
-    style buildvalidationplan fill:#10b981,stroke:#059669,color:white
-    style startvalidation fill:#f6546a,stroke:#c30052,color:white
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style ExtractTech fill:#f6546a,stroke:#c30052,color:white
+    style BuildValidationPlan fill:#10b981,stroke:#059669,color:white
+    style StartValidation fill:#f6546a,stroke:#c30052,color:white
 ```
 
-### technology extraction process:
+### Technology Extraction Process:
 ```powershell
-# example: extract technology choices from creative phase documentation
-function extract-technologychoices {
-    $techchoices = @{}
+# Example: Extract technology choices from creative phase documentation
+function Extract-TechnologyChoices {
+    $techChoices = @{}
     
-    # read from systempatterns.md
-    if (test-path "memory-bank\systempatterns.md") {
-        $content = get-content "memory-bank\systempatterns.md" -raw
+    # Read from systemPatterns.md
+    if (Test-Path "memory-bank\systemPatterns.md") {
+        $content = Get-Content "memory-bank\systemPatterns.md" -Raw
         
-        # extract framework choice
-        if ($content -match "framework:\s*(\w+)") {
-            $techchoices["framework"] = $matches[1]
+        # Extract framework choice
+        if ($content -match "Framework:\s*(\w+)") {
+            $techChoices["framework"] = $Matches[1]
         }
         
-        # extract ui library choice
-        if ($content -match "ui library:\s*(\w+)") {
-            $techchoices["ui_library"] = $matches[1]
+        # Extract UI library choice
+        if ($content -match "UI Library:\s*(\w+)") {
+            $techChoices["ui_library"] = $Matches[1]
         }
         
-        # extract state management choice
-        if ($content -match "state management:\s*([^\\n]+)") {
-            $techchoices["state_management"] = $matches[1].trim()
+        # Extract state management choice
+        if ($content -match "State Management:\s*([^\\n]+)") {
+            $techChoices["state_management"] = $Matches[1].Trim()
         }
     }
     
-    return $techchoices
+    return $techChoices
 }
 ```
 
-## 🚨 implementation prevention mechanism
+## 🚨 IMPLEMENTATION PREVENTION MECHANISM
 
-if qa validation fails, the system prevents moving to build mode:
+If QA validation fails, the system prevents moving to BUILD mode:
 
 ```powershell
-# example: enforce qa validation before allowing build mode
-function check-qavalidationstatus {
-    $qastatusfile = "memory-bank\.qa_validation_status"
+# Example: Enforce QA validation before allowing BUILD mode
+function Check-QAValidationStatus {
+    $qaStatusFile = "memory-bank\.qa_validation_status"
     
-    if (test-path $qastatusfile) {
-        $status = get-content $qastatusfile -raw
-        if ($status -match "pass") {
+    if (Test-Path $qaStatusFile) {
+        $status = Get-Content $qaStatusFile -Raw
+        if ($status -match "PASS") {
             return $true
         }
     }
     
-    # display block message
-    write-output "`n`n"
-    write-output "🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
-    write-output "⛔️ build mode blocked: qa validation required"
-    write-output "⛔️ you must complete qa validation before proceeding to build mode"
-    write-output "`n"
-    write-output "type 'van qa' to perform technical validation"
-    write-output "`n"
-    write-output "🚫 no implementation can proceed without validation 🚫"
-    write-output "🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
+    # Display block message
+    Write-Output "`n`n"
+    Write-Output "🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
+    Write-Output "⛔️ BUILD MODE BLOCKED: QA VALIDATION REQUIRED"
+    Write-Output "⛔️ You must complete QA validation before proceeding to BUILD mode"
+    Write-Output "`n"
+    Write-Output "Type 'VAN QA' to perform technical validation"
+    Write-Output "`n"
+    Write-Output "🚫 NO IMPLEMENTATION CAN PROCEED WITHOUT VALIDATION 🚫"
+    Write-Output "🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
     
     return $false
 }
 ```
 
-## 🧪 common qa validation fixes
+## 🧪 COMMON QA VALIDATION FIXES
 
-here are common fixes for issues encountered during qa validation:
+Here are common fixes for issues encountered during QA validation:
 
-### dependency issues:
-- **missing node.js**: install node.js from https://nodejs.org/
-- **outdated npm**: run `npm install -g npm@latest` to update
-- **missing packages**: run `npm install` or `npm install [package-name]`
+### Dependency Issues:
+- **Missing Node.js**: Install Node.js from https://nodejs.org/
+- **Outdated npm**: Run `npm install -g npm@latest` to update
+- **Missing packages**: Run `npm install` or `npm install [package-name]`
 
-### configuration issues:
-- **invalid json**: use a json validator to check syntax
-- **missing react plugin**: add `import react from '@vitejs/plugin-react'` and `plugins: [react()]` to vite.config.js
-- **incompatible typescript config**: update `tsconfig.json` with correct react settings
+### Configuration Issues:
+- **Invalid JSON**: Use a JSON validator to check syntax
+- **Missing React plugin**: Add `import react from '@vitejs/plugin-react'` and `plugins: [react()]` to vite.config.js
+- **Incompatible TypeScript config**: Update `tsconfig.json` with correct React settings
 
-### environment issues:
-- **permission denied**: run terminal as administrator (windows) or use sudo (mac/linux)
-- **port already in use**: kill process using the port or change the port in configuration
-- **missing build tools**: install required command-line tools
+### Environment Issues:
+- **Permission denied**: Run terminal as administrator (Windows) or use sudo (Mac/Linux)
+- **Port already in use**: Kill process using the port or change the port in configuration
+- **Missing build tools**: Install required command-line tools
 
-### build test issues:
-- **build fails**: check console for specific error messages
-- **test fails**: verify minimal configuration is correct
-- **path issues**: ensure paths use correct separators for the platform
+### Build Test Issues:
+- **Build fails**: Check console for specific error messages
+- **Test fails**: Verify minimal configuration is correct
+- **Path issues**: Ensure paths use correct separators for the platform
 
-## 🔒 final qa validation checkpoint
+## 🔒 FINAL QA VALIDATION CHECKPOINT
 
 ```
-✓ section checkpoint: qa validation
-- dependency verification passed? [yes/no]
-- configuration validation passed? [yes/no]
-- environment validation passed? [yes/no]
-- minimal build test passed? [yes/no]
+✓ SECTION CHECKPOINT: QA VALIDATION
+- Dependency Verification Passed? [YES/NO]
+- Configuration Validation Passed? [YES/NO]
+- Environment Validation Passed? [YES/NO]
+- Minimal Build Test Passed? [YES/NO]
 
-→ if all yes: ready for build mode
-→ if any no: fix identified issues before proceeding
-```
+→ If all YES: Ready for BUILD mode
+→ If any NO: Fix identified issues before proceeding
+``` 

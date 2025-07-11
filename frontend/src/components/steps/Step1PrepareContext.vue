@@ -140,11 +140,16 @@
                 class="flex-grow flex flex-col"
             >
                 <div class="flex justify-between items-center mb-2">
-                    <h3
-                        class="text-md font-medium text-gray-700 dark:text-gray-300"
-                    >
-                        generated project context:
-                    </h3>
+                    <div>
+                        <h3
+                            class="text-md font-medium text-gray-700 dark:text-gray-300"
+                        >
+                            generated project context:
+                        </h3>
+                        <p v-if="generatedContext" class="text-xs text-gray-500 dark:text-gray-400">
+                            {{ contextStats.lines }} lines ({{ contextStats.sizeKb }} kb)
+                        </p>
+                    </div>
                     <button
                         v-if="generatedContext"
                         @click="copyGeneratedContextToClipboard"
@@ -269,6 +274,16 @@ const errorMessage = computed(() => {
     }
 
     return props.generatedContext.trim();
+});
+
+// computed properties for context statistics
+const contextStats = computed(() => {
+    if (!props.generatedContext) return { lines: 0, sizeKb: 0 };
+
+    const lines = props.generatedContext.split('\n').length;
+    const sizeKb = (props.generatedContext.length / 1024).toFixed(1);
+
+    return { lines, sizeKb };
 });
 
 const progressBarWidth = computed(() => {

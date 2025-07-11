@@ -77,6 +77,22 @@
                 <div class="flex justify-between items-center mb-2">
                     <div class="flex items-center space-x-2">
                         <div class="flex lg:flex-row flex-col space-x-2">
+                            <!-- refresh button -->
+                            <button
+                                @click="refreshPrompt"
+                                :disabled="isLoadingFinalPrompt"
+                                :class="[
+                                'p-2 px-3 rounded-md text-sm flex items-center',
+                                refreshing ? 'bg-green-600 dark:bg-green-700 text-white' : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                ]"
+                                title="regenerate prompt"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" :class="{'animate-spin': refreshing}">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
+
+                            <!-- mode buttons -->
                             <button
                                 v-for="(template, key) in promptTemplates"
                                 :key="key"
@@ -256,6 +272,9 @@ const isCountingTokens = ref(false);
 const tokenCountError = ref("");
 let tokenDebounceTimer = null;
 
+// refresh button state
+const refreshing = ref(false);
+
 let finalPromptDebounceTimer = null;
 let userTaskInputDebounceTimer = null;
 
@@ -359,6 +378,22 @@ function debouncedUpdateFinalPrompt() {
     finalPromptDebounceTimer = setTimeout(() => {
         updateFinalPrompt();
     }, 750);
+}
+
+// refresh prompt functionality
+function refreshPrompt() {
+  if (isLoadingFinalPrompt.value) return;
+
+  // visual feedback
+  refreshing.value = true;
+
+  // force prompt regeneration
+  updateFinalPrompt();
+
+  // reset refreshing state after a short delay
+  setTimeout(() => {
+    refreshing.value = false;
+  }, 500);
 }
 
 watch(

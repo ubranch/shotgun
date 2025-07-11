@@ -1,92 +1,92 @@
 ---
-description: utility for van qa common validation fixes
+description: Utility for VAN QA common validation fixes
 globs: van-qa-utils/common-fixes.mdc
-alwaysapply: false
+alwaysApply: false
 ---
-# van qa: common validation fixes
+# VAN QA: COMMON VALIDATION FIXES
 
-> **tldr:** this component provides common fixes for issues that may arise during the qa validation process.
+> **TL;DR:** This component provides common fixes for issues that may arise during the QA validation process.
 
-## 🧪 common qa validation fixes by category
+## 🧪 COMMON QA VALIDATION FIXES BY CATEGORY
 
-### dependency issues
+### Dependency Issues
 
-| issue | fix |
+| Issue | Fix |
 |-------|-----|
-| **missing node.js** | download and install node.js from https://nodejs.org/ |
-| **outdated npm** | run `npm install -g npm@latest` to update |
-| **missing packages** | run `npm install` or `npm install [package-name]` |
-| **package version conflicts** | adjust versions in package.json and run `npm install` |
-| **dependency resolution issues** | run `npm cache clean -f` and try installing again |
+| **Missing Node.js** | Download and install Node.js from https://nodejs.org/ |
+| **Outdated npm** | Run `npm install -g npm@latest` to update |
+| **Missing packages** | Run `npm install` or `npm install [package-name]` |
+| **Package version conflicts** | Adjust versions in package.json and run `npm install` |
+| **Dependency resolution issues** | Run `npm cache clean -f` and try installing again |
 
-### configuration issues
+### Configuration Issues
 
-| issue | fix |
+| Issue | Fix |
 |-------|-----|
-| **invalid json** | use a json validator (e.g., jsonlint) to check syntax |
-| **missing react plugin** | add `import react from '@vitejs/plugin-react'` and `plugins: [react()]` to vite.config.js |
-| **incompatible typescript config** | update `tsconfig.json` with correct react settings |
-| **mismatched version references** | ensure consistent versions across configuration files |
-| **missing entries in config files** | add required fields to configuration files |
+| **Invalid JSON** | Use a JSON validator (e.g., jsonlint) to check syntax |
+| **Missing React plugin** | Add `import react from '@vitejs/plugin-react'` and `plugins: [react()]` to vite.config.js |
+| **Incompatible TypeScript config** | Update `tsconfig.json` with correct React settings |
+| **Mismatched version references** | Ensure consistent versions across configuration files |
+| **Missing entries in config files** | Add required fields to configuration files |
 
-### environment issues
+### Environment Issues
 
-| issue | fix |
+| Issue | Fix |
 |-------|-----|
-| **permission denied** | run terminal as administrator (windows) or use sudo (mac/linux) |
-| **port already in use** | kill process using the port: `netstat -ano \| findstr :port` then `taskkill /f /pid pid` (windows) or `lsof -i :port` then `kill -9 pid` (mac/linux) |
-| **missing build tools** | install required command-line tools (git, node, etc.) |
-| **environment variable issues** | set required environment variables: `$env:var_name = "value"` (powershell) or `export var_name="value"` (bash) |
-| **disk space issues** | free up disk space, clean npm/package cache files |
+| **Permission denied** | Run terminal as administrator (Windows) or use sudo (Mac/Linux) |
+| **Port already in use** | Kill process using the port: `netstat -ano \| findstr :PORT` then `taskkill /F /PID PID` (Windows) or `lsof -i :PORT` then `kill -9 PID` (Mac/Linux) |
+| **Missing build tools** | Install required command-line tools (git, node, etc.) |
+| **Environment variable issues** | Set required environment variables: `$env:VAR_NAME = "value"` (PowerShell) or `export VAR_NAME="value"` (Bash) |
+| **Disk space issues** | Free up disk space, clean npm/package cache files |
 
-### build test issues
+### Build Test Issues
 
-| issue | fix |
+| Issue | Fix |
 |-------|-----|
-| **build fails** | check console for specific error messages |
-| **test fails** | verify minimal configuration is correct |
-| **path issues** | ensure paths use correct separators for the platform (`\` for windows, `/` for mac/linux) |
-| **missing dependencies** | make sure all required dependencies are installed |
-| **script permissions** | ensure script files have execution permissions (chmod +x on unix) |
+| **Build fails** | Check console for specific error messages |
+| **Test fails** | Verify minimal configuration is correct |
+| **Path issues** | Ensure paths use correct separators for the platform (`\` for Windows, `/` for Mac/Linux) |
+| **Missing dependencies** | Make sure all required dependencies are installed |
+| **Script permissions** | Ensure script files have execution permissions (chmod +x on Unix) |
 
-## 📝 issue diagnosis procedures
+## 📝 ISSUE DIAGNOSIS PROCEDURES
 
-### 1. dependency diagnosis
+### 1. Dependency Diagnosis
 ```powershell
-# find conflicting dependencies
+# Find conflicting dependencies
 npm ls [package-name]
 
-# check for outdated packages
+# Check for outdated packages
 npm outdated
 
-# check for vulnerabilities
+# Check for vulnerabilities
 npm audit
 ```
 
-### 2. configuration diagnosis
+### 2. Configuration Diagnosis
 ```powershell
-# list all configuration files
-get-childitem -recurse -include "*.json","*.config.js" | select-object fullname
+# List all configuration files
+Get-ChildItem -Recurse -Include "*.json","*.config.js" | Select-Object FullName
 
-# find missing references in tsconfig.json
-if (test-path "tsconfig.json") { 
-    $tsconfig = get-content "tsconfig.json" -raw | convertfrom-json
-    if (-not $tsconfig.compileroptions.jsx) {
-        write-output "missing jsx setting in tsconfig.json"
+# Find missing references in tsconfig.json
+if (Test-Path "tsconfig.json") { 
+    $tsconfig = Get-Content "tsconfig.json" -Raw | ConvertFrom-Json
+    if (-not $tsconfig.compilerOptions.jsx) {
+        Write-Output "Missing jsx setting in tsconfig.json"
     }
 }
 ```
 
-### 3. environment diagnosis
+### 3. Environment Diagnosis
 ```powershell
-# check process using a port (windows)
+# Check process using a port (Windows)
 netstat -ano | findstr ":3000"
 
-# list environment variables
-get-childitem env:
+# List environment variables
+Get-ChildItem Env:
 
-# check disk space
-get-psdrive c | select-object used,free
+# Check disk space
+Get-PSDrive C | Select-Object Used,Free
 ```
 
-**next step:** return to the validation process or follow the specific fix recommendations provided above.
+**Next Step:** Return to the validation process or follow the specific fix recommendations provided above. 

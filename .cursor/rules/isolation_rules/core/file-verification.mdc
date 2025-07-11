@@ -1,198 +1,198 @@
 ---
-description: optimized file verification
+description: Optimized file verification
 globs: file-verification.mdc
-alwaysapply: false
+alwaysApply: false
 ---
-# optimized file verification system
+# OPTIMIZED FILE VERIFICATION SYSTEM
 
-> **tldr:** this system efficiently verifies and creates required memory bank file structures using batch operations and platform-optimized commands.
+> **TL;DR:** This system efficiently verifies and creates required Memory Bank file structures using batch operations and platform-optimized commands.
 
-## 🔍 optimized file verification workflow
-
-```mermaid
-graph td
-    start["start file<br>verification"] --> verifyall["verify all<br>required components"]
-    verifyall --> missingcheck{"missing<br>components?"}
-    missingcheck -->|"yes"| batchcreate["batch create<br>all missing items"]
-    missingcheck -->|"no"| complete["verification<br>complete"]
-    batchcreate --> report["generate<br>verification report"]
-    report --> complete
-```
-
-## 📋 optimized directory creation
+## 🔍 OPTIMIZED FILE VERIFICATION WORKFLOW
 
 ```mermaid
-graph td
-    start["directory<br>creation"] --> detectos["detect operating<br>system"]
-    detectos -->|"windows"| wincmd["batch create<br>windows command"]
-    detectos -->|"mac/linux"| unixcmd["batch create<br>unix command"]
-    wincmd & unixcmd --> verify["verify<br>creation success"]
-    verify --> complete["directory setup<br>complete"]
+graph TD
+    Start["Start File<br>Verification"] --> VerifyAll["Verify All<br>Required Components"]
+    VerifyAll --> MissingCheck{"Missing<br>Components?"}
+    MissingCheck -->|"Yes"| BatchCreate["Batch Create<br>All Missing Items"]
+    MissingCheck -->|"No"| Complete["Verification<br>Complete"]
+    BatchCreate --> Report["Generate<br>Verification Report"]
+    Report --> Complete
 ```
 
-### platform-specific commands
+## 📋 OPTIMIZED DIRECTORY CREATION
 
-#### windows (powershell)
+```mermaid
+graph TD
+    Start["Directory<br>Creation"] --> DetectOS["Detect Operating<br>System"]
+    DetectOS -->|"Windows"| WinCmd["Batch Create<br>Windows Command"]
+    DetectOS -->|"Mac/Linux"| UnixCmd["Batch Create<br>Unix Command"]
+    WinCmd & UnixCmd --> Verify["Verify<br>Creation Success"]
+    Verify --> Complete["Directory Setup<br>Complete"]
+```
+
+### Platform-Specific Commands
+
+#### Windows (PowerShell)
 ```powershell
-# create all directories in one command
-mkdir memory-bank, docs, docs\archive -erroraction silentlycontinue
+# Create all directories in one command
+mkdir memory-bank, docs, docs\archive -ErrorAction SilentlyContinue
 
-# create all required files
+# Create all required files
 $files = @(".cursorrules", "tasks.md", 
            "memory-bank\projectbrief.md", 
-           "memory-bank\productcontext.md",
-           "memory-bank\systempatterns.md",
-           "memory-bank\techcontext.md",
-           "memory-bank\activecontext.md",
+           "memory-bank\productContext.md",
+           "memory-bank\systemPatterns.md",
+           "memory-bank\techContext.md",
+           "memory-bank\activeContext.md",
            "memory-bank\progress.md")
 
 foreach ($file in $files) {
-    if (-not (test-path $file)) {
-        new-item -path $file -itemtype file -force
+    if (-not (Test-Path $file)) {
+        New-Item -Path $file -ItemType File -Force
     }
 }
 ```
 
-#### mac/linux (bash)
+#### Mac/Linux (Bash)
 ```bash
-# create all directories in one command
+# Create all directories in one command
 mkdir -p memory-bank docs/archive
 
-# create all required files
+# Create all required files
 touch .cursorrules tasks.md \
       memory-bank/projectbrief.md \
-      memory-bank/productcontext.md \
-      memory-bank/systempatterns.md \
-      memory-bank/techcontext.md \
-      memory-bank/activecontext.md \
+      memory-bank/productContext.md \
+      memory-bank/systemPatterns.md \
+      memory-bank/techContext.md \
+      memory-bank/activeContext.md \
       memory-bank/progress.md
 ```
 
-## 📝 streamlined verification process
+## 📝 STREAMLINED VERIFICATION PROCESS
 
-instead of checking each component separately, perform batch verification:
+Instead of checking each component separately, perform batch verification:
 
 ```powershell
-# windows - powershell
-$requireddirs = @("memory-bank", "docs", "docs\archive")
-$requiredfiles = @(".cursorrules", "tasks.md")
-$mbfiles = @("projectbrief.md", "productcontext.md", "systempatterns.md", 
-             "techcontext.md", "activecontext.md", "progress.md")
+# Windows - PowerShell
+$requiredDirs = @("memory-bank", "docs", "docs\archive")
+$requiredFiles = @(".cursorrules", "tasks.md")
+$mbFiles = @("projectbrief.md", "productContext.md", "systemPatterns.md", 
+             "techContext.md", "activeContext.md", "progress.md")
 
-$missingdirs = $requireddirs | where-object { -not (test-path $_) -or -not (test-path $_ -pathtype container) }
-$missingfiles = $requiredfiles | where-object { -not (test-path $_) -or (test-path $_ -pathtype container) }
-$missingmbfiles = $mbfiles | foreach-object { "memory-bank\$_" } | 
-                  where-object { -not (test-path $_) -or (test-path $_ -pathtype container) }
+$missingDirs = $requiredDirs | Where-Object { -not (Test-Path $_) -or -not (Test-Path $_ -PathType Container) }
+$missingFiles = $requiredFiles | Where-Object { -not (Test-Path $_) -or (Test-Path $_ -PathType Container) }
+$missingMBFiles = $mbFiles | ForEach-Object { "memory-bank\$_" } | 
+                  Where-Object { -not (Test-Path $_) -or (Test-Path $_ -PathType Container) }
 
-if ($missingdirs.count -eq 0 -and $missingfiles.count -eq 0 -and $missingmbfiles.count -eq 0) {
-    write-output "✓ all required components verified"
+if ($missingDirs.Count -eq 0 -and $missingFiles.Count -eq 0 -and $missingMBFiles.Count -eq 0) {
+    Write-Output "✓ All required components verified"
 } else {
-    # create all missing items at once
-    if ($missingdirs.count -gt 0) {
-        $missingdirs | foreach-object { mkdir $_ -force }
+    # Create all missing items at once
+    if ($missingDirs.Count -gt 0) {
+        $missingDirs | ForEach-Object { mkdir $_ -Force }
     }
-    if ($missingfiles.count -gt 0 -or $missingmbfiles.count -gt 0) {
-        $allmissingfiles = $missingfiles + $missingmbfiles
-        $allmissingfiles | foreach-object { new-item -path $_ -itemtype file -force }
+    if ($missingFiles.Count -gt 0 -or $missingMBFiles.Count -gt 0) {
+        $allMissingFiles = $missingFiles + $missingMBFiles
+        $allMissingFiles | ForEach-Object { New-Item -Path $_ -ItemType File -Force }
     }
 }
 ```
 
-## 📝 template initialization
+## 📝 TEMPLATE INITIALIZATION
 
-optimize template creation with a single script:
+Optimize template creation with a single script:
 
 ```powershell
-# windows - powershell
+# Windows - PowerShell
 $templates = @{
     "tasks.md" = @"
-# memory bank: tasks
+# Memory Bank: Tasks
 
-## current task
-[task not yet defined]
+## Current Task
+[Task not yet defined]
 
-## status
-- [ ] task definition
-- [ ] implementation plan
-- [ ] execution
-- [ ] documentation
+## Status
+- [ ] Task definition
+- [ ] Implementation plan
+- [ ] Execution
+- [ ] Documentation
 
-## requirements
-[no requirements defined yet]
+## Requirements
+[No requirements defined yet]
 "@
 
-    "memory-bank\activecontext.md" = @"
-# memory bank: active context
+    "memory-bank\activeContext.md" = @"
+# Memory Bank: Active Context
 
-## current focus
-[no active focus defined]
+## Current Focus
+[No active focus defined]
 
-## status
-[no status defined]
+## Status
+[No status defined]
 
-## latest changes
-[no changes recorded]
+## Latest Changes
+[No changes recorded]
 "@
 
-    # add other templates here
+    # Add other templates here
 }
 
-foreach ($file in $templates.keys) {
-    if (test-path $file) {
-        set-content -path $file -value $templates[$file]
+foreach ($file in $templates.Keys) {
+    if (Test-Path $file) {
+        Set-Content -Path $file -Value $templates[$file]
     }
 }
 ```
 
-## 🔍 performance optimization best practices
+## 🔍 PERFORMANCE OPTIMIZATION BEST PRACTICES
 
-1. **batch operations**: always use batch operations instead of individual commands
+1. **Batch Operations**: Always use batch operations instead of individual commands
    ```
-   # good: create all directories at once
+   # GOOD: Create all directories at once
    mkdir memory-bank docs docs\archive
    
-   # bad: create directories one at a time
+   # BAD: Create directories one at a time
    mkdir memory-bank
    mkdir docs
    mkdir docs\archive
    ```
 
-2. **pre-check optimization**: check all requirements first, then create only what's missing
+2. **Pre-Check Optimization**: Check all requirements first, then create only what's missing
    ```
-   # first check what's missing
-   $missingitems = ...
+   # First check what's missing
+   $missingItems = ...
    
-   # then create only what's missing
-   if ($missingitems) { ... }
+   # Then create only what's missing
+   if ($missingItems) { ... }
    ```
 
-3. **error handling**: include error handling in all commands
+3. **Error Handling**: Include error handling in all commands
    ```
-   mkdir memory-bank, docs, docs\archive -erroraction silentlycontinue
+   mkdir memory-bank, docs, docs\archive -ErrorAction SilentlyContinue
    ```
 
-4. **platform adaptation**: auto-detect platform and use appropriate commands
+4. **Platform Adaptation**: Auto-detect platform and use appropriate commands
    ```
-   if ($iswindows) {
-       # windows commands
+   if ($IsWindows) {
+       # Windows commands
    } else {
-       # unix commands
+       # Unix commands
    }
    ```
 
-5. **one-pass verification**: verify directory structure in a single pass
+5. **One-Pass Verification**: Verify directory structure in a single pass
    ```
-   $requiredpaths = @("memory-bank", "docs", "docs\archive", ".cursorrules", "tasks.md")
-   $missingpaths = $requiredpaths | where-object { -not (test-path $_) }
+   $requiredPaths = @("memory-bank", "docs", "docs\archive", ".cursorrules", "tasks.md")
+   $missingPaths = $requiredPaths | Where-Object { -not (Test-Path $_) }
    ```
 
-## 📝 verification report format
+## 📝 VERIFICATION REPORT FORMAT
 
 ```
-✅ verification complete
-- created directories: [list]
-- created files: [list]
-- all components verified
+✅ VERIFICATION COMPLETE
+- Created directories: [list]
+- Created files: [list]
+- All components verified
 
-memory bank system ready for use.
-```
+Memory Bank system ready for use.
+``` 

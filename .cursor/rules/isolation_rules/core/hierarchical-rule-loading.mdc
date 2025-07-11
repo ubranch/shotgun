@@ -1,81 +1,81 @@
 ---
-description: hierarchical rule loading system for optimized token usage
+description: Hierarchical rule loading system for optimized token usage
 globs: "**/rule-loading*/**", "**/optimization*/**"
-alwaysapply: false
+alwaysApply: false
 ---
 
-# hierarchical rule loading system
+# HIERARCHICAL RULE LOADING SYSTEM
 
-> **tldr:** this rule implements an optimized loading system that only loads necessary rules based on context, complexity level, and current phase to maximize token efficiency.
+> **TL;DR:** This rule implements an optimized loading system that only loads necessary rules based on context, complexity level, and current phase to maximize token efficiency.
 
-## 🧠 hierarchical rule structure
+## 🧠 HIERARCHICAL RULE STRUCTURE
 
 ```mermaid
-graph td
-    root["root rules"] --> core["core rules<br>(always loaded)"]
-    root --> common["common rules<br>(mode independent)"]
-    root --> mode["mode-specific<br>rules"]
-    root --> level["complexity level<br>rules"]
+graph TD
+    Root["Root Rules"] --> Core["Core Rules<br>(Always Loaded)"]
+    Root --> Common["Common Rules<br>(Mode Independent)"]
+    Root --> Mode["Mode-Specific<br>Rules"]
+    Root --> Level["Complexity Level<br>Rules"]
     
-    core --> platform["platform<br>detection"]
-    core --> file["file<br>operations"]
-    core --> transition["mode<br>transitions"]
+    Core --> Platform["Platform<br>Detection"]
+    Core --> File["File<br>Operations"]
+    Core --> Transition["Mode<br>Transitions"]
     
-    mode --> van["van mode<br>rules"]
-    mode --> plan["plan mode<br>rules"]
-    mode --> creative["creative mode<br>rules"]
-    mode --> implement["implement mode<br>rules"]
-    mode --> reflect["reflect mode<br>rules"]
+    Mode --> VAN["VAN Mode<br>Rules"]
+    Mode --> PLAN["PLAN Mode<br>Rules"]
+    Mode --> CREATIVE["CREATIVE Mode<br>Rules"]
+    Mode --> IMPLEMENT["IMPLEMENT Mode<br>Rules"]
+    Mode --> REFLECT["REFLECT Mode<br>Rules"]
     
-    level --> level1["level 1<br>rules"]
-    level --> level2["level 2<br>rules"]
-    level --> level3["level 3<br>rules"]
-    level --> level4["level 4<br>rules"]
+    Level --> Level1["Level 1<br>Rules"]
+    Level --> Level2["Level 2<br>Rules"]
+    Level --> Level3["Level 3<br>Rules"]
+    Level --> Level4["Level 4<br>Rules"]
     
-    style root fill:#4da6ff,stroke:#0066cc,color:white
-    style core fill:#ffa64d,stroke:#cc7a30,color:white
-    style common fill:#4dbb5f,stroke:#36873f,color:white
-    style mode fill:#d94dbb,stroke:#a3378a,color:white
-    style level fill:#4dbbbb,stroke:#368787,color:white
+    style Root fill:#4da6ff,stroke:#0066cc,color:white
+    style Core fill:#ffa64d,stroke:#cc7a30,color:white
+    style Common fill:#4dbb5f,stroke:#36873f,color:white
+    style Mode fill:#d94dbb,stroke:#a3378a,color:white
+    style Level fill:#4dbbbb,stroke:#368787,color:white
 ```
 
-## 📊 rule loading protocol
+## 📊 RULE LOADING PROTOCOL
 
 ```mermaid
-sequencediagram
-    participant user
-    participant loadmanager
-    participant rulecache
-    participant filesystem
+sequenceDiagram
+    participant User
+    participant LoadManager
+    participant RuleCache
+    participant FileSystem
     
-    user->>loadmanager: request mode activation
-    loadmanager->>rulecache: check cached core rules
-    rulecache-->>loadmanager: return cached rules if available
+    User->>LoadManager: Request mode activation
+    LoadManager->>RuleCache: Check cached core rules
+    RuleCache-->>LoadManager: Return cached rules if available
     
-    loadmanager->>filesystem: load essential mode rules
-    filesystem-->>loadmanager: return essential rules
+    LoadManager->>FileSystem: Load essential mode rules
+    FileSystem-->>LoadManager: Return essential rules
     
-    loadmanager->>loadmanager: register lazy loaders for specialized rules
-    loadmanager->>user: return initialized mode
+    LoadManager->>LoadManager: Register lazy loaders for specialized rules
+    LoadManager->>User: Return initialized mode
     
-    user->>loadmanager: request specialized functionality
-    loadmanager->>rulecache: check specialized rule cache
-    rulecache-->>loadmanager: return cached rule if available
+    User->>LoadManager: Request specialized functionality
+    LoadManager->>RuleCache: Check specialized rule cache
+    RuleCache-->>LoadManager: Return cached rule if available
     
-    alt rule not in cache
-        loadmanager->>filesystem: load specialized rule
-        filesystem-->>loadmanager: return specialized rule
-        loadmanager->>rulecache: cache specialized rule
+    alt Rule not in cache
+        LoadManager->>FileSystem: Load specialized rule
+        FileSystem-->>LoadManager: Return specialized rule
+        LoadManager->>RuleCache: Cache specialized rule
     end
     
-    loadmanager->>user: execute specialized functionality
+    LoadManager->>User: Execute specialized functionality
 ```
 
-## 🔄 rule loading implementation
+## 🔄 RULE LOADING IMPLEMENTATION
 
 ```javascript
-// pseudocode for hierarchical rule loading
-class ruleloadmanager {
+// Pseudocode for hierarchical rule loading
+class RuleLoadManager {
   constructor() {
     this.cache = {
       core: {},
@@ -83,189 +83,189 @@ class ruleloadmanager {
       mode: {},
       level: {}
     };
-    this.lazyloaders = {};
+    this.lazyLoaders = {};
   }
   
-  // initialize a mode with only essential rules
-  initializemode(modename, complexitylevel) {
-    // always load core rules
-    this.loadcorerules();
+  // Initialize a mode with only essential rules
+  initializeMode(modeName, complexityLevel) {
+    // Always load core rules
+    this.loadCoreRules();
     
-    // load common rules
-    this.loadcommonrules();
+    // Load common rules
+    this.loadCommonRules();
     
-    // load essential mode-specific rules
-    this.loadessentialmoderules(modename);
+    // Load essential mode-specific rules
+    this.loadEssentialModeRules(modeName);
     
-    // load complexity level rules
-    this.loadcomplexityrules(complexitylevel);
+    // Load complexity level rules
+    this.loadComplexityRules(complexityLevel);
     
-    // register lazy loaders for specialized functionality
-    this.registerlazyloaders(modename, complexitylevel);
+    // Register lazy loaders for specialized functionality
+    this.registerLazyLoaders(modeName, complexityLevel);
     
     return {
-      modename,
-      complexitylevel,
+      modeName,
+      complexityLevel,
       status: "initialized"
     };
   }
   
-  // load only when specialized functionality is needed
-  loadspecializedrule(ruletype) {
-    if (this.lazyloaders[ruletype]) {
-      if (!this.cache.specialized[ruletype]) {
-        const rule = this.lazyloaders[ruletype]();
-        this.cache.specialized[ruletype] = rule;
+  // Load only when specialized functionality is needed
+  loadSpecializedRule(ruleType) {
+    if (this.lazyLoaders[ruleType]) {
+      if (!this.cache.specialized[ruleType]) {
+        const rule = this.lazyLoaders[ruleType]();
+        this.cache.specialized[ruleType] = rule;
       }
-      return this.cache.specialized[ruletype];
+      return this.cache.specialized[ruleType];
     }
     return null;
   }
   
-  // register specialized rule loaders based on mode and complexity
-  registerlazyloaders(modename, complexitylevel) {
-    // clear existing lazy loaders
-    this.lazyloaders = {};
+  // Register specialized rule loaders based on mode and complexity
+  registerLazyLoaders(modeName, complexityLevel) {
+    // Clear existing lazy loaders
+    this.lazyLoaders = {};
     
-    // register mode-specific lazy loaders
-    if (modename === "creative") {
-      this.lazyloaders["architecture"] = () => this.loadrule("creative-phase-architecture.mdc");
-      this.lazyloaders["algorithm"] = () => this.loadrule("creative-phase-algorithm.mdc");
-      this.lazyloaders["uiux"] = () => this.loadrule("creative-phase-uiux.mdc");
-    } else if (modename === "implement") {
-      this.lazyloaders["testing"] = () => this.loadrule("implementation-testing.mdc");
-      this.lazyloaders["deployment"] = () => this.loadrule("implementation-deployment.mdc");
+    // Register mode-specific lazy loaders
+    if (modeName === "CREATIVE") {
+      this.lazyLoaders["architecture"] = () => this.loadRule("creative-phase-architecture.mdc");
+      this.lazyLoaders["algorithm"] = () => this.loadRule("creative-phase-algorithm.mdc");
+      this.lazyLoaders["uiux"] = () => this.loadRule("creative-phase-uiux.mdc");
+    } else if (modeName === "IMPLEMENT") {
+      this.lazyLoaders["testing"] = () => this.loadRule("implementation-testing.mdc");
+      this.lazyLoaders["deployment"] = () => this.loadRule("implementation-deployment.mdc");
     }
     
-    // register complexity-specific lazy loaders
-    if (complexitylevel >= 3) {
-      this.lazyloaders["comprehensive-planning"] = () => this.loadrule("planning-comprehensive.mdc");
-      this.lazyloaders["advanced-verification"] = () => this.loadrule("verification-advanced.mdc");
+    // Register complexity-specific lazy loaders
+    if (complexityLevel >= 3) {
+      this.lazyLoaders["comprehensive-planning"] = () => this.loadRule("planning-comprehensive.mdc");
+      this.lazyLoaders["advanced-verification"] = () => this.loadRule("verification-advanced.mdc");
     }
   }
 }
 ```
 
-## 📋 rule dependency map
+## 📋 RULE DEPENDENCY MAP
 
 ```mermaid
-graph td
-    main["main.mdc"] --> core1["platform-awareness.mdc"]
-    main --> core2["file-verification.mdc"]
-    main --> core3["command-execution.mdc"]
+graph TD
+    Main["main.mdc"] --> Core1["platform-awareness.mdc"]
+    Main --> Core2["file-verification.mdc"]
+    Main --> Core3["command-execution.mdc"]
     
-    subgraph "van mode"
-        vanmap["van-mode-map.mdc"] --> van1["van-complexity-determination.mdc"]
-        vanmap --> van2["van-file-verification.mdc"]
-        vanmap --> van3["van-platform-detection.mdc"]
+    subgraph "VAN Mode"
+        VanMap["van-mode-map.mdc"] --> Van1["van-complexity-determination.mdc"]
+        VanMap --> Van2["van-file-verification.mdc"]
+        VanMap --> Van3["van-platform-detection.mdc"]
     end
     
-    subgraph "plan mode"
-        planmap["plan-mode-map.mdc"] --> plan1["task-tracking-basic.mdc"]
-        planmap --> plan2["planning-comprehensive.mdc"]
+    subgraph "PLAN Mode"
+        PlanMap["plan-mode-map.mdc"] --> Plan1["task-tracking-basic.mdc"]
+        PlanMap --> Plan2["planning-comprehensive.mdc"]
     end
     
-    subgraph "creative mode"
-        creativemap["creative-mode-map.mdc"] --> creative1["creative-phase-enforcement.mdc"]
-        creativemap --> creative2["creative-phase-metrics.mdc"]
-        creative1 & creative2 -.-> creativespecialized["specialized creative rules"]
-        creativespecialized --> carch["creative-phase-architecture.mdc"]
-        creativespecialized --> calgo["creative-phase-algorithm.mdc"]
-        creativespecialized --> cuiux["creative-phase-uiux.mdc"]
+    subgraph "CREATIVE Mode"
+        CreativeMap["creative-mode-map.mdc"] --> Creative1["creative-phase-enforcement.mdc"]
+        CreativeMap --> Creative2["creative-phase-metrics.mdc"]
+        Creative1 & Creative2 -.-> CreativeSpecialized["Specialized Creative Rules"]
+        CreativeSpecialized --> CArch["creative-phase-architecture.mdc"]
+        CreativeSpecialized --> CAlgo["creative-phase-algorithm.mdc"]
+        CreativeSpecialized --> CUIUX["creative-phase-uiux.mdc"]
     end
     
-    subgraph "implement mode"
-        implementmap["implement-mode-map.mdc"] --> impl1["implementation-guide.mdc"]
-        implementmap --> impl2["testing-strategy.mdc"]
+    subgraph "IMPLEMENT Mode"
+        ImplementMap["implement-mode-map.mdc"] --> Impl1["implementation-guide.mdc"]
+        ImplementMap --> Impl2["testing-strategy.mdc"]
     end
 ```
 
-## 🔍 mode-specific rule loading
+## 🔍 MODE-SPECIFIC RULE LOADING
 
-### van mode essential rules
+### VAN Mode Essential Rules
 ```markdown
-- main.mdc (core)
-- platform-awareness.mdc (core)
-- file-verification.mdc (core)
-- van-mode-map.mdc (mode)
+- main.mdc (Core)
+- platform-awareness.mdc (Core)
+- file-verification.mdc (Core)
+- van-mode-map.mdc (Mode)
 ```
 
-### plan mode essential rules
+### PLAN Mode Essential Rules
 ```markdown
-- main.mdc (core)
-- plan-mode-map.mdc (mode)
-- task-tracking-[complexity].mdc (level)
+- main.mdc (Core)
+- plan-mode-map.mdc (Mode)
+- task-tracking-[complexity].mdc (Level)
 ```
 
-### creative mode essential rules
+### CREATIVE Mode Essential Rules
 ```markdown
-- main.mdc (core)
-- creative-mode-map.mdc (mode)
-- creative-phase-enforcement.mdc (mode)
+- main.mdc (Core)
+- creative-mode-map.mdc (Mode)
+- creative-phase-enforcement.mdc (Mode)
 ```
 
-### creative mode specialized rules (lazy loaded)
+### CREATIVE Mode Specialized Rules (Lazy Loaded)
 ```markdown
-- creative-phase-architecture.mdc (specialized)
-- creative-phase-algorithm.mdc (specialized)
-- creative-phase-uiux.mdc (specialized)
+- creative-phase-architecture.mdc (Specialized)
+- creative-phase-algorithm.mdc (Specialized)
+- creative-phase-uiux.mdc (Specialized)
 ```
 
-### implement mode essential rules
+### IMPLEMENT Mode Essential Rules
 ```markdown
-- main.mdc (core)
-- command-execution.mdc (core)
-- implement-mode-map.mdc (mode)
+- main.mdc (Core)
+- command-execution.mdc (Core)
+- implement-mode-map.mdc (Mode)
 ```
 
-## 🚀 implementation benefits
+## 🚀 IMPLEMENTATION BENEFITS
 
-the hierarchical loading system provides:
+The hierarchical loading system provides:
 
-1. **reduced initial loading**: only essential rules loaded at start (~70% token reduction)
-2. **cached core rules**: rules shared between modes are cached
-3. **specialized rule loading**: specialized rules loaded only when needed
-4. **complexity-based loading**: only load rules appropriate for task complexity
+1. **Reduced Initial Loading**: Only essential rules loaded at start (~70% token reduction)
+2. **Cached Core Rules**: Rules shared between modes are cached
+3. **Specialized Rule Loading**: Specialized rules loaded only when needed
+4. **Complexity-Based Loading**: Only load rules appropriate for task complexity
 
-## 📈 token usage comparison
+## 📈 TOKEN USAGE COMPARISON
 
-| approach | initial tokens | specialized tokens | total tokens |
+| Approach | Initial Tokens | Specialized Tokens | Total Tokens |
 |----------|---------------|-------------------|--------------|
-| original system | ~70,000 | included in initial | ~70,000 |
-| hierarchical system | ~15,000 | ~10,000 (on demand) | ~25,000 |
-| **token reduction** | **~55,000 (78%)** | **n/a** | **~45,000 (64%)** |
+| Original System | ~70,000 | Included in initial | ~70,000 |
+| Hierarchical System | ~15,000 | ~10,000 (on demand) | ~25,000 |
+| **Token Reduction** | **~55,000 (78%)** | **N/A** | **~45,000 (64%)** |
 
-## 🔄 usage example
+## 🔄 USAGE EXAMPLE
 
-### example: creative phase with architecture rule
+### Example: Creative Phase with Architecture Rule
 
 ```javascript
-// initialize the creative mode with only essential rules
-const mode = rulemanager.initializemode("creative", 3);
+// Initialize the CREATIVE mode with only essential rules
+const mode = ruleManager.initializeMode("CREATIVE", 3);
 
-// core and essential mode rules are loaded 
-// architecture rules are not loaded yet
+// Core and essential mode rules are loaded 
+// Architecture rules are NOT loaded yet
 
-// later, when architecture design is needed:
-const architecturerule = rulemanager.loadspecializedrule("architecture");
+// Later, when architecture design is needed:
+const architectureRule = ruleManager.loadSpecializedRule("architecture");
 
-// now the architecture rule is loaded and cached
+// Now the architecture rule is loaded and cached
 ```
 
-## 🧪 rule loading verification
+## 🧪 RULE LOADING VERIFICATION
 
-to ensure the rule loading system is working optimally:
+To ensure the rule loading system is working optimally:
 
 ```markdown
-## rule loading verification
+## Rule Loading Verification
 
-- core rules: [loaded]
-- mode-essential rules: [loaded]
-- complexity-level rules: [loaded]
-- specialized rules: [not loaded]
+- Core Rules: [Loaded]
+- Mode-Essential Rules: [Loaded]
+- Complexity-Level Rules: [Loaded]
+- Specialized Rules: [Not Loaded]
 
-current token usage: [x] tokens
-potential token savings: [y] tokens
+Current Token Usage: [X] tokens
+Potential Token Savings: [Y] tokens
 ```
 
-this hierarchical approach ensures optimal token usage while maintaining all functionality.
+This hierarchical approach ensures optimal token usage while maintaining all functionality.

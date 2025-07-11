@@ -1,207 +1,156 @@
 ---
-description: main rule for memory bank system
+description: main rule
 globs: main.mdc
-alwaysapply: false
+alwaysApply: false
 ---
-# 🔍 memory bank system
+# 🔍 ISOLATION-FOCUSED MEMORY BANK SYSTEM
 
-🚨 critical rule: memory bank creation is mandatory 🚨
-memory bank must be created before any other operation in any mode
-no process can continue without verifying memory bank existence
+🚨 CRITICAL RULE: MEMORY BANK CREATION IS MANDATORY 🚨
+Memory Bank MUST be created BEFORE any other operation in ANY mode
+NO process can continue without verifying Memory Bank existence
 
-> **tldr:** this system provides a structured, multi-phase approach to software development, from initialization to archiving, using a system of modes and complexity levels to ensure appropriate governance and documentation.
+> **TL;DR:** This system is designed to work with Cursor custom modes, where each mode loads only the rules it needs. The system uses visual Mermaid diagrams and selective document loading to optimize context usage.
 
-## 🧭 mode architecture
+## 🧭 MODE-SPECIFIC VISUAL MAPS
 
 ```mermaid
-graph td
-    subgraph "memory bank core"
-        context["context manager"]
-        rules["rule loader"]
-        fileio["file manager"]
-        transition["mode transition"]
+graph TD
+    subgraph Modes["Cursor Custom Modes"]
+        VAN["VAN MODE<br>Initialization"] --> PLAN["PLAN MODE<br>Task Planning"]
+        PLAN --> Creative["CREATIVE MODE<br>Design Decisions"]
+        Creative --> Implement["IMPLEMENT MODE<br>Code Implementation"]
+        Implement --> Reflect["REFLECT MODE<br>Task Review"]
+        Reflect --> Archive["ARCHIVE MODE<br>Documentation"]
     end
     
-    subgraph "custom modes"
-        van["van<br>initialization"]
-        plan["plan<br>planning"]
-        creative["creative<br>design"]
-        implement["implement<br>building"]
-        reflect["reflect<br>review"]
-        archive["archive<br>documentation"]
+    VAN -.->|"Loads"| VANRules["• main.md<br>• platform-awareness.md<br>• file-verification.md<br>• workflow-init.md"]
+    PLAN -.->|"Loads"| PLANRules["• main.md<br>• task-tracking.md<br>• planning-process.md"]
+    Creative -.->|"Loads"| CreativeRules["• main.md<br>• creative-phase.md<br>• design-patterns.md"]
+    Implement -.->|"Loads"| ImplementRules["• main.md<br>• command-execution.md<br>• implementation-guide.md"]
+    Reflect -.->|"Loads"| ReflectRules["• main.md<br>• reflection-format.md"]
+    Archive -.->|"Loads"| ArchiveRules["• main.md<br>• archiving-guide.md"]
+```
+
+## 📋 MEMORY BANK VERIFICATION - MANDATORY IN ALL MODES
+
+```mermaid
+graph TD
+    Start["Mode Activation"] --> CheckMemBank{"Memory Bank<br>Exists?"}
+    
+    CheckMemBank -->|"No"| CreateMemBank["CREATE MEMORY BANK<br>[CRITICAL STEP]"]
+    CheckMemBank -->|"Yes"| VerifyMemBank["Verify Memory Bank<br>Structure"]
+    
+    CreateMemBank --> VerifyCreation{"Creation<br>Successful?"}
+    VerifyCreation -->|"No"| AbortAll["⛔ ABORT ALL OPERATIONS<br>Fix Memory Bank First"]
+    VerifyCreation -->|"Yes"| VerifyMemBank
+    
+    VerifyMemBank --> StructureCheck{"Structure<br>Valid?"}
+    StructureCheck -->|"No"| FixStructure["Fix Memory Bank<br>Structure"]
+    StructureCheck -->|"Yes"| ContinueMode["Continue with<br>Mode Operations"]
+    
+    FixStructure --> VerifyFix{"Fix<br>Successful?"}
+    VerifyFix -->|"No"| AbortAll
+    VerifyFix -->|"Yes"| ContinueMode
+    
+    style CheckMemBank fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
+    style CreateMemBank fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
+    style VerifyCreation fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
+    style AbortAll fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
+    style StructureCheck fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
+    style FixStructure fill:#ff5555,stroke:#dd3333,color:white
+    style VerifyFix fill:#ff5555,stroke:#dd3333,color:white
+```
+
+## 📚 VISUAL PROCESS MAPS
+
+Each mode has its own visual process map:
+
+- @VAN Mode Map
+- @PLAN Mode Map
+- @CREATIVE Mode Map
+- @IMPLEMENT Mode Map
+- @REFLECT Mode Map
+- @ARCHIVE Mode Map
+
+## 🔄 FILE STATE VERIFICATION
+
+In this isolation-focused approach, Memory Bank files maintain continuity between modes:
+
+```mermaid
+graph TD
+    subgraph "Memory Bank Files"
+        tasks["tasks.md<br>Source of Truth"]
+        active["activeContext.md<br>Current Focus"]
+        creative["creative-*.md<br>Design Decisions"]
+        progress["progress.md<br>Implementation Status"]
     end
     
-    context --> van & plan & creative & implement & reflect & archive
-    rules --> van & plan & creative & implement & reflect & archive
-    fileio --> van & plan & creative & implement & reflect & archive
-    transition --> van & plan & creative & implement & reflect & archive
+    VAN["VAN MODE"] -->|"Creates/Updates"| tasks
+    VAN -->|"Creates/Updates"| active
     
-    van --> plan
-    plan --> creative
-    creative --> implement
-    implement --> reflect
-    reflect --> archive
+    PLAN["PLAN MODE"] -->|"Reads"| tasks
+    PLAN -->|"Reads"| active
+    PLAN -->|"Updates"| tasks
     
-    style context fill:#4da6ff,stroke:#0066cc,color:white
-    style rules fill:#ffa64d,stroke:#cc7a30,color:white
-    style fileio fill:#4dbb5f,stroke:#36873f,color:white
-    style transition fill:#d94dbb,stroke:#a3378a,color:white
+    Creative["CREATIVE MODE"] -->|"Reads"| tasks
+    Creative -->|"Creates"| creative
+    Creative -->|"Updates"| tasks
+    
+    Implement["IMPLEMENT MODE"] -->|"Reads"| tasks
+    Implement -->|"Reads"| creative
+    Implement -->|"Updates"| tasks
+    Implement -->|"Updates"| progress
+    
+    Reflect["REFLECT MODE"] -->|"Reads"| tasks
+    Reflect -->|"Reads"| progress
+    Reflect -->|"Updates"| tasks
+    
+    Archive["ARCHIVE MODE"] -->|"Reads"| tasks
+    Archive -->|"Reads"| progress
+    Archive -->|"Archives"| creative
 ```
 
-## 📈 complexity model
+## 📋 MODE TRANSITION PROTOCOL
 
 ```mermaid
-graph td
-    task["task creation"] --> complexity{"complexity<br>level?"}
+sequenceDiagram
+    participant User
+    participant CurrentMode
+    participant NextMode
     
-    complexity -->|"level 1<br>quick fix"| l1["3-phase<br>streamlined process"]
-    complexity -->|"level 2<br>enhancement"| l2["4-phase<br>balanced process"]
-    complexity -->|"level 3<br>feature"| l3["5-phase<br>comprehensive process"]
-    complexity -->|"level 4<br>enterprise"| l4["6-phase<br>governance process"]
+    CurrentMode->>CurrentMode: Complete Phase Requirements
+    CurrentMode->>User: "Phase complete. NEXT MODE: [mode name]"
+    User->>CurrentMode: End Current Mode
+    User->>NextMode: Start Next Mode
+    NextMode->>NextMode: Verify Required File State
     
-    l1 --> l1_process["van → implement → reflect"]
-    l2 --> l2_process["van → plan → implement → reflect"]
-    l3 --> l3_process["van → plan → creative → implement → reflect"]
-    l4 --> l4_process["van → plan → creative → implement → reflect → archive"]
-    
-    style complexity fill:#d94dbb,stroke:#a3378a,color:white
-    style l1 fill:#4dbb5f,stroke:#36873f,color:white
-    style l2 fill:#ffa64d,stroke:#cc7a30,color:white
-    style l3 fill:#4da6ff,stroke:#0066cc,color:white
-    style l4 fill:#ff5555,stroke:#cc0000,color:white
-```
-
-## 🧠 rule loading
-
-rules are loaded based on context and complexity:
-
-```mermaid
-graph td
-    root["memory bank<br>common rules"] --> core["core rules<br>shared across modes"]
-    
-    core --> l1["level 1<br>rules"]
-    core --> l2["level 2<br>rules"]
-    core --> l3["level 3<br>rules"]
-    core --> l4["level 4<br>rules"]
-    
-    core --> vm["mode<br>visual maps"]
-    
-    core --> phase["phase-specific<br>rules"]
-    
-    phase --> van_rules["van mode<br>rules"]
-    phase --> plan_rules["plan mode<br>rules"]
-    phase --> creative_rules["creative mode<br>rules"]
-    phase --> implement_rules["implement mode<br>rules"]
-    phase --> reflect_rules["reflect mode<br>rules"]
-    phase --> archive_rules["archive mode<br>rules"]
-    
-    style root fill:#4da6ff,stroke:#0066cc,color:white
-    style core fill:#ffa64d,stroke:#cc7a30,color:white
-    style phase fill:#4dbb5f,stroke:#36873f,color:white
-```
-
-## 🔀 mode transitions
-
-mode transitions follow a structured protocol:
-
-```mermaid
-sequencediagram
-    participant current as current mode
-    participant context as context manager
-    participant next as next mode
-    
-    current->>context: create transition document
-    current->>context: store critical context
-    context->>context: prepare rule cache
-    current->>next: initiate transition
-    next->>context: verify context availability
-    context->>next: load relevant context
-    context->>next: load cached rules
-    next->>next: continue with preserved context
-```
-
-## 📊 memory bank updates
-
-```mermaid
-graph td
-    subgraph "memory bank files"
-        tasks["tasks.md<br>source of truth"]
-        active["activecontext.md<br>current focus"]
-        creative["creative-*.md<br>design decisions"]
-        progress["progress.md<br>implementation status"]
-        transition["transition.md<br>mode transitions"]
+    alt File State Valid
+        NextMode->>User: "Continuing from previous mode..."
+    else File State Invalid
+        NextMode->>User: "Required files not in expected state"
+        NextMode->>User: "Return to [previous mode] to complete requirements"
     end
-    
-    update["update request"] --> diff{"changed?"}
-    diff -->|"no"| skip["skip update"]
-    diff -->|"yes"| section{"section<br>change?"}
-    section -->|"yes"| partial["update changed<br>sections only"]
-    section -->|"no"| full["full file<br>update"]
-    
-    partial --> tasks
-    full --> tasks
-    
-    style update fill:#4da6ff,stroke:#0066cc,color:white
-    style diff fill:#ffa64d,stroke:#cc7a30,color:white
-    style section fill:#4dbb5f,stroke:#36873f,color:white
-    style partial fill:#d94dbb,stroke:#a3378a,color:white
-    style full fill:#4dbbbb,stroke:#368787,color:white
 ```
 
-## 💻 documentation scaling
+## 💻 PLATFORM-SPECIFIC COMMANDS
 
-documentation requirements scale with complexity:
+| Action | Windows | Mac/Linux |
+|--------|---------|-----------|
+| Create file | `echo. > file.ext` | `touch file.ext` |
+| Create directory | `mkdir directory` | `mkdir -p directory` |
+| Change directory | `cd directory` | `cd directory` |
+| List files | `dir` | `ls` |
+| Show file content | `type file.ext` | `cat file.ext` |
 
-| documentation | level 1 | level 2 | level 3 | level 4 |
-|---------------|---------|---------|---------|---------|
-| problem definition | brief | standard | detailed | comprehensive |
-| options analysis | optional | basic | multiple options | extensive |
-| implementation plan | simple | standard | detailed | phased |
-| testing requirements | basic | standard | comprehensive | rigorous |
-| documentation | minimal | standard | detailed | extensive |
+## ⚠️ COMMAND EFFICIENCY GUIDANCE
 
-## 📑 templates by level
+For optimal performance, use efficient command chaining when appropriate:
 
-### level 1: quick fix template
-```markdown
-## quick fix: [issue name]
-- problem: [brief description]
-- solution: [implemented approach]
-- verification: [how fix was tested]
+```
+# Efficient command chaining examples:
+mkdir -p project/{src,tests,docs} && cd project
+grep "TODO" $(find . -name "*.js")
+npm install && npm start
 ```
 
-### level 2: enhancement template
-```markdown
-## enhancement: [feature name]
-- requirement: [what needs to be done]
-- approach: [how it was implemented]
-- testing: [verification approach]
-- documentation: [where documented]
-```
-
-### level 3-4: comprehensive template
-uses comprehensive templates with appropriate documentation depth
-
-## 🔄 reference maps
-
-each mode's visual process map provides guidance:
-
-- @van mode map
-- @plan mode map
-- @creative mode map
-- @implement mode map
-- @reflect mode map
-- @archive mode map
-
-## 💡 usage guidance
-
-to use the system:
-
-1. start with the van command to initialize and determine complexity
-2. follow the complexity-appropriate workflow
-3. use documentation appropriate to task complexity
-4. let the system manage rule loading and context preservation
-5. follow the structured development process
-
-this system provides a robust and structured approach to software development, ensuring quality and maintainability.
-```
+Refer to [command-execution.mdc](mdc:.cursor/rules/isolation_rules/Core/command-execution.mdc) for detailed guidance. 

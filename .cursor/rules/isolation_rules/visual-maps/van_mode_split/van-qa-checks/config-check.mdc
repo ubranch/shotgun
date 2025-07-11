@@ -1,59 +1,103 @@
 ---
-description: configuration qa checks
-globs: config-check.mdc
-alwaysapply: false
+description: Process map for VAN QA configuration validation
+globs: van-qa-checks/config-check.mdc
+alwaysApply: false
 ---
-# configuration qa checks
+# VAN QA: CONFIGURATION VALIDATION
 
-> **tldr:** this document outlines the quality assurance checks for project configuration files, ensuring that they are valid, complete, and follow best practices.
+> **TL;DR:** This component validates configuration files for proper syntax and compatibility with the project and platform.
 
-## ⚙️ configuration check workflow
+## 2️⃣ CONFIGURATION VALIDATION PROCESS
 
 ```mermaid
-graph td
-    start["start<br>config checks"] --> locate["1️⃣ locate<br>config files"]
-    locate --> validate["2️⃣ validate<br>syntax"]
-    validate -->|valid| checkcomplete["3️⃣ check for<br>completeness"]
-    validate -->|invalid| syntaxerror["🚨 syntax<br>error"]
+graph TD
+    Start["Configuration Validation"] --> IdentifyConfigs["Identify Configuration<br>Files"]
+    IdentifyConfigs --> ReadConfigs["Read Configuration<br>Files"]
+    ReadConfigs --> ValidateSyntax["Validate Syntax<br>and Format"]
+    ValidateSyntax --> SyntaxStatus{"Syntax<br>Valid?"}
     
-    checkcomplete -->|complete| checkbest["4️⃣ check for<br>best practices"]
-    checkcomplete -->|incomplete| incompleteerror["🚨 incomplete<br>config"]
+    SyntaxStatus -->|"Yes"| CheckCompatibility["Check Compatibility<br>with Platform"]
+    SyntaxStatus -->|"No"| FixSyntax["Fix Syntax<br>Errors"]
+    FixSyntax --> RetryValidate["Retry Validation"]
+    RetryValidate --> SyntaxStatus
     
-    checkbest -->|pass| complete["✅ checks<br>complete"]
-    checkbest -->|fail| bestpracticeerror["⚠️ best practice<br>violations"]
+    CheckCompatibility --> CompatStatus{"Compatible with<br>Platform?"}
+    CompatStatus -->|"Yes"| ConfigSuccess["Configurations Validated<br>✅ PASS"]
+    CompatStatus -->|"No"| AdaptConfigs["Adapt Configurations<br>for Platform"]
+    AdaptConfigs --> RetryCompat["Retry Compatibility<br>Check"]
+    RetryCompat --> CompatStatus
     
-    syntaxerror --> reportse["report<br>syntax error"]
-    incompleteerror --> reportie["report<br>incomplete config"]
-    bestpracticeerror --> reportbpe["report<br>violations"]
-    
-    style start fill:#4da6ff,stroke:#0066cc,color:white
-    style locate fill:#ffa64d,stroke:#cc7a30,color:white
-    style validate fill:#4dbb5f,stroke:#36873f,color:white
-    style checkcomplete fill:#d94dbb,stroke:#a3378a,color:white
-    style checkbest fill:#4dbbbb,stroke:#368787,color:white
-    style syntaxerror fill:#ff5555,stroke:#cc0000,color:white
-    style incompleteerror fill:#ff5555,stroke:#cc0000,color:white
-    style bestpracticeerror fill:#ffc107,stroke:#c79100,color:white
-    style complete fill:#4caf50,stroke:#388e3c,color:white
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style ConfigSuccess fill:#10b981,stroke:#059669,color:white
+    style SyntaxStatus fill:#f6546a,stroke:#c30052,color:white
+    style CompatStatus fill:#f6546a,stroke:#c30052,color:white
 ```
 
-## 📋 common configuration files
+### Configuration Validation Implementation:
+```powershell
+# Example: Validate configuration files for a web project
+function Validate-Configurations {
+    $configFiles = @(
+        "package.json",
+        "tsconfig.json",
+        "vite.config.js"
+    )
+    
+    $invalidConfigs = @()
+    $incompatibleConfigs = @()
+    
+    foreach ($configFile in $configFiles) {
+        if (Test-Path $configFile) {
+            # Check JSON syntax for JSON files
+            if ($configFile -match "\.json$") {
+                try {
+                    Get-Content $configFile -Raw | ConvertFrom-Json | Out-Null
+                } catch {
+                    $invalidConfigs += "$configFile (JSON syntax error: $($_.Exception.Message))"
+                    continue
+                }
+            }
+            
+            # Specific configuration compatibility checks
+            if ($configFile -eq "vite.config.js") {
+                $content = Get-Content $configFile -Raw
+                # Check for React plugin in Vite config
+                if ($content -notmatch "react\(\)") {
+                    $incompatibleConfigs += "$configFile (Missing React plugin for React project)"
+                }
+            }
+        } else {
+            $invalidConfigs += "$configFile (file not found)"
+        }
+    }
+    
+    # Display results
+    if ($invalidConfigs.Count -eq 0 -and $incompatibleConfigs.Count -eq 0) {
+        Write-Output "✅ All configurations validated and compatible"
+        return $true
+    } else {
+        if ($invalidConfigs.Count -gt 0) {
+            Write-Output "❌ Invalid configurations: $($invalidConfigs -join ', ')"
+        }
+        if ($incompatibleConfigs.Count -gt 0) {
+            Write-Output "❌ Incompatible configurations: $($incompatibleConfigs -join ', ')"
+        }
+        return $false
+    }
+}
+```
 
-| file | purpose | validation tool |
-|--------------|---------|-----------------|
-| `package.json` | npm package configuration | `jsonlint` |
-| `tsconfig.json` | typescript configuration | `tsc --noemit` |
-| `webpack.config.js` | webpack build configuration | `webpack --validate` |
-| `babel.config.js` | babel transpiler configuration | `babel --validate` |
-| `.eslintrc.js` | eslint linter configuration | `eslint --validate-config` |
-| `pom.xml` | maven project configuration | `mvn validate` |
-| `build.gradle` | gradle build configuration | `gradle build` |
-
-## ✅ verification complete
-
-if all configuration files are valid, complete, and follow best practices, the configuration qa checks are complete.
+## 📋 CONFIGURATION VALIDATION CHECKPOINT
 
 ```
-configuration qa checks complete.
-all configuration files are valid and well-formed.
+✓ CHECKPOINT: CONFIGURATION VALIDATION
+- All configuration files found? [YES/NO]
+- All configuration syntax valid? [YES/NO]
+- All configurations compatible with platform? [YES/NO]
+
+→ If all YES: Continue to Environment Validation.
+→ If any NO: Fix configuration issues before continuing.
 ```
+
+**Next Step (on PASS):** Load `van-qa-checks/environment-check.mdc`.
+**Next Step (on FAIL):** Check `van-qa-utils/common-fixes.mdc` for configuration fixes. 

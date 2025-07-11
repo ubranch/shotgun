@@ -1,30 +1,30 @@
 ---
-description: comprehensive guide for calling van qa rules
+description: Comprehensive guide for calling VAN QA rules
 globs: van-qa-utils/rule-calling-guide.mdc
-alwaysapply: false
+alwaysApply: false
 ---
-# van qa: comprehensive rule calling guide
+# VAN QA: COMPREHENSIVE RULE CALLING GUIDE
 
-> **tldr:** this reference guide shows how to properly call all van qa rules at the right time during the validation process.
+> **TL;DR:** This reference guide shows how to properly call all VAN QA rules at the right time during the validation process.
 
-## 🔍 rule calling basics
+## 🔍 RULE CALLING BASICS
 
-remember these key principles:
-1. always use the `fetch_rules` tool to load rules
-2. use exact rule paths
-3. load components only when needed
+Remember these key principles:
+1. Always use the `fetch_rules` tool to load rules
+2. Use exact rule paths
+3. Load components only when needed
 
-## 📋 main qa entry point
+## 📋 MAIN QA ENTRY POINT
 
-when user types "van qa", load the main entry point:
+When user types "VAN QA", load the main entry point:
 
 ```
 fetch_rules with "isolation_rules/visual-maps/van-qa-main"
 ```
 
-## 📋 validation checks
+## 📋 VALIDATION CHECKS
 
-load these components sequentially during validation:
+Load these components sequentially during validation:
 
 ```
 1. fetch_rules with "isolation_rules/visual-maps/van-qa-checks/dependency-check"
@@ -33,34 +33,34 @@ load these components sequentially during validation:
 4. fetch_rules with "isolation_rules/visual-maps/van-qa-checks/build-test"
 ```
 
-## 📋 utility components
+## 📋 UTILITY COMPONENTS
 
-load these when needed based on validation results:
+Load these when needed based on validation results:
 
 ```
-- for reports: fetch_rules with "isolation_rules/visual-maps/van-qa-utils/reports"
-- for fixes: fetch_rules with "isolation_rules/visual-maps/van-qa-utils/common-fixes"
-- for transitions: fetch_rules with "isolation_rules/visual-maps/van-qa-utils/mode-transitions"
+- For reports: fetch_rules with "isolation_rules/visual-maps/van-qa-utils/reports"
+- For fixes: fetch_rules with "isolation_rules/visual-maps/van-qa-utils/common-fixes"
+- For transitions: fetch_rules with "isolation_rules/visual-maps/van-qa-utils/mode-transitions"
 ```
 
-## ⚠️ critical reminders
+## ⚠️ CRITICAL REMINDERS
 
-remember to call these rules at these specific points:
-- always load the main qa entry point when "van qa" is typed
-- always load dependency-check before starting validation
-- always load reports after completing validation
-- always load mode-transitions after successful validation
-- always load common-fixes after failed validation
+Remember to call these rules at these specific points:
+- ALWAYS load the main QA entry point when "VAN QA" is typed
+- ALWAYS load dependency-check before starting validation
+- ALWAYS load reports after completing validation
+- ALWAYS load mode-transitions after successful validation
+- ALWAYS load common-fixes after failed validation
 
-## 🔄 full validation sequence
+## 🔄 FULL VALIDATION SEQUENCE
 
-complete sequence for a qa validation process:
+Complete sequence for a QA validation process:
 
-1. load main entry: `isolation_rules/visual-maps/van-qa-main`
-2. load first check: `isolation_rules/visual-maps/van-qa-checks/dependency-check`
-3. load second check: `isolation_rules/visual-maps/van-qa-checks/config-check`
-4. load third check: `isolation_rules/visual-maps/van-qa-checks/environment-check`
-5. load fourth check: `isolation_rules/visual-maps/van-qa-checks/build-test`
-6. if pass, load: `isolation_rules/visual-maps/van-qa-utils/reports`
-7. if pass, load: `isolation_rules/visual-maps/van-qa-utils/mode-transitions` 
-8. if fail, load: `isolation_rules/visual-maps/van-qa-utils/common-fixes`
+1. Load main entry: `isolation_rules/visual-maps/van-qa-main`
+2. Load first check: `isolation_rules/visual-maps/van-qa-checks/dependency-check`
+3. Load second check: `isolation_rules/visual-maps/van-qa-checks/config-check`
+4. Load third check: `isolation_rules/visual-maps/van-qa-checks/environment-check`
+5. Load fourth check: `isolation_rules/visual-maps/van-qa-checks/build-test`
+6. If pass, load: `isolation_rules/visual-maps/van-qa-utils/reports`
+7. If pass, load: `isolation_rules/visual-maps/van-qa-utils/mode-transitions` 
+8. If fail, load: `isolation_rules/visual-maps/van-qa-utils/common-fixes` 

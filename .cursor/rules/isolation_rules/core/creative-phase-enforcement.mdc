@@ -1,145 +1,145 @@
 ---
 description: creative phase enforcement 
 globs: creative-phase-enforcement.md
-alwaysapply: false
+alwaysApply: false
 ---
 
-# creative phase enforcement
+# CREATIVE PHASE ENFORCEMENT
 
-> **tldr:** this document implements strict enforcement of creative phase requirements for level 3-4 tasks, ensuring all design decisions are properly documented and verified before implementation can proceed.
+> **TL;DR:** This document implements strict enforcement of creative phase requirements for Level 3-4 tasks, ensuring all design decisions are properly documented and verified before implementation can proceed.
 
-## 🔍 enforcement workflow
+## 🔍 ENFORCEMENT WORKFLOW
 
 ```mermaid
-graph td
-    start["task start"] --> check{"level 3-4<br>task?"}
-    check -->|yes| analyze["analyze design<br>decision points"]
-    check -->|no| optional["creative phase<br>optional"]
+graph TD
+    Start["Task Start"] --> Check{"Level 3-4<br>Task?"}
+    Check -->|Yes| Analyze["Analyze Design<br>Decision Points"]
+    Check -->|No| Optional["Creative Phase<br>Optional"]
     
-    analyze --> decision{"design decisions<br>required?"}
-    decision -->|yes| gate["🚨 implementation<br>blocked"]
-    decision -->|no| allow["allow<br>implementation"]
+    Analyze --> Decision{"Design Decisions<br>Required?"}
+    Decision -->|Yes| Gate["🚨 IMPLEMENTATION<br>BLOCKED"]
+    Decision -->|No| Allow["Allow<br>Implementation"]
     
-    gate --> creative["enter creative<br>phase"]
-    creative --> verify{"all decisions<br>documented?"}
-    verify -->|no| return["return to<br>creative phase"]
-    verify -->|yes| proceed["allow<br>implementation"]
+    Gate --> Creative["Enter Creative<br>Phase"]
+    Creative --> Verify{"All Decisions<br>Documented?"}
+    Verify -->|No| Return["Return to<br>Creative Phase"]
+    Verify -->|Yes| Proceed["Allow<br>Implementation"]
     
-    style start fill:#4da6ff,stroke:#0066cc,color:white
-    style check fill:#ffa64d,stroke:#cc7a30,color:white
-    style analyze fill:#4dbb5f,stroke:#36873f,color:white
-    style gate fill:#d94dbb,stroke:#a3378a,color:white
-    style creative fill:#4dbbbb,stroke:#368787,color:white
-    style verify fill:#d971ff,stroke:#a33bc2,color:white
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style Check fill:#ffa64d,stroke:#cc7a30,color:white
+    style Analyze fill:#4dbb5f,stroke:#36873f,color:white
+    style Gate fill:#d94dbb,stroke:#a3378a,color:white
+    style Creative fill:#4dbbbb,stroke:#368787,color:white
+    style Verify fill:#d971ff,stroke:#a33bc2,color:white
 ```
 
-## 🚨 enforcement gates
+## 🚨 ENFORCEMENT GATES
 
 ```mermaid
-graph td
-    subgraph "creative phase gates"
-    g1["entry gate<br>verify requirements"]
-    g2["process gate<br>verify progress"]
-    g3["exit gate<br>verify completion"]
+graph TD
+    subgraph "CREATIVE PHASE GATES"
+    G1["Entry Gate<br>Verify Requirements"]
+    G2["Process Gate<br>Verify Progress"]
+    G3["Exit Gate<br>Verify Completion"]
     end
     
-    g1 --> g2 --> g3
+    G1 --> G2 --> G3
     
-    style g1 fill:#4dbb5f,stroke:#36873f,color:white
-    style g2 fill:#ffa64d,stroke:#cc7a30,color:white
-    style g3 fill:#d94dbb,stroke:#a3378a,color:white
+    style G1 fill:#4dbb5f,stroke:#36873f,color:white
+    style G2 fill:#ffa64d,stroke:#cc7a30,color:white
+    style G3 fill:#d94dbb,stroke:#a3378a,color:white
 ```
 
-## 📋 enforcement checklist
+## 📋 ENFORCEMENT CHECKLIST
 
 ```markdown
-## entry gate verification
-- [ ] task complexity is level 3-4
-- [ ] design decisions identified
-- [ ] creative phase requirements documented
-- [ ] required participants notified
+## Entry Gate Verification
+- [ ] Task complexity is Level 3-4
+- [ ] Design decisions identified
+- [ ] Creative phase requirements documented
+- [ ] Required participants notified
 
-## process gate verification
-- [ ] all options being considered
-- [ ] pros/cons documented
-- [ ] technical constraints identified
-- [ ] implementation impacts assessed
+## Process Gate Verification
+- [ ] All options being considered
+- [ ] Pros/cons documented
+- [ ] Technical constraints identified
+- [ ] Implementation impacts assessed
 
-## exit gate verification
-- [ ] all decisions documented
-- [ ] rationale provided for choices
-- [ ] implementation plan outlined
-- [ ] verification against requirements
+## Exit Gate Verification
+- [ ] All decisions documented
+- [ ] Rationale provided for choices
+- [ ] Implementation plan outlined
+- [ ] Verification against requirements
 ```
 
-## 🚨 implementation block notice
+## 🚨 IMPLEMENTATION BLOCK NOTICE
 
-when a creative phase is required but not completed:
+When a creative phase is required but not completed:
 
 ```
-🚨 implementation blocked
-creative phases must be completed before implementation.
+🚨 IMPLEMENTATION BLOCKED
+Creative phases MUST be completed before implementation.
 
-required creative phases:
-- [ ] [creative phase 1]
-- [ ] [creative phase 2]
-- [ ] [creative phase 3]
+Required Creative Phases:
+- [ ] [Creative Phase 1]
+- [ ] [Creative Phase 2]
+- [ ] [Creative Phase 3]
 
-⛔ this is a hard block
-implementation cannot proceed until all creative phases are completed.
-type "phase.review" to begin creative phase review.
+⛔ This is a HARD BLOCK
+Implementation CANNOT proceed until all creative phases are completed.
+Type "PHASE.REVIEW" to begin creative phase review.
 ```
 
-## ✅ verification protocol
+## ✅ VERIFICATION PROTOCOL
 
 ```mermaid
-graph td
-    subgraph "verification steps"
-    v1["1. requirements<br>check"]
-    v2["2. documentation<br>review"]
-    v3["3. decision<br>validation"]
-    v4["4. implementation<br>readiness"]
+graph TD
+    subgraph "VERIFICATION STEPS"
+    V1["1. Requirements<br>Check"]
+    V2["2. Documentation<br>Review"]
+    V3["3. Decision<br>Validation"]
+    V4["4. Implementation<br>Readiness"]
     end
     
-    v1 --> v2 --> v3 --> v4
+    V1 --> V2 --> V3 --> V4
     
-    style v1 fill:#4dbb5f,stroke:#36873f,color:white
-    style v2 fill:#ffa64d,stroke:#cc7a30,color:white
-    style v3 fill:#d94dbb,stroke:#a3378a,color:white
-    style v4 fill:#4dbbbb,stroke:#368787,color:white
+    style V1 fill:#4dbb5f,stroke:#36873f,color:white
+    style V2 fill:#ffa64d,stroke:#cc7a30,color:white
+    style V3 fill:#d94dbb,stroke:#a3378a,color:white
+    style V4 fill:#4dbbbb,stroke:#368787,color:white
 ```
 
-## 🔄 creative phase markers
+## 🔄 CREATIVE PHASE MARKERS
 
-use these markers to clearly indicate creative phase boundaries:
+Use these markers to clearly indicate creative phase boundaries:
 
 ```markdown
-🎨🎨🎨 entering creative phase: [type] 🎨🎨🎨
-focus: [specific component/feature]
-objective: [clear goal of this creative phase]
-requirements: [list of requirements]
+🎨🎨🎨 ENTERING CREATIVE PHASE: [TYPE] 🎨🎨🎨
+Focus: [Specific component/feature]
+Objective: [Clear goal of this creative phase]
+Requirements: [List of requirements]
 
-[creative phase content]
+[Creative phase content]
 
-🎨 creative checkpoint: [milestone]
-- progress: [status]
-- decisions: [list]
-- next steps: [plan]
+🎨 CREATIVE CHECKPOINT: [Milestone]
+- Progress: [Status]
+- Decisions: [List]
+- Next steps: [Plan]
 
-🎨🎨🎨 exiting creative phase 🎨🎨🎨
-summary: [brief description]
-key decisions: [list]
-next steps: [implementation plan]
+🎨🎨🎨 EXITING CREATIVE PHASE 🎨🎨🎨
+Summary: [Brief description]
+Key Decisions: [List]
+Next Steps: [Implementation plan]
 ```
 
-## 🔄 document management
+## 🔄 DOCUMENT MANAGEMENT
 
 ```mermaid
-graph td
-    current["current document"] --> active["active:<br>- creative-phase-enforcement.md"]
-    current --> related["related:<br>- creative-phase-architecture.md<br>- task-tracking-intermediate.md"]
+graph TD
+    Current["Current Document"] --> Active["Active:<br>- creative-phase-enforcement.md"]
+    Current --> Related["Related:<br>- creative-phase-architecture.md<br>- task-tracking-intermediate.md"]
     
-    style current fill:#4da6ff,stroke:#0066cc,color:white
-    style active fill:#4dbb5f,stroke:#36873f,color:white
-    style related fill:#ffa64d,stroke:#cc7a30,color:white
-```
+    style Current fill:#4da6ff,stroke:#0066cc,color:white
+    style Active fill:#4dbb5f,stroke:#36873f,color:white
+    style Related fill:#ffa64d,stroke:#cc7a30,color:white
+``` 

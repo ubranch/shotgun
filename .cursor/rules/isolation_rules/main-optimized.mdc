@@ -1,240 +1,237 @@
 ---
-description: optimized main rule for improved token efficiency
+description: Optimized main rule for improved token efficiency
 globs: main-optimized.mdc
-alwaysapply: false
+alwaysApply: false
 ---
-# 🔍 optimized memory bank system
+# 🔍 OPTIMIZED MEMORY BANK SYSTEM
 
-🚨 critical rule: memory bank creation is mandatory 🚨
-memory bank must be created before any other operation in any mode
-no process can continue without verifying memory bank existence
+🚨 CRITICAL RULE: MEMORY BANK CREATION IS MANDATORY 🚨
+Memory Bank MUST be created BEFORE any other operation in ANY mode
+NO process can continue without verifying Memory Bank existence
 
-> **tldr:** this system uses optimized context management and adaptive rule loading to maximize token efficiency while preserving the structured development approach.
+> **TL;DR:** This system uses optimized context management and adaptive rule loading to maximize token efficiency while preserving the structured development approach.
 
-## 🧭 optimized mode architecture
+## 🧭 OPTIMIZED MODE ARCHITECTURE
 
 ```mermaid
-graph td
-    subgraph "memory bank core"
-        context["context manager"]
-        rules["rule loader"]
-        fileio["file manager"]
-        transition["mode transition"]
+graph TD
+    subgraph "Memory Bank Core"
+        Context["Context Manager"]
+        Rules["Rule Loader"]
+        FileIO["File Manager"]
+        Transition["Mode Transition"]
     end
     
-    subgraph "custom modes"
-        van["van<br>initialization"]
-        plan["plan<br>planning"]
-        creative["creative<br>design"]
-        implement["implement<br>building"]
-        reflect["reflect<br>review"]
-        archive["archive<br>documentation"]
+    subgraph "Custom Modes"
+        VAN["VAN<br>Initialization"]
+        PLAN["PLAN<br>Planning"]
+        CREATIVE["CREATIVE<br>Design"]
+        IMPLEMENT["IMPLEMENT<br>Building"]
+        REFLECT["REFLECT<br>Review"]
+        ARCHIVE["ARCHIVE<br>Documentation"]
     end
     
-    context --> van & plan & creative & implement & reflect & archive
-    rules --> van & plan & creative & implement & reflect & archive
-    fileio --> van & plan & creative & implement & reflect & archive
-    transition --> van & plan & creative & implement & reflect & archive
+    Context --> VAN & PLAN & CREATIVE & IMPLEMENT & REFLECT & ARCHIVE
+    Rules --> VAN & PLAN & CREATIVE & IMPLEMENT & REFLECT & ARCHIVE
+    FileIO --> VAN & PLAN & CREATIVE & IMPLEMENT & REFLECT & ARCHIVE
+    Transition --> VAN & PLAN & CREATIVE & IMPLEMENT & REFLECT & ARCHIVE
     
-    van --> plan
-    plan --> creative
-    creative --> implement
-    implement --> reflect
-    reflect --> archive
+    VAN --> PLAN
+    PLAN --> CREATIVE
+    CREATIVE --> IMPLEMENT
+    IMPLEMENT --> REFLECT
+    REFLECT --> ARCHIVE
     
-    style context fill:#4da6ff,stroke:#0066cc,color:white
-    style rules fill:#ffa64d,stroke:#cc7a30,color:white
-    style fileio fill:#4dbb5f,stroke:#36873f,color:white
-    style transition fill:#d94dbb,stroke:#a3378a,color:white
+    style Context fill:#4da6ff,stroke:#0066cc,color:white
+    style Rules fill:#ffa64d,stroke:#cc7a30,color:white
+    style FileIO fill:#4dbb5f,stroke:#36873f,color:white
+    style Transition fill:#d94dbb,stroke:#a3378a,color:white
 ```
 
-## 📈 adaptive complexity model
+## 📈 ADAPTIVE COMPLEXITY MODEL
 
 ```mermaid
-graph td
-    task["task creation"] --> complexity{"complexity<br>level?"}
+graph TD
+    Task["Task Creation"] --> Complexity{"Complexity<br>Level?"}
     
-    complexity -->|"level 1<br>quick fix"| l1["3-phase<br>streamlined process"]
-    complexity -->|"level 2<br>enhancement"| l2["4-phase<br>balanced process"]
-    complexity -->|"level 3<br>feature"| l3["5-phase<br>comprehensive process"]
-    complexity -->|"level 4<br>enterprise"| l4["6-phase<br>governance process"]
+    Complexity -->|"Level 1<br>Quick Fix"| L1["3-Phase<br>Streamlined Process"]
+    Complexity -->|"Level 2<br>Enhancement"| L2["4-Phase<br>Balanced Process"]
+    Complexity -->|"Level 3<br>Feature"| L3["5-Phase<br>Comprehensive Process"]
+    Complexity -->|"Level 4<br>Enterprise"| L4["6-Phase<br>Governance Process"]
     
-    l1 --> l1_process["van → implement → reflect"]
-    l2 --> l2_process["van → plan → implement → reflect"]
-    l3 --> l3_process["van → plan → creative → implement → reflect"]
-    l4 --> l4_process["van → plan → creative → implement → reflect → archive"]
+    L1 --> L1_Process["VAN → IMPLEMENT → REFLECT"]
+    L2 --> L2_Process["VAN → PLAN → IMPLEMENT → REFLECT"]
+    L3 --> L3_Process["VAN → PLAN → CREATIVE → IMPLEMENT → REFLECT"]
+    L4 --> L4_Process["VAN → PLAN → CREATIVE → IMPLEMENT → REFLECT → ARCHIVE"]
     
-    style complexity fill:#d94dbb,stroke:#a3378a,color:white
-    style l1 fill:#4dbb5f,stroke:#36873f,color:white
-    style l2 fill:#ffa64d,stroke:#cc7a30,color:white
-    style l3 fill:#4da6ff,stroke:#0066cc,color:white
-    style l4 fill:#ff5555,stroke:#cc0000,color:white
+    style Complexity fill:#d94dbb,stroke:#a3378a,color:white
+    style L1 fill:#4dbb5f,stroke:#36873f,color:white
+    style L2 fill:#ffa64d,stroke:#cc7a30,color:white
+    style L3 fill:#4da6ff,stroke:#0066cc,color:white
+    style L4 fill:#ff5555,stroke:#cc0000,color:white
 ```
 
-## 🧠 hierarchical rule loading
+## 🧠 HIERARCHICAL RULE LOADING
 
-rules are loaded hierarchically to optimize context usage:
+Rules are loaded hierarchically to optimize context usage:
 
 ```mermaid
-graph td
-    root["memory bank<br>common rules"] --> core["core rules<br>shared across modes"]
+graph TD
+    Root["Memory Bank<br>Common Rules"] --> Core["Core Rules<br>Shared Across Modes"]
     
-    core --> l1["level 1<br>rules"]
-    core --> l2["level 2<br>rules"]
-    core --> l3["level 3<br>rules"]
-    core --> l4["level 4<br>rules"]
+    Core --> L1["Level 1<br>Rules"]
+    Core --> L2["Level 2<br>Rules"]
+    Core --> L3["Level 3<br>Rules"]
+    Core --> L4["Level 4<br>Rules"]
     
-    core --> vm["mode<br>visual maps"]
+    Core --> VM["Mode<br>Visual Maps"]
     
-    core --> phase["phase-specific<br>rules"]
+    Core --> Phase["Phase-Specific<br>Rules"]
     
-    phase --> van_rules["van mode<br>rules"]
-    phase --> plan_rules["plan mode<br>rules"]
-    phase --> creative_rules["creative mode<br>rules"]
-    phase --> implement_rules["implement mode<br>rules"]
-    phase --> reflect_rules["reflect mode<br>rules"]
-    phase --> archive_rules["archive mode<br>rules"]
+    Phase --> VAN_Rules["VAN Mode<br>Rules"]
+    Phase --> PLAN_Rules["PLAN Mode<br>Rules"]
+    Phase --> CREATIVE_Rules["CREATIVE Mode<br>Rules"]
+    Phase --> IMPLEMENT_Rules["IMPLEMENT Mode<br>Rules"]
+    Phase --> REFLECT_Rules["REFLECT Mode<br>Rules"]
+    Phase --> ARCHIVE_Rules["ARCHIVE Mode<br>Rules"]
     
-    style root fill:#4da6ff,stroke:#0066cc,color:white
-    style core fill:#ffa64d,stroke:#cc7a30,color:white
-    style phase fill:#4dbb5f,stroke:#36873f,color:white
+    style Root fill:#4da6ff,stroke:#0066cc,color:white
+    style Core fill:#ffa64d,stroke:#cc7a30,color:white
+    style Phase fill:#4dbb5f,stroke:#36873f,color:white
 ```
 
-## 🔄 token-optimized creative phase
+## 🔄 TOKEN-OPTIMIZED CREATIVE PHASE
 
-creative phase documentation is progressively generated:
+Creative phase documentation is progressively generated:
 
 ```mermaid
-graph td
-    start["creative phase<br>initiation"] --> p1["1️⃣ problem<br>define scope"]
-    p1 --> p2["2️⃣ options<br>list alternatives"]
-    p2 --> p3["3️⃣ analysis<br>compare options"]
-    p3 --> p4["4️⃣ decision<br>select approach"]
-    p4 --> p5["5️⃣ guidelines<br>document implementation"]
+graph TD
+    Start["Creative Phase<br>Initiation"] --> P1["1️⃣ PROBLEM<br>Define scope"]
+    P1 --> P2["2️⃣ OPTIONS<br>List alternatives"]
+    P2 --> P3["3️⃣ ANALYSIS<br>Compare options"]
+    P3 --> P4["4️⃣ DECISION<br>Select approach"]
+    P4 --> P5["5️⃣ GUIDELINES<br>Document implementation"]
     
-    p3 -.->|"on demand"| details["detailed option<br>analysis"]
+    P3 -.->|"On Demand"| Details["Detailed Option<br>Analysis"]
     
-    style start fill:#d971ff,stroke:#a33bc2,color:white
-    style p1 fill:#4da6ff,stroke:#0066cc,color:white
-    style p2 fill:#ffa64d,stroke:#cc7a30,color:white
-    style p3 fill:#4dbb5f,stroke:#36873f,color:white
-    style p4 fill:#d94dbb,stroke:#a3378a,color:white
-    style p5 fill:#4dbbbb,stroke:#368787,color:white
-    style details fill:#e699d9,stroke:#d94dbb,color:white,stroke-dasharray: 5 5
+    style Start fill:#d971ff,stroke:#a33bc2,color:white
+    style P1 fill:#4da6ff,stroke:#0066cc,color:white
+    style P2 fill:#ffa64d,stroke:#cc7a30,color:white
+    style P3 fill:#4dbb5f,stroke:#36873f,color:white
+    style P4 fill:#d94dbb,stroke:#a3378a,color:white
+    style P5 fill:#4dbbbb,stroke:#368787,color:white
+    style Details fill:#e699d9,stroke:#d94dbb,color:white,stroke-dasharray: 5 5
 ```
 
-## 🔀 optimized mode transitions
+## 🔀 OPTIMIZED MODE TRANSITIONS
 
-mode transitions use a unified context transfer protocol:
+Mode transitions use a unified context transfer protocol:
 
 ```mermaid
-sequencediagram
-    participant current as current mode
-    participant context as context manager
-    participant next as next mode
+sequenceDiagram
+    participant Current as Current Mode
+    participant Context as Context Manager
+    participant Next as Next Mode
     
-    current->>context: create transition document
-    current->>context: store critical context
-    context->>context: prepare rule cache
-    current->>next: initiate transition
-    next->>context: verify context availability
-    context->>next: load relevant context
-    context->>next: load cached rules
-    next->>next: continue with preserved context
+    Current->>Context: Create transition document
+    Current->>Context: Store critical context
+    Context->>Context: Prepare rule cache
+    Current->>Next: Initiate transition
+    Next->>Context: Verify context availability
+    Context->>Next: Load relevant context
+    Context->>Next: Load cached rules
+    Next->>Next: Continue with preserved context
 ```
 
-## 📊 memory bank efficient updates
+## 📊 MEMORY BANK EFFICIENT UPDATES
 
 ```mermaid
-graph td
-    subgraph "memory bank files"
-        tasks["tasks.md<br>source of truth"]
-        active["activecontext.md<br>current focus"]
-        creative["creative-*.md<br>design decisions"]
-        progress["progress.md<br>implementation status"]
-        transition["transition.md<br>mode transitions"]
+graph TD
+    subgraph "Memory Bank Files"
+        tasks["tasks.md<br>Source of Truth"]
+        active["activeContext.md<br>Current Focus"]
+        creative["creative-*.md<br>Design Decisions"]
+        progress["progress.md<br>Implementation Status"]
+        transition["transition.md<br>Mode Transitions"]
     end
     
-    update["update request"] --> diff{"changed?"}
-    diff -->|"no"| skip["skip update"]
-    diff -->|"yes"| section{"section<br>change?"}
-    section -->|"yes"| partial["update changed<br>sections only"]
-    section -->|"no"| full["full file<br>update"]
+    Update["Update Request"] --> Diff{"Changed?"}
+    Diff -->|"No"| Skip["Skip Update"]
+    Diff -->|"Yes"| Section{"Section<br>Change?"}
+    Section -->|"Yes"| Partial["Update Changed<br>Sections Only"]
+    Section -->|"No"| Full["Full File<br>Update"]
     
-    partial --> tasks
-    full --> tasks
+    Partial --> tasks
+    Full --> tasks
     
-    style update fill:#4da6ff,stroke:#0066cc,color:white
-    style diff fill:#ffa64d,stroke:#cc7a30,color:white
-    style section fill:#4dbb5f,stroke:#36873f,color:white
-    style partial fill:#d94dbb,stroke:#a3378a,color:white
-    style full fill:#4dbbbb,stroke:#368787,color:white
+    style Update fill:#4da6ff,stroke:#0066cc,color:white
+    style Diff fill:#ffa64d,stroke:#cc7a30,color:white
+    style Section fill:#4dbb5f,stroke:#36873f,color:white
+    style Partial fill:#d94dbb,stroke:#a3378a,color:white
+    style Full fill:#4dbbbb,stroke:#368787,color:white
 ```
 
-## 💻 complexity-based documentation
+## 💻 COMPLEXITY-BASED DOCUMENTATION
 
-documentation requirements scale based on complexity level:
+Documentation requirements scale based on complexity level:
 
-| documentation | level 1 | level 2 | level 3 | level 4 |
+| Documentation | Level 1 | Level 2 | Level 3 | Level 4 |
 |---------------|---------|---------|---------|---------|
-| problem definition | brief | standard | detailed | comprehensive |
-| options analysis | optional | basic | multiple options | extensive |
-| implementation plan | simple | standard | detailed | phased |
-| testing requirements | basic | standard | comprehensive | rigorous |
-| documentation | minimal | standard | detailed | extensive |
+| Problem Definition | Brief | Standard | Detailed | Comprehensive |
+| Options Analysis | Optional | Basic | Multiple Options | Extensive |
+| Implementation Plan | Simple | Standard | Detailed | Phased |
+| Testing Requirements | Basic | Standard | Comprehensive | Rigorous |
+| Documentation | Minimal | Standard | Detailed | Extensive |
 
-## 📑 optimized templates by level
+## 📑 OPTIMIZED TEMPLATES BY LEVEL
 
-### level 1: quick fix template
+### Level 1: Quick Fix Template
 ```markdown
-## quick fix: [issue name]
-- problem: [brief description]
-- solution: [implemented approach]
-- verification: [how fix was tested]
+## QUICK FIX: [Issue Name]
+- Problem: [Brief description]
+- Solution: [Implemented approach]
+- Verification: [How fix was tested]
 ```
 
-### level 2: enhancement template
+### Level 2: Enhancement Template
 ```markdown
-## enhancement: [feature name]
-- requirement: [what needs to be done]
-- approach: [how it was implemented]
-- testing: [verification approach]
-- documentation: [where documented]
+## ENHANCEMENT: [Feature Name]
+- Requirement: [What needs to be done]
+- Approach: [How it was implemented]
+- Testing: [Verification approach]
+- Documentation: [Where documented]
 ```
 
-### level 3-4: comprehensive template
-uses the optimized creative phase template with appropriate documentation depth
+### Level 3-4: Comprehensive Template
+Uses the optimized creative phase template with appropriate documentation depth
 
-## 🔄 reference maps
+## 🔄 REFERENCE MAPS
 
-each mode's visual process map is optimized for token efficiency:
+Each mode's visual process map is optimized for token efficiency:
 
-- @van mode map (optimized)
-- @plan mode map (optimized)
-- @creative mode map (optimized)
-- @implement mode map (optimized)
-- @reflect mode map (optimized)
-- @archive mode map (optimized)
+- @VAN Mode Map (Optimized)
+- @PLAN Mode Map (Optimized)
+- @CREATIVE Mode Map (Optimized)
+- @IMPLEMENT Mode Map (Optimized)
+- @REFLECT Mode Map (Optimized)
+- @ARCHIVE Mode Map (Optimized)
 
-## ⚡ token efficiency improvements
+## ⚡ TOKEN EFFICIENCY IMPROVEMENTS
 
-optimizations in this version:
+Optimizations in this version:
 
-1. hierarchical rule loading (65% token reduction)
-2. progressive creative phase documentation (60% token reduction)
-3. context preservation during mode transitions (40% token reduction)
-4. differential memory bank updates (30% token reduction)
-5. complexity-based template scaling (varies by level)
+1. Hierarchical rule loading (65% token reduction)
+2. Progressive creative phase documentation (60% token reduction)
+3. Context preservation during mode transitions (40% token reduction)
+4. Differential Memory Bank updates (30% token reduction)
+5. Complexity-based template scaling (varies by level)
 
-## 💡 usage guidance
+## 💡 USAGE GUIDANCE
 
-to use the optimized system:
+To use the optimized system:
 
-1. start with the van command to initialize and determine complexity
-2. follow the complexity-appropriate workflow
-3. use progressive documentation appropriate to task complexity
-4. let the system manage rule loading and context preservation
-5. enjoy the improved token efficiency while maintaining structured development
-
-this optimized system provides a more efficient and streamlined experience while preserving the core principles of the memory bank methodology.
-``` 
+1. Start with the VAN command to initialize and determine complexity
+2. Follow the complexity-appropriate workflow
+3. Use progressive documentation appropriate to task complexity
+4. Let the system manage rule loading and context preservation
+5. Enjoy the improved token efficiency while maintaining structured development

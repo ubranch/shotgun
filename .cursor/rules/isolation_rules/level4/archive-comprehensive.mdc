@@ -1,684 +1,684 @@
 ---
-description: comprehensive archiving approach for level 4 complex system tasks
+description: Comprehensive archiving approach for Level 4 Complex System tasks
 globs: "**/level4/**", "**/archive/**"
-alwaysapply: false
+alwaysApply: false
 ---
 
-# comprehensive archiving for level 4 tasks
+# COMPREHENSIVE ARCHIVING FOR LEVEL 4 TASKS
 
-> **tldr:** this document outlines a comprehensive archiving approach for level 4 (complex system) tasks, ensuring all system knowledge, decisions, implementation details, and lessons learned are preserved for future reference and reuse.
+> **TL;DR:** This document outlines a comprehensive archiving approach for Level 4 (Complex System) tasks, ensuring all system knowledge, decisions, implementation details, and lessons learned are preserved for future reference and reuse.
 
-## 🔍 comprehensive archiving overview
+## 🔍 COMPREHENSIVE ARCHIVING OVERVIEW
 
-level 4 complex system tasks require thorough archiving to preserve system knowledge, design decisions, implementation details, and lessons learned. this systematic archiving process ensures that the organization maintains institutional knowledge and enables future teams to understand, maintain, and extend the system.
+Level 4 Complex System tasks require thorough archiving to preserve system knowledge, design decisions, implementation details, and lessons learned. This systematic archiving process ensures that the organization maintains institutional knowledge and enables future teams to understand, maintain, and extend the system.
 
 ```mermaid
-flowchart td
-    classdef phase fill:#f9d77e,stroke:#d9b95c,color:#000
-    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
-    classdef verification fill:#c5e8b7,stroke:#a5c897,color:#000
+flowchart TD
+    classDef phase fill:#f9d77e,stroke:#d9b95c,color:#000
+    classDef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+    classDef verification fill:#c5e8b7,stroke:#a5c897,color:#000
     
-    start([begin archiving<br>process]) --> template[load comprehensive<br>archive template]
-    template --> refdoc[review reflection<br>document]
-    refdoc --> sysdoc[create system<br>documentation]
-    sysdoc --> archdoc[document architecture<br>and design]
-    archdoc --> impldoc[document implementation<br>details]
-    impldoc --> apidoc[create api<br>documentation]
-    apidoc --> datadoc[document data<br>models and schemas]
-    datadoc --> secdoc[document security<br>measures]
-    secdoc --> testdoc[document testing<br>procedures and results]
-    testdoc --> deploydoc[document deployment<br>procedures]
-    deploydoc --> opdoc[create operational<br>documentation]
-    opdoc --> knowledgedoc[create knowledge<br>transfer documentation]
-    knowledgedoc --> crossref[create cross-reference<br>documentation]
-    crossref --> archive[archive all<br>project materials]
-    archive --> updatemb[update memory<br>bank]
-    updatemb --> verification{archiving<br>verification}
-    verification -->|pass| complete([archiving<br>complete])
-    verification -->|fail| revise[revise<br>archiving]
-    revise --> verification
+    Start([Begin Archiving<br>Process]) --> Template[Load Comprehensive<br>Archive Template]
+    Template --> RefDoc[Review Reflection<br>Document]
+    RefDoc --> SysDoc[Create System<br>Documentation]
+    SysDoc --> ArchDoc[Document Architecture<br>and Design]
+    ArchDoc --> ImplDoc[Document Implementation<br>Details]
+    ImplDoc --> APIDoc[Create API<br>Documentation]
+    APIDoc --> DataDoc[Document Data<br>Models and Schemas]
+    DataDoc --> SecDoc[Document Security<br>Measures]
+    SecDoc --> TestDoc[Document Testing<br>Procedures and Results]
+    TestDoc --> DeployDoc[Document Deployment<br>Procedures]
+    DeployDoc --> OpDoc[Create Operational<br>Documentation]
+    OpDoc --> KnowledgeDoc[Create Knowledge<br>Transfer Documentation]
+    KnowledgeDoc --> CrossRef[Create Cross-Reference<br>Documentation]
+    CrossRef --> Archive[Archive All<br>Project Materials]
+    Archive --> UpdateMB[Update Memory<br>Bank]
+    UpdateMB --> Verification{Archiving<br>Verification}
+    Verification -->|Pass| Complete([Archiving<br>Complete])
+    Verification -->|Fail| Revise[Revise<br>Archiving]
+    Revise --> Verification
     
-    template -.-> at((archive<br>template))
-    sysdoc -.-> sd((system<br>documentation))
-    archdoc -.-> ad((architecture<br>documentation))
-    impldoc -.-> id((implementation<br>documentation))
-    apidoc & datadoc -.-> intdoc((interface<br>documentation))
-    testdoc & deploydoc & opdoc -.-> opdocs((operational<br>documentation))
+    Template -.-> AT((Archive<br>Template))
+    SysDoc -.-> SD((System<br>Documentation))
+    ArchDoc -.-> AD((Architecture<br>Documentation))
+    ImplDoc -.-> ID((Implementation<br>Documentation))
+    APIDoc & DataDoc -.-> IntDoc((Interface<br>Documentation))
+    TestDoc & DeployDoc & OpDoc -.-> OpDocs((Operational<br>Documentation))
     
-    class start,complete milestone
-    class template,refdoc,sysdoc,archdoc,impldoc,apidoc,datadoc,secdoc,testdoc,deploydoc,opdoc,knowledgedoc,crossref,archive,updatemb step
-    class verification verification
-    class at,sd,ad,id,intdoc,opdocs artifact
+    class Start,Complete milestone
+    class Template,RefDoc,SysDoc,ArchDoc,ImplDoc,APIDoc,DataDoc,SecDoc,TestDoc,DeployDoc,OpDoc,KnowledgeDoc,CrossRef,Archive,UpdateMB step
+    class Verification verification
+    class AT,SD,AD,ID,IntDoc,OpDocs artifact
 ```
 
-## 📋 archive template structure
+## 📋 ARCHIVE TEMPLATE STRUCTURE
 
-### 1. system overview
+### 1. System Overview
 
 ```markdown
-## system overview
+## System Overview
 
-### system purpose and scope
-[comprehensive description of the system purpose, scope, and business context]
+### System Purpose and Scope
+[Comprehensive description of the system purpose, scope, and business context]
 
-### system architecture
-[summary of the architecture, including diagrams, patterns, and key design decisions]
+### System Architecture
+[Summary of the architecture, including diagrams, patterns, and key design decisions]
 
-### key components
-- component 1: [description and purpose]
-- component 2: [description and purpose]
-- component 3: [description and purpose]
+### Key Components
+- Component 1: [Description and purpose]
+- Component 2: [Description and purpose]
+- Component 3: [Description and purpose]
 
-### integration points
-[description of all internal and external integration points]
+### Integration Points
+[Description of all internal and external integration points]
 
-### technology stack
-[comprehensive list of all technologies, frameworks, and tools used]
+### Technology Stack
+[Comprehensive list of all technologies, frameworks, and tools used]
 
-### deployment environment
-[description of the deployment environment, infrastructure, and configuration]
+### Deployment Environment
+[Description of the deployment environment, infrastructure, and configuration]
 ```
 
-### 2. requirements and design documentation
+### 2. Requirements and Design Documentation
 
 ```markdown
-## requirements and design documentation
+## Requirements and Design Documentation
 
-### business requirements
-[comprehensive list of business requirements with traceability]
+### Business Requirements
+[Comprehensive list of business requirements with traceability]
 
-### functional requirements
-[detailed functional requirements with implementation mapping]
+### Functional Requirements
+[Detailed functional requirements with implementation mapping]
 
-### non-functional requirements
-[non-functional requirements with implementation approaches]
+### Non-Functional Requirements
+[Non-functional requirements with implementation approaches]
 
-### architecture decision records
-[collection of all architecture decision records (adrs)]
+### Architecture Decision Records
+[Collection of all architecture decision records (ADRs)]
 
-### design patterns used
-[catalog of all design patterns with usage examples]
+### Design Patterns Used
+[Catalog of all design patterns with usage examples]
 
-### design constraints
-[documentation of all design constraints and their impact]
+### Design Constraints
+[Documentation of all design constraints and their impact]
 
-### design alternatives considered
-[summary of alternatives considered and reasons for final selections]
+### Design Alternatives Considered
+[Summary of alternatives considered and reasons for final selections]
 ```
 
-### 3. implementation documentation
+### 3. Implementation Documentation
 
 ```markdown
-## implementation documentation
+## Implementation Documentation
 
-### component implementation details
-- **component 1**:
-  - **purpose**: [component purpose]
-  - **implementation approach**: [implementation details]
-  - **key classes/modules**: [list with descriptions]
-  - **dependencies**: [internal and external dependencies]
-  - **special considerations**: [important notes]
+### Component Implementation Details
+- **Component 1**:
+  - **Purpose**: [Component purpose]
+  - **Implementation approach**: [Implementation details]
+  - **Key classes/modules**: [List with descriptions]
+  - **Dependencies**: [Internal and external dependencies]
+  - **Special considerations**: [Important notes]
 
-- **component 2**:
-  - **purpose**: [component purpose]
-  - **implementation approach**: [implementation details]
-  - **key classes/modules**: [list with descriptions]
-  - **dependencies**: [internal and external dependencies]
-  - **special considerations**: [important notes]
+- **Component 2**:
+  - **Purpose**: [Component purpose]
+  - **Implementation approach**: [Implementation details]
+  - **Key classes/modules**: [List with descriptions]
+  - **Dependencies**: [Internal and external dependencies]
+  - **Special considerations**: [Important notes]
 
-### key files and components affected (from tasks.md)
-[summary or direct copy of file/component checklists from the original tasks.md for this project. this provides a quick reference to the scope of changes at a component/file level.]
+### Key Files and Components Affected (from tasks.md)
+[Summary or direct copy of file/component checklists from the original tasks.md for this project. This provides a quick reference to the scope of changes at a component/file level.]
 
-### algorithms and complex logic
-[documentation of key algorithms and complex business logic]
+### Algorithms and Complex Logic
+[Documentation of key algorithms and complex business logic]
 
-### third-party integrations
-[details of all third-party integrations including apis and libraries]
+### Third-Party Integrations
+[Details of all third-party integrations including APIs and libraries]
 
-### configuration parameters
-[complete listing of all configuration parameters and their purpose]
+### Configuration Parameters
+[Complete listing of all configuration parameters and their purpose]
 
-### build and packaging details
-[documentation of build process, packaging, and artifacts]
+### Build and Packaging Details
+[Documentation of build process, packaging, and artifacts]
 ```
 
-### 4. api documentation
+### 4. API Documentation
 
 ```markdown
-## api documentation
+## API Documentation
 
-### api overview
-[high-level overview of all apis (internal and external)]
+### API Overview
+[High-level overview of all APIs (internal and external)]
 
-### api endpoints
-- **endpoint 1**:
-  - **url/path**: [endpoint url or path]
-  - **method**: [http method]
-  - **purpose**: [purpose of the endpoint]
-  - **request format**: [request format with examples]
-  - **response format**: [response format with examples]
-  - **error codes**: [possible error codes and meanings]
-  - **security**: [security considerations]
-  - **rate limits**: [any rate limits]
-  - **notes**: [additional notes]
+### API Endpoints
+- **Endpoint 1**:
+  - **URL/Path**: [Endpoint URL or path]
+  - **Method**: [HTTP method]
+  - **Purpose**: [Purpose of the endpoint]
+  - **Request Format**: [Request format with examples]
+  - **Response Format**: [Response format with examples]
+  - **Error Codes**: [Possible error codes and meanings]
+  - **Security**: [Security considerations]
+  - **Rate Limits**: [Any rate limits]
+  - **Notes**: [Additional notes]
 
-- **endpoint 2**:
-  - **url/path**: [endpoint url or path]
-  - **method**: [http method]
-  - **purpose**: [purpose of the endpoint]
-  - **request format**: [request format with examples]
-  - **response format**: [response format with examples]
-  - **error codes**: [possible error codes and meanings]
-  - **security**: [security considerations]
-  - **rate limits**: [any rate limits]
-  - **notes**: [additional notes]
+- **Endpoint 2**:
+  - **URL/Path**: [Endpoint URL or path]
+  - **Method**: [HTTP method]
+  - **Purpose**: [Purpose of the endpoint]
+  - **Request Format**: [Request format with examples]
+  - **Response Format**: [Response format with examples]
+  - **Error Codes**: [Possible error codes and meanings]
+  - **Security**: [Security considerations]
+  - **Rate Limits**: [Any rate limits]
+  - **Notes**: [Additional notes]
 
-### api authentication
-[authentication methods and implementation details]
+### API Authentication
+[Authentication methods and implementation details]
 
-### api versioning strategy
-[versioning approach and migration strategy]
+### API Versioning Strategy
+[Versioning approach and migration strategy]
 
-### sdk or client libraries
-[available sdks or client libraries with usage examples]
+### SDK or Client Libraries
+[Available SDKs or client libraries with usage examples]
 ```
 
-### 5. data model and schema documentation
+### 5. Data Model and Schema Documentation
 
 ```markdown
-## data model and schema documentation
+## Data Model and Schema Documentation
 
-### data model overview
-[high-level overview of the data model with entity relationship diagrams]
+### Data Model Overview
+[High-level overview of the data model with entity relationship diagrams]
 
-### database schema
-[detailed database schema with tables, columns, and relationships]
+### Database Schema
+[Detailed database schema with tables, columns, and relationships]
 
-### data dictionary
-[comprehensive data dictionary with all entities and attributes]
+### Data Dictionary
+[Comprehensive data dictionary with all entities and attributes]
 
-### data validation rules
-[data validation rules and enforcement mechanisms]
+### Data Validation Rules
+[Data validation rules and enforcement mechanisms]
 
-### data migration procedures
-[procedures for data migration and version management]
+### Data Migration Procedures
+[Procedures for data migration and version management]
 
-### data archiving strategy
-[strategy for data archiving and retention]
+### Data Archiving Strategy
+[Strategy for data archiving and retention]
 ```
 
-### 6. security documentation
+### 6. Security Documentation
 
 ```markdown
-## security documentation
+## Security Documentation
 
-### security architecture
-[overview of security architecture and design principles]
+### Security Architecture
+[Overview of security architecture and design principles]
 
-### authentication and authorization
-[detailed implementation of authentication and authorization]
+### Authentication and Authorization
+[Detailed implementation of authentication and authorization]
 
-### data protection measures
-[measures implemented to protect sensitive data]
+### Data Protection Measures
+[Measures implemented to protect sensitive data]
 
-### security controls
-[technical and procedural security controls]
+### Security Controls
+[Technical and procedural security controls]
 
-### vulnerability management
-[approach to vulnerability management and patching]
+### Vulnerability Management
+[Approach to vulnerability management and patching]
 
-### security testing results
-[summary of security testing and assessments]
+### Security Testing Results
+[Summary of security testing and assessments]
 
-### compliance considerations
-[regulatory and compliance considerations addressed]
+### Compliance Considerations
+[Regulatory and compliance considerations addressed]
 ```
 
-### 7. testing documentation
+### 7. Testing Documentation
 
 ```markdown
-## testing documentation
+## Testing Documentation
 
-### test strategy
-[overall testing strategy and approach]
+### Test Strategy
+[Overall testing strategy and approach]
 
-### test cases
-[catalog of test cases with expected results]
+### Test Cases
+[Catalog of test cases with expected results]
 
-### automated tests
-[documentation of automated tests and frameworks]
+### Automated Tests
+[Documentation of automated tests and frameworks]
 
-### performance test results
-[results of performance testing with benchmarks]
+### Performance Test Results
+[Results of performance testing with benchmarks]
 
-### security test results
-[results of security testing with findings]
+### Security Test Results
+[Results of security testing with findings]
 
-### user acceptance testing
-[uat approach, scenarios, and results]
+### User Acceptance Testing
+[UAT approach, scenarios, and results]
 
-### known issues and limitations
-[documentation of known issues and system limitations]
+### Known Issues and Limitations
+[Documentation of known issues and system limitations]
 ```
 
-### 8. deployment documentation
+### 8. Deployment Documentation
 
 ```markdown
-## deployment documentation
+## Deployment Documentation
 
-### deployment architecture
-[detailed deployment architecture with diagrams]
+### Deployment Architecture
+[Detailed deployment architecture with diagrams]
 
-### environment configuration
-[configuration details for all environments]
+### Environment Configuration
+[Configuration details for all environments]
 
-### deployment procedures
-[step-by-step deployment procedures]
+### Deployment Procedures
+[Step-by-step deployment procedures]
 
-### configuration management
-[configuration management approach and tools]
+### Configuration Management
+[Configuration management approach and tools]
 
-### release management
-[release management process and procedures]
+### Release Management
+[Release management process and procedures]
 
-### rollback procedures
-[procedures for rolling back deployments]
+### Rollback Procedures
+[Procedures for rolling back deployments]
 
-### monitoring and alerting
-[monitoring setup, metrics, and alerting configuration]
+### Monitoring and Alerting
+[Monitoring setup, metrics, and alerting configuration]
 ```
 
-### 9. operational documentation
+### 9. Operational Documentation
 
 ```markdown
-## operational documentation
+## Operational Documentation
 
-### operating procedures
-[day-to-day operational procedures]
+### Operating Procedures
+[Day-to-day operational procedures]
 
-### maintenance tasks
-[routine maintenance tasks and schedules]
+### Maintenance Tasks
+[Routine maintenance tasks and schedules]
 
-### troubleshooting guide
-[guide for troubleshooting common issues]
+### Troubleshooting Guide
+[Guide for troubleshooting common issues]
 
-### backup and recovery
-[backup and recovery procedures]
+### Backup and Recovery
+[Backup and recovery procedures]
 
-### disaster recovery
-[disaster recovery plan and procedures]
+### Disaster Recovery
+[Disaster recovery plan and procedures]
 
-### performance tuning
-[performance tuning guidelines and procedures]
+### Performance Tuning
+[Performance tuning guidelines and procedures]
 
-### slas and metrics
-[service level agreements and key performance metrics]
+### SLAs and Metrics
+[Service level agreements and key performance metrics]
 ```
 
-### 10. knowledge transfer documentation
+### 10. Knowledge Transfer Documentation
 
 ```markdown
-## knowledge transfer documentation
+## Knowledge Transfer Documentation
 
-### system overview for new team members
-[concise system overview for onboarding]
+### System Overview for New Team Members
+[Concise system overview for onboarding]
 
-### key concepts and terminology
-[glossary of key concepts and terminology]
+### Key Concepts and Terminology
+[Glossary of key concepts and terminology]
 
-### common tasks and procedures
-[guide to common tasks and procedures]
+### Common Tasks and Procedures
+[Guide to common tasks and procedures]
 
-### frequently asked questions
-[faqs for system users and maintainers]
+### Frequently Asked Questions
+[FAQs for system users and maintainers]
 
-### training materials
-[training materials for different roles]
+### Training Materials
+[Training materials for different roles]
 
-### support escalation process
-[process for escalating support issues]
+### Support Escalation Process
+[Process for escalating support issues]
 
-### further reading and resources
-[additional resources and documentation]
+### Further Reading and Resources
+[Additional resources and documentation]
 ```
 
-### 11. project history and learnings
+### 11. Project History and Learnings
 
 ```markdown
-## project history and learnings
+## Project History and Learnings
 
-### project timeline
-[summary of the project timeline and key milestones]
+### Project Timeline
+[Summary of the project timeline and key milestones]
 
-### key decisions and rationale
-[record of key decisions and their rationale]
+### Key Decisions and Rationale
+[Record of key decisions and their rationale]
 
-### challenges and solutions
-[documentation of challenges faced and how they were addressed]
+### Challenges and Solutions
+[Documentation of challenges faced and how they were addressed]
 
-### lessons learned
-[key lessons learned that might benefit future projects]
+### Lessons Learned
+[Key lessons learned that might benefit future projects]
 
-### performance against objectives
-[assessment of performance against original objectives]
+### Performance Against Objectives
+[Assessment of performance against original objectives]
 
-### future enhancements
-[potential future enhancements and extensions]
+### Future Enhancements
+[Potential future enhancements and extensions]
 ```
 
-## 📋 archiving process
+## 📋 ARCHIVING PROCESS
 
-### 1. preparation
+### 1. Preparation
 
 ```mermaid
-flowchart td
-    classdef step fill:#f9d77e,stroke:#d9b95c,color:#000
-    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+flowchart TD
+    classDef step fill:#f9d77e,stroke:#d9b95c,color:#000
+    classDef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
     
-    start([begin archive<br>preparation]) --> template[load archive<br>template]
-    template --> review[review project<br>documentation]
-    review --> identify[identify all<br>artifacts]
-    identify --> gather[gather all<br>materials]
-    gather --> organize[organize<br>materials]
-    organize --> plan[create archiving<br>plan]
-    plan --> resources[allocate<br>resources]
-    resources --> complete([preparation<br>complete])
+    Start([Begin Archive<br>Preparation]) --> Template[Load Archive<br>Template]
+    Template --> Review[Review Project<br>Documentation]
+    Review --> Identify[Identify All<br>Artifacts]
+    Identify --> Gather[Gather All<br>Materials]
+    Gather --> Organize[Organize<br>Materials]
+    Organize --> Plan[Create Archiving<br>Plan]
+    Plan --> Resources[Allocate<br>Resources]
+    Resources --> Complete([Preparation<br>Complete])
     
-    template -.-> at((archive<br>template))
-    review -.-> projdocs((project<br>documentation))
-    identify -.-> artlist((artifact<br>list))
-    plan -.-> archplan((archiving<br>plan))
+    Template -.-> AT((Archive<br>Template))
+    Review -.-> ProjDocs((Project<br>Documentation))
+    Identify -.-> ArtList((Artifact<br>List))
+    Plan -.-> ArchPlan((Archiving<br>Plan))
     
-    class start,complete milestone
-    class template,review,identify,gather,organize,plan,resources step
-    class at,projdocs,artlist,archplan artifact
+    class Start,Complete milestone
+    class Template,Review,Identify,Gather,Organize,Plan,Resources step
+    class AT,ProjDocs,ArtList,ArchPlan artifact
 ```
 
-**key preparation steps:**
-1. load the comprehensive archive template
-2. review all project documentation including reflection document
-3. identify all artifacts to be archived
-4. gather all materials from various sources
-5. organize materials according to the archive structure
-6. create a detailed archiving plan
-7. allocate resources for the archiving process
+**Key Preparation Steps:**
+1. Load the comprehensive archive template
+2. Review all project documentation including reflection document
+3. Identify all artifacts to be archived
+4. Gather all materials from various sources
+5. Organize materials according to the archive structure
+6. Create a detailed archiving plan
+7. Allocate resources for the archiving process
 
-### 2. documentation creation
+### 2. Documentation Creation
 
 ```mermaid
-flowchart td
-    classdef step fill:#f9d77e,stroke:#d9b95c,color:#000
-    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+flowchart TD
+    classDef step fill:#f9d77e,stroke:#d9b95c,color:#000
+    classDef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
     
-    start([begin documentation<br>creation]) --> system[create system<br>documentation]
-    system --> req[create requirements<br>and design documentation]
-    req --> impl[create implementation<br>documentation]
-    impl --> api[create api<br>documentation]
-    api --> data[create data model<br>documentation]
-    data --> security[create security<br>documentation]
-    security --> test[create testing<br>documentation]
-    test --> deploy[create deployment<br>documentation]
-    deploy --> ops[create operational<br>documentation]
-    ops --> knowledge[create knowledge transfer<br>documentation]
-    knowledge --> history[create project history<br>documentation]
-    history --> review[review all<br>documentation]
-    review --> complete([documentation<br>creation complete])
+    Start([Begin Documentation<br>Creation]) --> System[Create System<br>Documentation]
+    System --> Req[Create Requirements<br>and Design Documentation]
+    Req --> Impl[Create Implementation<br>Documentation]
+    Impl --> API[Create API<br>Documentation]
+    API --> Data[Create Data Model<br>Documentation]
+    Data --> Security[Create Security<br>Documentation]
+    Security --> Test[Create Testing<br>Documentation]
+    Test --> Deploy[Create Deployment<br>Documentation]
+    Deploy --> Ops[Create Operational<br>Documentation]
+    Ops --> Knowledge[Create Knowledge Transfer<br>Documentation]
+    Knowledge --> History[Create Project History<br>Documentation]
+    History --> Review[Review All<br>Documentation]
+    Review --> Complete([Documentation<br>Creation Complete])
     
-    system -.-> sysdoc((system<br>documentation))
-    req -.-> reqdoc((requirements<br>documentation))
-    impl -.-> impldoc((implementation<br>documentation))
-    api -.-> apidoc((api<br>documentation))
-    data -.-> datadoc((data model<br>documentation))
-    security -.-> secdoc((security<br>documentation))
-    test -.-> testdoc((testing<br>documentation))
-    deploy -.-> deploydoc((deployment<br>documentation))
-    ops -.-> opsdoc((operational<br>documentation))
-    knowledge -.-> knowdoc((knowledge transfer<br>documentation))
-    history -.-> histdoc((project history<br>documentation))
+    System -.-> SysDoc((System<br>Documentation))
+    Req -.-> ReqDoc((Requirements<br>Documentation))
+    Impl -.-> ImplDoc((Implementation<br>Documentation))
+    API -.-> APIDoc((API<br>Documentation))
+    Data -.-> DataDoc((Data Model<br>Documentation))
+    Security -.-> SecDoc((Security<br>Documentation))
+    Test -.-> TestDoc((Testing<br>Documentation))
+    Deploy -.-> DeployDoc((Deployment<br>Documentation))
+    Ops -.-> OpsDoc((Operational<br>Documentation))
+    Knowledge -.-> KnowDoc((Knowledge Transfer<br>Documentation))
+    History -.-> HistDoc((Project History<br>Documentation))
     
-    class start,complete milestone
-    class system,req,impl,api,data,security,test,deploy,ops,knowledge,history,review step
-    class sysdoc,reqdoc,impldoc,apidoc,datadoc,secdoc,testdoc,deploydoc,opsdoc,knowdoc,histdoc artifact
+    class Start,Complete milestone
+    class System,Req,Impl,API,Data,Security,Test,Deploy,Ops,Knowledge,History,Review step
+    class SysDoc,ReqDoc,ImplDoc,APIDoc,DataDoc,SecDoc,TestDoc,DeployDoc,OpsDoc,KnowDoc,HistDoc artifact
 ```
 
-**key documentation steps:**
-1. create comprehensive system documentation
-2. document requirements and design decisions
-3. document implementation details for all components
-4. create complete api documentation
-5. document data models and schemas
-6. document security measures and controls
-7. create thorough testing documentation
-8. document deployment procedures
-9. create operational documentation
-10. prepare knowledge transfer documentation
-11. document project history and learnings
-12. review all documentation for completeness and accuracy
+**Key Documentation Steps:**
+1. Create comprehensive system documentation
+2. Document requirements and design decisions
+3. Document implementation details for all components
+4. Create complete API documentation
+5. Document data models and schemas
+6. Document security measures and controls
+7. Create thorough testing documentation
+8. Document deployment procedures
+9. Create operational documentation
+10. Prepare knowledge transfer documentation
+11. Document project history and learnings
+12. Review all documentation for completeness and accuracy
 
-### 3. archiving and integration
+### 3. Archiving and Integration
 
 ```mermaid
-flowchart td
-    classdef step fill:#f9d77e,stroke:#d9b95c,color:#000
-    classdef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
-    classdef verification fill:#c5e8b7,stroke:#a5c897,color:#000
+flowchart TD
+    classDef step fill:#f9d77e,stroke:#d9b95c,color:#000
+    classDef artifact fill:#f4b8c4,stroke:#d498a4,color:#000
+    classDef verification fill:#c5e8b7,stroke:#a5c897,color:#000
     
-    start([begin archiving<br>and integration]) --> consolidate[consolidate all<br>documentation]
-    consolidate --> crossref[create cross-reference<br>index]
-    crossref --> version[version all<br>documentation]
-    version --> archive[archive in<br>repository]
-    archive --> updatemb[update memory<br>bank]
-    updatemb --> accesscontrol[establish access<br>controls]
-    accesscontrol --> announce[announce<br>availability]
-    announce --> verification{archiving<br>verification}
-    verification -->|pass| complete([archiving<br>complete])
-    verification -->|fail| revise[revise<br>archiving]
-    revise --> verification
+    Start([Begin Archiving<br>and Integration]) --> Consolidate[Consolidate All<br>Documentation]
+    Consolidate --> CrossRef[Create Cross-Reference<br>Index]
+    CrossRef --> Version[Version All<br>Documentation]
+    Version --> Archive[Archive in<br>Repository]
+    Archive --> UpdateMB[Update Memory<br>Bank]
+    UpdateMB --> AccessControl[Establish Access<br>Controls]
+    AccessControl --> Announce[Announce<br>Availability]
+    Announce --> Verification{Archiving<br>Verification}
+    Verification -->|Pass| Complete([Archiving<br>Complete])
+    Verification -->|Fail| Revise[Revise<br>Archiving]
+    Revise --> Verification
     
-    consolidate -.-> alldocs((consolidated<br>documentation))
-    crossref -.-> index((cross-reference<br>index))
-    archive -.-> repo((archive<br>repository))
-    updatemb -.-> mb((updated memory<br>bank))
+    Consolidate -.-> AllDocs((Consolidated<br>Documentation))
+    CrossRef -.-> Index((Cross-Reference<br>Index))
+    Archive -.-> Repo((Archive<br>Repository))
+    UpdateMB -.-> MB((Updated Memory<br>Bank))
     
-    class start,complete milestone
-    class consolidate,crossref,version,archive,updatemb,accesscontrol,announce,revise step
-    class verification verification
-    class alldocs,index,repo,mb artifact
+    class Start,Complete milestone
+    class Consolidate,CrossRef,Version,Archive,UpdateMB,AccessControl,Announce,Revise step
+    class Verification verification
+    class AllDocs,Index,Repo,MB artifact
 ```
 
-**key archiving steps:**
-1. consolidate all documentation into a cohesive package
-2. create a cross-reference index linking all documentation
-3. version all documentation appropriately
-4. archive in the designated repository
-5. update memory bank with relevant information
-6. establish appropriate access controls
-7. announce availability to relevant stakeholders
-8. verify archiving completeness and accessibility
+**Key Archiving Steps:**
+1. Consolidate all documentation into a cohesive package
+2. Create a cross-reference index linking all documentation
+3. Version all documentation appropriately
+4. Archive in the designated repository
+5. Update Memory Bank with relevant information
+6. Establish appropriate access controls
+7. Announce availability to relevant stakeholders
+8. Verify archiving completeness and accessibility
 
-## 📋 memory bank integration
+## 📋 MEMORY BANK INTEGRATION
 
 ```mermaid
-flowchart td
-    classdef memfile fill:#f4b8c4,stroke:#d498a4,color:#000
-    classdef process fill:#f9d77e,stroke:#d9b95c,color:#000
+flowchart TD
+    classDef memfile fill:#f4b8c4,stroke:#d498a4,color:#000
+    classDef process fill:#f9d77e,stroke:#d9b95c,color:#000
     
-    archiving[comprehensive<br>archiving] --> pb[projectbrief.md]
-    archiving --> pc[productcontext.md]
-    archiving --> ac[activecontext.md]
-    archiving --> sp[systempatterns.md]
-    archiving --> tc[techcontext.md]
-    archiving --> p[progress.md]
+    Archiving[Comprehensive<br>Archiving] --> PB[projectbrief.md]
+    Archiving --> PC[productContext.md]
+    Archiving --> AC[activeContext.md]
+    Archiving --> SP[systemPatterns.md]
+    Archiving --> TC[techContext.md]
+    Archiving --> P[progress.md]
     
-    pb & pc & ac & sp & tc & p --> mbi[memory bank<br>integration]
-    mbi --> next[repository of<br>knowledge]
+    PB & PC & AC & SP & TC & P --> MBI[Memory Bank<br>Integration]
+    MBI --> Next[Repository of<br>Knowledge]
     
-    class pb,pc,ac,sp,tc,p memfile
-    class archiving,mbi,next process
+    class PB,PC,AC,SP,TC,P memfile
+    class Archiving,MBI,Next process
 ```
 
-### memory bank updates
+### Memory Bank Updates
 
-specific updates to make to memory bank files:
+Specific updates to make to Memory Bank files:
 
 1. **projectbrief.md**
-   - update with final system description
-   - document completion status
-   - include links to archived documentation
+   - Update with final system description
+   - Document completion status
+   - Include links to archived documentation
 
-2. **productcontext.md**
-   - update with final business context
-   - document business value delivered
-   - include links to requirements documentation
+2. **productContext.md**
+   - Update with final business context
+   - Document business value delivered
+   - Include links to requirements documentation
 
-3. **activecontext.md**
-   - update with system status (completed)
-   - document handover information
-   - include links to operational documentation
+3. **activeContext.md**
+   - Update with system status (completed)
+   - Document handover information
+   - Include links to operational documentation
 
-4. **systempatterns.md**
-   - update with final architecture patterns
-   - document successful implementation patterns
-   - include links to architecture documentation
+4. **systemPatterns.md**
+   - Update with final architecture patterns
+   - Document successful implementation patterns
+   - Include links to architecture documentation
 
-5. **techcontext.md**
-   - update with final technology stack
-   - document integration points
-   - include links to technical documentation
+5. **techContext.md**
+   - Update with final technology stack
+   - Document integration points
+   - Include links to technical documentation
 
 6. **progress.md**
-   - update with final project status
-   - document completion metrics
-   - include links to project history documentation
+   - Update with final project status
+   - Document completion metrics
+   - Include links to project history documentation
 
-## 📋 archiving verification checklist
+## 📋 ARCHIVING VERIFICATION CHECKLIST
 
 ```
-✓ archiving verification checklist
+✓ ARCHIVING VERIFICATION CHECKLIST
 
-system documentation
-- system overview complete? [yes/no]
-- architecture documented with diagrams? [yes/no]
-- key components documented? [yes/no]
-- integration points documented? [yes/no]
+System Documentation
+- System overview complete? [YES/NO]
+- Architecture documented with diagrams? [YES/NO]
+- Key components documented? [YES/NO]
+- Integration points documented? [YES/NO]
 
-requirements and design
-- business requirements documented? [yes/no]
-- functional requirements documented? [yes/no]
-- architecture decisions documented? [yes/no]
-- design patterns documented? [yes/no]
+Requirements and Design
+- Business requirements documented? [YES/NO]
+- Functional requirements documented? [YES/NO]
+- Architecture decisions documented? [YES/NO]
+- Design patterns documented? [YES/NO]
 
-implementation
-- component implementation details documented? [yes/no]
-- key algorithms documented? [yes/no]
-- third-party integrations documented? [yes/no]
-- configuration parameters documented? [yes/no]
+Implementation
+- Component implementation details documented? [YES/NO]
+- Key algorithms documented? [YES/NO]
+- Third-party integrations documented? [YES/NO]
+- Configuration parameters documented? [YES/NO]
 
-api documentation
-- api endpoints documented? [yes/no]
-- request/response formats documented? [yes/no]
-- authentication documented? [yes/no]
-- error handling documented? [yes/no]
+API Documentation
+- API endpoints documented? [YES/NO]
+- Request/response formats documented? [YES/NO]
+- Authentication documented? [YES/NO]
+- Error handling documented? [YES/NO]
 
-data documentation
-- data model documented? [yes/no]
-- database schema documented? [yes/no]
-- data dictionary provided? [yes/no]
-- data validation rules documented? [yes/no]
+Data Documentation
+- Data model documented? [YES/NO]
+- Database schema documented? [YES/NO]
+- Data dictionary provided? [YES/NO]
+- Data validation rules documented? [YES/NO]
 
-security documentation
-- security architecture documented? [yes/no]
-- authentication/authorization documented? [yes/no]
-- data protection measures documented? [yes/no]
-- security testing results documented? [yes/no]
+Security Documentation
+- Security architecture documented? [YES/NO]
+- Authentication/authorization documented? [YES/NO]
+- Data protection measures documented? [YES/NO]
+- Security testing results documented? [YES/NO]
 
-testing documentation
-- test strategy documented? [yes/no]
-- test cases documented? [yes/no]
-- test results documented? [yes/no]
-- known issues documented? [yes/no]
+Testing Documentation
+- Test strategy documented? [YES/NO]
+- Test cases documented? [YES/NO]
+- Test results documented? [YES/NO]
+- Known issues documented? [YES/NO]
 
-deployment documentation
-- deployment architecture documented? [yes/no]
-- environment configurations documented? [yes/no]
-- deployment procedures documented? [yes/no]
-- rollback procedures documented? [yes/no]
+Deployment Documentation
+- Deployment architecture documented? [YES/NO]
+- Environment configurations documented? [YES/NO]
+- Deployment procedures documented? [YES/NO]
+- Rollback procedures documented? [YES/NO]
 
-operational documentation
-- operating procedures documented? [yes/no]
-- troubleshooting guide provided? [yes/no]
-- backup and recovery documented? [yes/no]
-- monitoring configuration documented? [yes/no]
+Operational Documentation
+- Operating procedures documented? [YES/NO]
+- Troubleshooting guide provided? [YES/NO]
+- Backup and recovery documented? [YES/NO]
+- Monitoring configuration documented? [YES/NO]
 
-knowledge transfer
-- onboarding overview provided? [yes/no]
-- key concepts documented? [yes/no]
-- common tasks documented? [yes/no]
-- faqs provided? [yes/no]
+Knowledge Transfer
+- Onboarding overview provided? [YES/NO]
+- Key concepts documented? [YES/NO]
+- Common tasks documented? [YES/NO]
+- FAQs provided? [YES/NO]
 
-project history
-- project timeline documented? [yes/no]
-- key decisions documented? [yes/no]
-- lessons learned documented? [yes/no]
-- future enhancements suggested? [yes/no]
+Project History
+- Project timeline documented? [YES/NO]
+- Key decisions documented? [YES/NO]
+- Lessons learned documented? [YES/NO]
+- Future enhancements suggested? [YES/NO]
 
-memory bank integration
-- all memory bank files updated? [yes/no]
-- cross-references created? [yes/no]
-- documentation properly versioned? [yes/no]
-- archive repository established? [yes/no]
+Memory Bank Integration
+- All Memory Bank files updated? [YES/NO]
+- Cross-references created? [YES/NO]
+- Documentation properly versioned? [YES/NO]
+- Archive repository established? [YES/NO]
 ```
 
-## 📋 minimal mode archiving format
+## 📋 MINIMAL MODE ARCHIVING FORMAT
 
-for situations requiring a more compact archiving approach:
+For situations requiring a more compact archiving approach:
 
 ```markdown
-## level 4 task archive: [system name]
+## Level 4 Task Archive: [System Name]
 
-### system summary
-- **purpose**: [brief description of system purpose]
-- **key components**: [list of key components]
-- **architecture**: [brief architecture description with diagram]
+### System Summary
+- **Purpose**: [Brief description of system purpose]
+- **Key Components**: [List of key components]
+- **Architecture**: [Brief architecture description with diagram]
 
-### implementation summary
-- **technology stack**: [key technologies used]
-- **key modules**: [brief description of important modules]
-- **integration points**: [list of major integration points]
+### Implementation Summary
+- **Technology Stack**: [Key technologies used]
+- **Key Modules**: [Brief description of important modules]
+- **Integration Points**: [List of major integration points]
 
-### critical documentation
-- **api documentation**: [link or brief summary]
-- **data model**: [link or brief description]
-- **deployment configuration**: [link or brief description]
-- **security measures**: [link or brief summary]
+### Critical Documentation
+- **API Documentation**: [Link or brief summary]
+- **Data Model**: [Link or brief description]
+- **Deployment Configuration**: [Link or brief description]
+- **Security Measures**: [Link or brief summary]
 
-### operational information
-- **deployment procedure**: [link or brief description]
-- **key configuration parameters**: [list of important parameters]
-- **monitoring setup**: [brief monitoring details]
-- **common issues**: [list of common issues with solutions]
+### Operational Information
+- **Deployment Procedure**: [Link or brief description]
+- **Key Configuration Parameters**: [List of important parameters]
+- **Monitoring Setup**: [Brief monitoring details]
+- **Common Issues**: [List of common issues with solutions]
 
-### repository information
-- **code repository**: [link to repository]
-- **documentation repository**: [link to documentation]
-- **build artifacts**: [link to build artifacts]
+### Repository Information
+- **Code Repository**: [Link to repository]
+- **Documentation Repository**: [Link to documentation]
+- **Build Artifacts**: [Link to build artifacts]
 
-### knowledge transfer summary
-- **key contacts**: [list of key people with knowledge]
-- **critical knowledge areas**: [areas requiring special expertise]
-- **training resources**: [links to training materials]
+### Knowledge Transfer Summary
+- **Key Contacts**: [List of key people with knowledge]
+- **Critical Knowledge Areas**: [Areas requiring special expertise]
+- **Training Resources**: [Links to training materials]
 
-### memory bank links
-- [links to updated memory bank files]
+### Memory Bank Links
+- [Links to updated Memory Bank files]
 ```
 
-## 🚨 archiving enforcement principle
+## 🚨 ARCHIVING ENFORCEMENT PRINCIPLE
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│ comprehensive archiving is mandatory for level 4     │
-│ tasks. no complex system is considered complete      │
+│ COMPREHENSIVE ARCHIVING IS MANDATORY for Level 4     │
+│ tasks. No complex system is considered complete      │
 │ until comprehensive archiving is finished and        │
 │ verified.                                            │
 └─────────────────────────────────────────────────────┘
-```
+``` 

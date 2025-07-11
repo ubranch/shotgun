@@ -1,113 +1,113 @@
 ---
-description: optimized mode transition protocol
+description: Optimized mode transition protocol
 globs: "**/mode-transition*/**", "**/context-preservation*/**"
-alwaysapply: false
+alwaysApply: false
 ---
 
-# mode transition optimization
+# MODE TRANSITION OPTIMIZATION
 
-> **tldr:** this file implements optimized mode transitions to preserve context efficiently between different phases of the memory bank system.
+> **TL;DR:** This file implements optimized mode transitions to preserve context efficiently between different phases of the Memory Bank system.
 
-## 🔄 unified context transfer protocol
+## 🔄 UNIFIED CONTEXT TRANSFER PROTOCOL
 
 ```mermaid
-graph td
-    start["mode a"] --> create["create context<br>summary document"]
-    create --> store["store critical<br>context data"]
-    store --> transition["transition<br>to mode b"]
-    transition --> verify["verify context<br>availability"]
-    verify --> load["load relevant<br>context data"]
-    load --> continue["continue in<br>mode b"]
+graph TD
+    Start["Mode A"] --> Create["Create Context<br>Summary Document"]
+    Create --> Store["Store Critical<br>Context Data"]
+    Store --> Transition["Transition<br>to Mode B"]
+    Transition --> Verify["Verify Context<br>Availability"]
+    Verify --> Load["Load Relevant<br>Context Data"]
+    Load --> Continue["Continue in<br>Mode B"]
     
-    style start fill:#4da6ff,stroke:#0066cc,color:white
-    style create fill:#ffa64d,stroke:#cc7a30,color:white
-    style store fill:#4dbb5f,stroke:#36873f,color:white
-    style transition fill:#d94dbb,stroke:#a3378a,color:white
-    style verify fill:#4dbbbb,stroke:#368787,color:white
-    style load fill:#d971ff,stroke:#a33bc2,color:white
-    style continue fill:#ff71c2,stroke:#c23b8a,color:white
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style Create fill:#ffa64d,stroke:#cc7a30,color:white
+    style Store fill:#4dbb5f,stroke:#36873f,color:white
+    style Transition fill:#d94dbb,stroke:#a3378a,color:white
+    style Verify fill:#4dbbbb,stroke:#368787,color:white
+    style Load fill:#d971ff,stroke:#a33bc2,color:white
+    style Continue fill:#ff71c2,stroke:#c23b8a,color:white
 ```
 
-## 📊 context transition document
+## 📊 CONTEXT TRANSITION DOCUMENT
 
-create a standardized transition document when switching modes:
+Create a standardized transition document when switching modes:
 
 ```markdown
-# mode transition: [source mode] → [target mode]
+# MODE TRANSITION: [Source Mode] → [Target Mode]
 
-## context summary
-- task: [task name/description]
-- complexity: level [1-4]
-- current phase: [phase name]
-- progress: [percentage or status]
+## Context Summary
+- Task: [Task name/description]
+- Complexity: Level [1-4]
+- Current Phase: [Phase name]
+- Progress: [Percentage or status]
 
-## key decisions
-- [decision 1]: [brief summary]
-- [decision 2]: [brief summary]
-- [decision 3]: [brief summary]
+## Key Decisions
+- [Decision 1]: [Brief summary]
+- [Decision 2]: [Brief summary]
+- [Decision 3]: [Brief summary]
 
-## critical context
-- [context item 1]: [value/status]
-- [context item 2]: [value/status]
-- [context item 3]: [value/status]
+## Critical Context
+- [Context item 1]: [Value/status]
+- [Context item 2]: [Value/status]
+- [Context item 3]: [Value/status]
 
-## next steps
-1. [next step 1]
-2. [next step 2]
-3. [next step 3]
+## Next Steps
+1. [Next step 1]
+2. [Next step 2]
+3. [Next step 3]
 
-## resource pointers
-- [resource 1]: [location]
-- [resource 2]: [location]
-- [resource 3]: [location]
+## Resource Pointers
+- [Resource 1]: [Location]
+- [Resource 2]: [Location]
+- [Resource 3]: [Location]
 ```
 
-## 🔍 mode-specific transition handlers
+## 🔍 MODE-SPECIFIC TRANSITION HANDLERS
 
-### van → plan transition
+### VAN → PLAN Transition
 
 ```markdown
-### van → plan
-- context preserved: complexity level, platform detection, file structure
-- files transferred: tasks.md (initialized), activecontext.md (initialized)
-- rule optimization: pre-load planning rules based on complexity level
+### VAN → PLAN
+- Context preserved: Complexity level, platform detection, file structure
+- Files transferred: tasks.md (initialized), activeContext.md (initialized)
+- Rule optimization: Pre-load planning rules based on complexity level
 ```
 
-### plan → creative transition
+### PLAN → CREATIVE Transition
 
 ```markdown
-### plan → creative
-- context preserved: task requirements, component list, creative phase flags
-- files transferred: tasks.md (updated with plan), creative phase components list
-- rule optimization: only load creative templates for identified components
+### PLAN → CREATIVE
+- Context preserved: Task requirements, component list, creative phase flags
+- Files transferred: tasks.md (updated with plan), creative phase components list
+- Rule optimization: Only load creative templates for identified components
 ```
 
-### creative → implement transition
+### CREATIVE → IMPLEMENT Transition
 
 ```markdown
-### creative → implement
-- context preserved: design decisions, implementation guidelines, requirements
-- files transferred: tasks.md, design documents, implementation checklist
-- rule optimization: pre-load implementation templates based on design decisions
+### CREATIVE → IMPLEMENT
+- Context preserved: Design decisions, implementation guidelines, requirements
+- Files transferred: tasks.md, design documents, implementation checklist
+- Rule optimization: Pre-load implementation templates based on design decisions
 ```
 
-### implement → reflect transition
+### IMPLEMENT → REFLECT Transition
 
 ```markdown
-### implement → reflect
-- context preserved: implementation status, challenges encountered, decisions
-- files transferred: tasks.md, progress.md, implementation notes
-- rule optimization: load reflection templates based on completion status
+### IMPLEMENT → REFLECT
+- Context preserved: Implementation status, challenges encountered, decisions
+- Files transferred: tasks.md, progress.md, implementation notes
+- Rule optimization: Load reflection templates based on completion status
 ```
 
-## 🧠 hierarchical rule caching
+## 🧠 HIERARCHICAL RULE CACHING
 
-implement rule caching to avoid redundant loading:
+Implement rule caching to avoid redundant loading:
 
 ```javascript
-// pseudocode for rule caching
-const rulecache = {
-  core: {}, // core rules shared across modes
+// Pseudocode for rule caching
+const ruleCache = {
+  core: {}, // Core rules shared across modes
   van: {},
   plan: {},
   creative: {},
@@ -116,246 +116,246 @@ const rulecache = {
   archive: {}
 };
 
-// check cache before loading
-function loadrule(rulepath) {
-  const cachekey = getcachekey(rulepath);
-  const category = getcategoryfrompath(rulepath);
+// Check cache before loading
+function loadRule(rulePath) {
+  const cacheKey = getCacheKey(rulePath);
+  const category = getCategoryFromPath(rulePath);
   
-  if (rulecache[category][cachekey]) {
-    return rulecache[category][cachekey];
+  if (ruleCache[category][cacheKey]) {
+    return ruleCache[category][cacheKey];
   }
   
-  const rulecontent = readrulefromfile(rulepath);
-  rulecache[category][cachekey] = rulecontent;
+  const ruleContent = readRuleFromFile(rulePath);
+  ruleCache[category][cacheKey] = ruleContent;
   
-  return rulecontent;
+  return ruleContent;
 }
 
-// only invalidate specific rules when needed
-function invalidaterule(rulepath) {
-  const cachekey = getcachekey(rulepath);
-  const category = getcategoryfrompath(rulepath);
+// Only invalidate specific rules when needed
+function invalidateRule(rulePath) {
+  const cacheKey = getCacheKey(rulePath);
+  const category = getCategoryFromPath(rulePath);
   
-  if (rulecache[category][cachekey]) {
-    delete rulecache[category][cachekey];
+  if (ruleCache[category][cacheKey]) {
+    delete ruleCache[category][cacheKey];
   }
 }
 ```
 
-## ⚡ differential memory bank updates
+## ⚡ DIFFERENTIAL MEMORY BANK UPDATES
 
 ```mermaid
-graph td
-    start["memory bank<br>update request"] --> check{"file<br>changed?"}
-    check -->|"no"| skip["skip update<br>(no changes)"]
-    check -->|"yes"| changed{"specific<br>section changed?"}
-    changed -->|"no"| full["full file<br>update"]
-    changed -->|"yes"| partial["partial<br>update only"]
+graph TD
+    Start["Memory Bank<br>Update Request"] --> Check{"File<br>Changed?"}
+    Check -->|"No"| Skip["Skip Update<br>(No Changes)"]
+    Check -->|"Yes"| Changed{"Specific<br>Section Changed?"}
+    Changed -->|"No"| Full["Full File<br>Update"]
+    Changed -->|"Yes"| Partial["Partial<br>Update Only"]
     
-    style start fill:#4da6ff,stroke:#0066cc,color:white
-    style check fill:#ffa64d,stroke:#cc7a30,color:white
-    style skip fill:#4dbb5f,stroke:#36873f,color:white
-    style changed fill:#d94dbb,stroke:#a3378a,color:white
-    style full fill:#4dbbbb,stroke:#368787,color:white
-    style partial fill:#d971ff,stroke:#a33bc2,color:white
+    style Start fill:#4da6ff,stroke:#0066cc,color:white
+    style Check fill:#ffa64d,stroke:#cc7a30,color:white
+    style Skip fill:#4dbb5f,stroke:#36873f,color:white
+    style Changed fill:#d94dbb,stroke:#a3378a,color:white
+    style Full fill:#4dbbbb,stroke:#368787,color:white
+    style Partial fill:#d971ff,stroke:#a33bc2,color:white
 ```
 
-implement a more efficient update mechanism:
+Implement a more efficient update mechanism:
 
 ```javascript
-// pseudocode for differential updates
-function updatememorybankfile(filepath, newcontent) {
-  // read existing content
-  const currentcontent = readfile(filepath);
+// Pseudocode for differential updates
+function updateMemoryBankFile(filePath, newContent) {
+  // Read existing content
+  const currentContent = readFile(filePath);
   
-  // skip if no changes
-  if (currentcontent === newcontent) {
-    return "no changes detected, update skipped";
+  // Skip if no changes
+  if (currentContent === newContent) {
+    return "No changes detected, update skipped";
   }
   
-  // check if we can do a partial update
-  const sections = parseintosections(currentcontent);
-  const newsections = parseintosections(newcontent);
+  // Check if we can do a partial update
+  const sections = parseIntoSections(currentContent);
+  const newSections = parseIntoSections(newContent);
   
-  let updatedcontent = currentcontent;
-  let updatedsections = 0;
+  let updatedContent = currentContent;
+  let updatedSections = 0;
   
-  // only update changed sections
-  for (const [sectionname, sectioncontent] of object.entries(newsections)) {
-    if (!sections[sectionname] || sections[sectionname] !== sectioncontent) {
-      updatedcontent = replacesection(updatedcontent, sectionname, sectioncontent);
-      updatedsections++;
+  // Only update changed sections
+  for (const [sectionName, sectionContent] of Object.entries(newSections)) {
+    if (!sections[sectionName] || sections[sectionName] !== sectionContent) {
+      updatedContent = replaceSection(updatedContent, sectionName, sectionContent);
+      updatedSections++;
     }
   }
   
-  // write updated content
-  writefile(filepath, updatedcontent);
+  // Write updated content
+  writeFile(filePath, updatedContent);
   
-  return `updated ${updatedsections} section(s) in ${filepath}`;
+  return `Updated ${updatedSections} section(s) in ${filePath}`;
 }
 ```
 
-## 🔗 creative to implement bridge
+## 🔗 CREATIVE TO IMPLEMENT BRIDGE
 
-special handling for the critical creative → implement transition:
+Special handling for the critical Creative → Implement transition:
 
 ```markdown
-## creative → implement bridge
+## CREATIVE → IMPLEMENT BRIDGE
 
-### design decision summary
-automatically generated summary of all creative phase decisions:
+### Design Decision Summary
+Automatically generated summary of all creative phase decisions:
 
 ```json
 {
   "components": [
     {
-      "name": "componenta",
-      "decision": "approach x selected",
-      "rationale": "best performance characteristics",
+      "name": "ComponentA",
+      "decision": "Approach X selected",
+      "rationale": "Best performance characteristics",
       "implementation_notes": [
-        "use x library",
-        "implement caching",
-        "add error handling"
+        "Use X library",
+        "Implement caching",
+        "Add error handling"
       ]
     },
     {
-      "name": "componentb",
-      "decision": "custom solution",
-      "rationale": "unique requirements",
+      "name": "ComponentB",
+      "decision": "Custom solution",
+      "rationale": "Unique requirements",
       "implementation_notes": [
-        "build from scratch",
-        "modular architecture",
-        "unit tests required"
+        "Build from scratch",
+        "Modular architecture",
+        "Unit tests required"
       ]
     }
   ]
 }
 ```
 
-### implementation verification checklist
-automatically generated verification checklist:
+### Implementation Verification Checklist
+Automatically generated verification checklist:
 
 ```markdown
-# implementation readiness checklist
+# Implementation Readiness Checklist
 
-- [ ] design decisions available for all components
-- [ ] implementation notes provided for each decision
-- [ ] dependencies clearly identified
-- [ ] order of implementation determined
-- [ ] required libraries/frameworks documented
-- [ ] potential challenges identified
+- [ ] Design decisions available for all components
+- [ ] Implementation notes provided for each decision
+- [ ] Dependencies clearly identified
+- [ ] Order of implementation determined
+- [ ] Required libraries/frameworks documented
+- [ ] Potential challenges identified
 ```
 
-## 🚀 adaptive mode loading
+## 🚀 ADAPTIVE MODE LOADING
 
-implement progressive mode loading to optimize context:
+Implement progressive mode loading to optimize context:
 
 ```javascript
-// pseudocode for adaptive mode loading
-function loadmode(modename, taskcomplexity) {
-  // always load core rules
-  loadcorerules();
+// Pseudocode for adaptive mode loading
+function loadMode(modeName, taskComplexity) {
+  // Always load core rules
+  loadCoreRules();
   
-  // load complexity-appropriate rules
-  loadcomplexityrules(taskcomplexity);
+  // Load complexity-appropriate rules
+  loadComplexityRules(taskComplexity);
   
-  // load mode-specific essential rules
-  loadmodeessentialrules(modename);
+  // Load mode-specific essential rules
+  loadModeEssentialRules(modeName);
   
-  // only load specialized rules as needed
-  registerlazyloadhandlers(modename, taskcomplexity);
+  // Only load specialized rules as needed
+  registerLazyLoadHandlers(modeName, taskComplexity);
 }
 
-function registerlazyloadhandlers(modename, taskcomplexity) {
-  // register handlers to load additional rules only when needed
-  if (modename === "creative") {
-    registerhandler("architecture", () => loadrule("creative-phase-architecture.mdc"));
-    registerhandler("algorithm", () => loadrule("creative-phase-algorithm.mdc"));
-    registerhandler("uiux", () => loadrule("creative-phase-uiux.mdc"));
+function registerLazyLoadHandlers(modeName, taskComplexity) {
+  // Register handlers to load additional rules only when needed
+  if (modeName === "CREATIVE") {
+    registerHandler("architecture", () => loadRule("creative-phase-architecture.mdc"));
+    registerHandler("algorithm", () => loadRule("creative-phase-algorithm.mdc"));
+    registerHandler("uiux", () => loadRule("creative-phase-uiux.mdc"));
   }
   
-  // similar patterns for other specialized rule types
+  // Similar patterns for other specialized rule types
 }
 ```
 
-## ✅ mode transition examples
+## ✅ MODE TRANSITION EXAMPLES
 
-### example: plan → creative transition
+### Example: PLAN → CREATIVE Transition
 
-when transitioning from plan to creative mode:
-
-```markdown
-# mode transition: plan → creative
-
-## context summary
-- task: implement user authentication system
-- complexity: level 3
-- current phase: planning completed
-- progress: 35% (planning: 100%, creative: 0%, implement: 0%)
-
-## key decisions
-- authentication: requires exploration of options (jwt vs sessions)
-- user management: will use existing database schema
-- authorization: role-based access control selected
-
-## critical context
-- components for creative phase: authentication mechanism, session management
-- dependencies: user database, authorization system
-- constraints: must support sso, performance requirements
-
-## next steps
-1. explore authentication options (jwt, sessions, oauth)
-2. design session management approach
-3. document implementation guidelines
-
-## resource pointers
-- planning document: tasks.md (section 3)
-- requirements: activecontext.md
-- reference architecture: docs/system-architecture.md
-```
-
-### example: creative → implement transition
-
-when transitioning from creative to implement mode:
+When transitioning from PLAN to CREATIVE mode:
 
 ```markdown
-# mode transition: creative → implement
+# MODE TRANSITION: PLAN → CREATIVE
 
-## context summary
-- task: implement user authentication system
-- complexity: level 3
-- current phase: creative completed
-- progress: 70% (planning: 100%, creative: 100%, implement: 0%)
+## Context Summary
+- Task: Implement user authentication system
+- Complexity: Level 3
+- Current Phase: Planning completed
+- Progress: 35% (Planning: 100%, Creative: 0%, Implement: 0%)
 
-## key decisions
-- authentication: jwt-based approach selected
-- token storage: secure httponly cookies with csrf protection
-- refresh strategy: silent refresh with sliding expiration
+## Key Decisions
+- Authentication: Requires exploration of options (JWT vs Sessions)
+- User Management: Will use existing database schema
+- Authorization: Role-based access control selected
 
-## critical context
-- implementation order: auth api endpoints, middleware, client integration
-- testing requirements: unit tests for jwt validation, integration tests for auth flow
-- security considerations: xss protection, csrf mitigation, rate limiting
+## Critical Context
+- Components for creative phase: Authentication mechanism, Session management
+- Dependencies: User database, Authorization system
+- Constraints: Must support SSO, Performance requirements
 
-## next steps
-1. implement jwt generation and validation
-2. create authentication middleware
-3. build user login/logout endpoints
-4. implement client-side auth integration
+## Next Steps
+1. Explore authentication options (JWT, Sessions, OAuth)
+2. Design session management approach
+3. Document implementation guidelines
 
-## resource pointers
-- creative document: creative-auth-decisions.md
-- api specifications: api-spec.yaml
-- security requirements: security-policy.md
+## Resource Pointers
+- Planning document: tasks.md (section 3)
+- Requirements: activeContext.md
+- Reference architecture: docs/system-architecture.md
 ```
 
-## 🔄 implementation benefits
+### Example: CREATIVE → IMPLEMENT Transition
 
-this optimization provides:
+When transitioning from CREATIVE to IMPLEMENT mode:
 
-1. reduced token usage during mode transitions (~40% reduction)
-2. better context preservation between modes
-3. improved efficiency through rule caching
-4. targeted loading of only necessary rules
-5. optimized memory bank updates
-6. clear transition documents that preserve critical context
+```markdown
+# MODE TRANSITION: CREATIVE → IMPLEMENT
+
+## Context Summary
+- Task: Implement user authentication system
+- Complexity: Level 3
+- Current Phase: Creative completed
+- Progress: 70% (Planning: 100%, Creative: 100%, Implement: 0%)
+
+## Key Decisions
+- Authentication: JWT-based approach selected
+- Token Storage: Secure HttpOnly cookies with CSRF protection
+- Refresh Strategy: Silent refresh with sliding expiration
+
+## Critical Context
+- Implementation order: Auth API endpoints, Middleware, Client integration
+- Testing requirements: Unit tests for JWT validation, Integration tests for auth flow
+- Security considerations: XSS protection, CSRF mitigation, Rate limiting
+
+## Next Steps
+1. Implement JWT generation and validation
+2. Create authentication middleware
+3. Build user login/logout endpoints
+4. Implement client-side auth integration
+
+## Resource Pointers
+- Creative document: creative-auth-decisions.md
+- API specifications: api-spec.yaml
+- Security requirements: security-policy.md
+```
+
+## 🔄 IMPLEMENTATION BENEFITS
+
+This optimization provides:
+
+1. Reduced token usage during mode transitions (~40% reduction)
+2. Better context preservation between modes
+3. Improved efficiency through rule caching
+4. Targeted loading of only necessary rules
+5. Optimized memory bank updates
+6. Clear transition documents that preserve critical context

@@ -2,28 +2,6 @@
     <div
         class="flex flex-col h-screen bg-light-bg dark:bg-[#141414] text-light-fg dark:text-dark-fg"
     >
-        <!-- reset button fixed in top-right corner -->
-        <button
-            @click="resetApplication"
-            class="fixed top-4 right-4 z-50 flex items-center justify-center text-sm font-medium rounded-lg border-2 border-gray-300 dark:border-gray-600 p-3 bg-light-bg dark:bg-gray-800 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 shadow-md"
-            title="reset everything and return to first step"
-        >
-            <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                ></path>
-            </svg>
-        </button>
-
         <div
             class="flex items-center justify-center bg-light-surface dark:bg-[#141414] border-b border-light-border dark:border-dark-border"
         >
