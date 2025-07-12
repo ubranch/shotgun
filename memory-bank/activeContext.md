@@ -1,86 +1,50 @@
-# memory bank: active context
+# active context
 
-## current focus
+currently working on fixing the file tree selection and context generation issue. this is a level 3 (intermediate feature) task focused on resolving a critical bug where toggling files in the file tree does not update the generated context.
 
-task completed: add line count and size information to generated project context
+key components involved:
+- frontend/src/components/filetree.vue: handles ui for file selection
+- frontend/src/components/mainlayout.vue: manages file tree state and context generation
+- frontend/src/components/steps/step1preparecontext.vue: displays generated context
+- app.go: backend handling of context generation based on excluded paths
 
-## active tasks
+implementation status:
+- implementation plan created and documented in tasks.md
+- debug logging added to trace the issue
+- identified problem in toggleExcludeNode function not triggering context regeneration
+- fixed the function to force context regeneration after toggle
+- enhanced file tree component to ensure toggle events are properly emitted
+- updated watch functionality to clear context when file tree changes
+- fixed event handling in LeftSidebar component
+- added handling for contextGeneratedLocal events in MainLayout
+- testing completed: all fixes confirmed working properly
+- documentation completed: changes documented in tasks.md
 
-[no active tasks]
+next steps:
+- create reflection document
+- create archive document
 
-## current status
+## theme system overview
 
-implementation and documentation phases completed. the task has been fully implemented, tested, documented, and archived. the context statistics feature now displays line count and file size information under the "generated project context:" heading in the first step of the application workflow.
+the application implements a robust, css variable-driven theme system supporting both light and dark modes. the architecture consists of:
 
-## recent activities
+1. **css variable definitions**: all theme tokens are declared in `frontend/src/assets/custom.css` under `:root` for light mode and `.dark` for dark mode, enabling dynamic theme switching at runtime.
 
-- completed context statistics implementation in step1preparecontext.vue
-- added computed property to calculate statistics
-- modified ui to display line count and file size
-- tested functionality with different project sizes
-- created reflection document (reflection-context-statistics.md)
-- created archive document (archive-context-statistics.md)
-- updated tasks.md and progress.md with completion status
+2. **tailwindcss integration**: `tailwind.config.js` is configured to reference these css variables, ensuring all tailwind utility classes inherit the current theme context for seamless design consistency.
 
-## project analysis
+3. **theme provider component**: `themeprovider.vue` centrally manages theme state, exposes a toggle function, and provides theme context to all child components using vue's provide/inject pattern.
 
-shotgun is a desktop application built with wails (go backend, vue frontend) that helps users with prompt engineering and testing. the application follows a structured 4-step workflow:
+4. **component refactor**: all major ui components have migrated from static color values to referencing the new theme variables, ensuring full theme compliance and easier future adjustments.
 
-1. **prepare context**: select project folder and generate context
-2. **compose prompt**: craft prompts using the project context
-3. **execute prompt**: process the ai-generated code changes
-4. **apply patch**: implement the generated changes
+primary theme variables include:
 
-the recently completed task enhances the first step (prepare context) by displaying statistics about the generated context:
-- line count of the generated context
-- file size of the generated context in kilobytes
+- `--background`, `--foreground`: main surface and text colors
+- `--card`, `--card-foreground`: card/container backgrounds and text
+- `--primary`, `--primary-foreground`: primary action and contrast
+- `--secondary`, `--secondary-foreground`: secondary ui elements
+- `--accent`, `--accent-foreground`: highlights and accents
+- `--destructive`, `--destructive-foreground`: error and warning states
+- `--sidebar`, `--sidebar-foreground`: sidebar-specific palette
+- `--muted`, `--muted-foreground`: subdued/disabled elements
 
-these statistics provide users with valuable information about the size and complexity of their project context.
-
-## implementation details
-
-the implementation involved the following key changes:
-
-1. **computed property for statistics:**
-```javascript
-const contextStats = computed(() => {
-    if (!props.generatedContext) return { lines: 0, sizeKb: 0 };
-
-    const lines = props.generatedContext.split('\n').length;
-    const sizeKb = (props.generatedContext.length / 1024).toFixed(1);
-
-    return { lines, sizeKb };
-});
-```
-
-2. **ui modification to display statistics:**
-```html
-<div>
-    <h3 class="text-md font-medium text-gray-700 dark:text-gray-300">
-        generated project context:
-    </h3>
-    <p v-if="generatedContext" class="text-xs text-gray-500 dark:text-gray-400">
-        {{ contextStats.lines }} lines ({{ contextStats.sizeKb }} kb)
-    </p>
-</div>
-```
-
-this enhancement provides users with immediate feedback about the size and complexity of their project context.
-
-## technical environment
-
-- **operating system**: windows 10/11 (windows_nt 10.0 26100 x86_64)
-- **runtime**: go v1.24.4
-- **frontend framework**: vue.js with tailwind css
-- **backend framework**: wails (go)
-- **package manager**: pnpm (frontend), go modules (backend)
-
-## setup requirements
-
-- go 1.24.0 or higher
-- node.js and pnpm for frontend development
-- google api key for gemini token counting (set via environment variable)
-
-## next steps
-
-awaiting new task assignment.
+the system also defines variables for borders, shadows, and typography, providing a unified, scalable design foundation across the app.

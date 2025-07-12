@@ -1,15 +1,15 @@
 <template>
     <div
         v-if="isVisible"
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-dark-surface dark:bg-opacity-80 overflow-y-auto h-full w-full z-50 flex justify-center items-center"
+        class="fixed inset-0 bg-background/80 overflow-y-auto h-full w-full z-50 flex justify-center items-center"
         @click.self="handleCancel"
     >
         <div
-            class="relative mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white dark:bg-dark-surface border-gray-200 dark:border-gray-700"
+            class="relative mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-card border-border"
         >
             <div class="mt-3 text-center">
                 <h3
-                    class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100"
+                    class="text-lg leading-6 font-medium text-card-foreground"
                 >
                     {{ title }}
                 </h3>
@@ -18,28 +18,29 @@
                         v-model="editableRules"
                         rows="15"
                         spellcheck="false"
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm font-mono bg-gray-50 dark:bg-dark-surface text-gray-900 dark:text-gray-100"
+                        class="w-full p-2 border border-border rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm font-mono bg-background text-foreground"
                         :placeholder="`enter ${ruleType} patterns here...`"
                     ></textarea>
                     <p
-                        class="text-sm text-gray-500 dark:text-gray-400 mt-1 text-left"
+                        class="text-sm text-muted-foreground mt-1 text-left"
                     >
                         {{ descriptionText }}
                     </p>
                 </div>
                 <div class="items-center px-4 py-3">
-                    <button
+                    <BaseButton
                         @click="handleSave"
-                        class="px-4 py-2 bg-light-accent dark:bg-dark-accent text-white text-base font-medium rounded-md w-auto hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-light-accent dark:focus:ring-dark-accent mr-2"
+                        variant="primary"
+                        class="px-4 py-2 mr-2"
                     >
                         save
-                    </button>
-                    <button
+                    </BaseButton>
+                    <BaseButton
                         @click="handleCancel"
-                        class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-base font-medium rounded-md w-auto hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                        class="px-4 py-2"
                     >
                         cancel
-                    </button>
+                    </BaseButton>
                 </div>
             </div>
         </div>
@@ -48,6 +49,7 @@
 
 <script setup>
 import { ref, watch, defineProps, defineEmits, computed } from "vue";
+import BaseButton from './BaseButton.vue';
 
 const props = defineProps({
     isVisible: {

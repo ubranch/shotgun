@@ -1,7 +1,5 @@
 <template>
-    <main
-        class="flex-1 p-0 overflow-y-auto bg-light-surface dark:bg-[#141414] relative"
-    >
+    <div class="flex-1 p-0 overflow-y-auto bg-card relative">
         <Step1CopyStructure
             v-if="currentStep === 1"
             @action="handleAction"
@@ -42,7 +40,7 @@
             :platform="props.platform"
             :split-line-limit="initialSplitLineLimit"
         />
-    </main>
+    </div>
 </template>
 
 <script setup>

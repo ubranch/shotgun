@@ -88,7 +88,7 @@ func (a *App) startup(ctx context.Context) {
 	if a.defaultRootDir != "" {
 		if info, err := os.Stat(a.defaultRootDir); err == nil && info.IsDir() {
 			folderName := filepath.Base(a.defaultRootDir)
-			title := fmt.Sprintf("%s | Shotgun", folderName)
+			title := fmt.Sprintf("%s - shotgun", folderName)
 			runtime.WindowSetTitle(a.ctx, title)
 		} else {
 			runtime.LogWarningf(a.ctx, "startup: provided defaultRootDir '%s' is invalid: %v", a.defaultRootDir, err)
@@ -143,7 +143,7 @@ func (a *App) SelectDirectory() (string, error) {
 
 	if dirPath != "" {
 		folderName := filepath.Base(dirPath)
-		title := fmt.Sprintf("%s | Shotgun", folderName)
+		title := fmt.Sprintf("%s - shotgun", folderName)
 		runtime.WindowSetTitle(a.ctx, title)
 	}
 	return dirPath, nil
@@ -1265,7 +1265,7 @@ func (a *App) ResetApplication() error {
 	}
 
 	// reset window title
-	runtime.WindowSetTitle(a.ctx, "Shotgun")
+	runtime.WindowSetTitle(a.ctx, "shotgun")
 
 	runtime.LogInfo(a.ctx, "application state reset complete")
 	return nil

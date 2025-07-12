@@ -1,9 +1,9 @@
 <template>
     <div
-        class="flex flex-col h-screen bg-light-bg dark:bg-[#141414] text-light-fg dark:text-dark-fg"
+        class="flex flex-col h-screen bg-background text-foreground"
     >
         <div
-            class="flex items-center justify-center bg-light-surface dark:bg-[#141414] border-b border-light-border dark:border-dark-border"
+            class="flex items-center justify-center bg-card border-b border-border"
         >
             <HorizontalStepper
                 :current-step="currentStep"
@@ -121,10 +121,7 @@ function registerShotgunContextListeners() {
                 if (step1 && !step1.completed) {
                     step1.completed = true;
                 }
-                if (
-                    currentStep.value === 1 &&
-                    centralPanelRef.value?.updateStep2ShotgunContext
-                ) {
+                if (centralPanelRef.value?.updateStep2ShotgunContext) {
                     centralPanelRef.value.updateStep2ShotgunContext(output);
                 }
                 checkAndProcessPendingFileTreeReload();
@@ -400,6 +397,17 @@ function toggleExcludeNode(nodeToToggle) {
         "info",
         "bottom"
     );
+
+    // DEBUG: add explicit context regeneration trigger after file selection changes
+    addLog(
+        `DEBUG: manually triggering context regeneration after toggle for ${nodeToToggle.name}`,
+        "debug",
+        "bottom"
+    );
+
+    // force context regeneration after toggle
+    shotgunPromptContext.value = ""; // clear existing context to force regeneration
+    debouncedTriggerShotgunContextGeneration();
 }
 
 function updateAllNodesExcludedState(nodesToUpdate) {
@@ -550,11 +558,10 @@ function resetFileSelections() {
 }
 
 function debouncedTriggerShotgunContextGeneration() {
-    // ensure we only generate context when the user is on step 1 (prepare context)
-    if (currentStep.value !== 1) {
-        addLog("context generation skipped: not on step 1", "debug", "bottom");
-        return;
-    }
+    // generation can be triggered from any step now; we keep the rest of the logic unchanged.
+
+    addLog("DEBUG: debouncedTriggerShotgunContextGeneration called", "debug", "bottom");
+
     // skip generation when no files are visually included
     function anyNodesIncluded(nodes) {
         if (!nodes) return false;
@@ -605,8 +612,11 @@ function debouncedTriggerShotgunContextGeneration() {
     if (!isGeneratingContext.value)
         nextTick(() => (isGeneratingContext.value = true));
 
+    addLog(`DEBUG: setting debounce timer (${debounceTimer})`, "debug", "bottom");
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
+        addLog("DEBUG: debounce timeout triggered, preparing context generation", "debug", "bottom");
+
         if (!projectRoot.value) {
             isGeneratingContext.value = false;
             return;
@@ -670,7 +680,13 @@ function debouncedTriggerShotgunContextGeneration() {
         }
         collectTrulyExcludedPaths(fileTree.value);
 
+        addLog(`DEBUG: collected ${excludedPathsArray.length} excluded paths`, "debug", "bottom");
+        addLog(`DEBUG: first few excluded paths: ${excludedPathsArray.slice(0, 5).join(", ")}`, "debug", "bottom");
+
         RequestShotgunContextGeneration(projectRoot.value, excludedPathsArray)
+            .then(() => {
+                addLog("DEBUG: RequestShotgunContextGeneration call succeeded", "debug", "bottom");
+            })
             .catch((err) => {
                 const errorMsg =
                     "error calling requestshotguncontextgeneration: " +
@@ -791,6 +807,22 @@ async function handleStepAction(actionName, payload) {
                 await selectProjectFolder(payload);
             } else {
                 addLog("invalid directory path", "error", "bottom");
+            }
+            break;
+        case "contextGeneratedLocal":
+            // handle context generated event from Step1PrepareContext
+            addLog(`context generated locally: ${payload.length} chars`, "debug", "bottom");
+            shotgunPromptContext.value = payload;
+            isGeneratingContext.value = false;
+            if (currentStep.value === 1 && currentStepObj && !currentStepObj.completed) {
+                currentStepObj.completed = true;
+                currentStepObj.everCompleted = true;
+            }
+            break;
+        case "contextProgressLocal":
+            // handle context progress event from Step1PrepareContext
+            if (payload && typeof payload.current === "number") {
+                generationProgressData.value = payload;
             }
             break;
         case "executePrompt":
@@ -922,16 +954,16 @@ function handleGlobalKeydown(event) {
 function handleGlobalShotgunContextGenerated(event) {
     const output = event.detail || "";
     addLog("global: shotgun-context-generated event", "debug", "bottom");
+
+    // ensure the context is updated even if we're not on step 1
     shotgunPromptContext.value = output;
     isGeneratingContext.value = false;
+
     const step1 = steps.value.find((s) => s.id === 1);
     if (step1 && !step1.completed) {
         step1.completed = true;
     }
-    if (
-        currentStep.value === 1 &&
-        centralPanelRef.value?.updateStep2ShotgunContext
-    ) {
+    if (centralPanelRef.value?.updateStep2ShotgunContext) {
         centralPanelRef.value.updateStep2ShotgunContext(output);
     }
     checkAndProcessPendingFileTreeReload();
@@ -1108,6 +1140,9 @@ watch(
             "bottom"
         );
         updateAllNodesExcludedState(fileTree.value);
+
+        // Force context regeneration when file tree changes
+        shotgunPromptContext.value = ""; // Clear existing context to force regeneration
         debouncedTriggerShotgunContextGeneration();
     },
     { deep: true }

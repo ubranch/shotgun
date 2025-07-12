@@ -1,130 +1,110 @@
 <template>
-    <CustomRulesModal
-        :is-visible="isCustomRulesModalVisible"
-        :initial-rules="currentCustomRulesForModal"
-        title="edit custom ignore rules"
-        ruleType="ignore"
-        @save="handleSaveCustomRules"
-        @cancel="handleCancelCustomRules"
-    />
-    <aside
-        class="w-64 md:w-72 lg:w-[400px] bg-light-bg dark:bg-[#141414] p-4 border-r border-light-border dark:border-dark-border flex flex-col flex-shrink-0 h-full"
-    >
-        <!-- project selection and file tree -->
-        <div class="flex flex-col flex-grow h-full">
-            <!-- select project directory button at the very top -->
-            <button
-                v-if="projectRoot"
-                @click="$emit('select-directory')"
-                class="mb-4 w-full px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none"
-            >
-                open another project
-            </button>
-
-            <div class="flex justify-between items-center mb-2">
-                <h2
-                    class="text-lg font-semibold text-gray-700 dark:text-gray-300"
+    <div>
+        <CustomRulesModal
+            :is-visible="isCustomRulesModalVisible"
+            :initial-rules="currentCustomRulesForModal"
+            title="Edit Custom Ignore Rules"
+            ruleType="ignore"
+            @save="handleSaveCustomRules"
+            @cancel="handleCancelCustomRules"
+        />
+        <div
+            class="w-64 md:w-72 lg:w-[450px] bg-sidebar p-4 border-r border-sidebar-border flex flex-col flex-shrink-0 h-full"
+        >
+            <!-- project selection and file tree -->
+            <div class="flex flex-col flex-grow h-full">
+                <!-- select project directory button at the very top -->
+                <BaseButton
+                    v-if="projectRoot"
+                    @click="$emit('select-directory')"
+                    class="mb-4 w-full px-3 py-2 bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold rounded-md hover:bg-sidebar-primary/90 focus:outline-none"
                 >
-                    project files
-                </h2>
-                <div class="flex space-x-2 items-center">
-                    <!-- select project directory button appears when a project is open -->
-                    <template v-if="fileTreeNodes && fileTreeNodes.length">
-                    <button
-                        @click="selectAllFiles"
-                        class="text-xs px-2 py-1 bg-light-accent dark:bg-dark-accent text-white rounded hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover"
-                    >
-                        select all
-                    </button>
-                    <button
-                        @click="deselectAllFiles"
-                        class="text-xs px-2 py-1 bg-gray-500 dark:bg-gray-600 text-white rounded hover:bg-gray-600 dark:hover:bg-gray-700"
-                    >
-                        deselect all
-                    </button>
-                    <button
-                        @click="resetFileSelections"
-                        class="text-xs px-2 py-1 bg-yellow-500 dark:bg-yellow-600 text-white rounded hover:bg-yellow-600 dark:hover:bg-yellow-700"
-                    >
-                        reset
-                    </button>
-                    </template>
+                    open another project
+                </BaseButton>
+
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-medium">files</h3>
+                    <div class="space-x-1">
+                        <BaseButton
+                            @click="selectAllFiles"
+                            class="text-xs px-2 py-1 bg-sidebar-primary text-sidebar-primary-foreground rounded hover:bg-sidebar-primary/90"
+                        >
+                            select all
+                        </BaseButton>
+                        <BaseButton
+                            @click="deselectAllFiles"
+                            class="text-xs px-2 py-1"
+                        >
+                            deselect all
+                        </BaseButton>
+                        <BaseButton
+                            @click="handleEditCustomRules"
+                            class="text-xs px-2 py-1"
+                        >
+                            edit rules
+                        </BaseButton>
+                    </div>
+                </div>
+
+                <!-- file tree -->
+                <div
+                    class="border border-border rounded min-h-0 bg-card text-sm overflow-auto flex-grow h-0"
+                >
+                    <FileTree
+                        v-if="fileTreeNodes && fileTreeNodes.length > 0"
+                        :nodes="fileTreeNodes"
+                        :loading-error="loadingError"
+                        @toggle-exclude="
+                            (path) => $emit('toggle-exclude', path)
+                        "
+                        @add-log="(log) => $emit('add-log', log)"
+                    />
+                    <div v-else-if="!projectRoot" class="p-3">
+                        select a project folder to view files.
+                    </div>
+                    <div v-else-if="loadingError" class="p-3 text-destructive">
+                        error loading files: {{ loadingError }}
+                    </div>
+                    <div v-else class="p-3">Loading files...</div>
+                </div>
+
+                <div class="mt-2 flex justify-around gap-4">
+                    <label class="flex items-center text-sm">
+                        <input
+                            type="checkbox"
+                            :checked="useGitignore"
+                            @change="
+                                $emit('toggle-gitignore', $event.target.checked)
+                            "
+                            class="form-checkbox h-4 w-4 text-sidebar-primary rounded border-border focus:ring-sidebar-primary mr-2"
+                        />
+                        use .gitignore rules
+                    </label>
+                    <label class="flex items-center text-sm">
+                        <input
+                            type="checkbox"
+                            :checked="useCustomIgnore"
+                            @change="
+                                $emit(
+                                    'toggle-custom-ignore',
+                                    $event.target.checked
+                                )
+                            "
+                            class="form-checkbox h-4 w-4 text-sidebar-primary rounded border-border focus:ring-sidebar-primary mr-2"
+                        />
+                        use custom rules
+                    </label>
                 </div>
             </div>
-            <div
-                class="border border-gray-300 dark:border-gray-600 rounded min-h-0 bg-white dark:bg-dark-surface text-sm overflow-auto flex-grow h-0"
-            >
-                <FileTree
-                    v-if="fileTreeNodes && fileTreeNodes.length"
-                    :nodes="fileTreeNodes"
-                    :project-root="projectRoot"
-                    @toggle-exclude="(node) => $emit('toggle-exclude', node)"
-                />
-                <p
-                    v-else-if="projectRoot && !loadingError"
-                    class="p-2 text-sm text-gray-500 dark:text-gray-400"
-                >
-                    loading tree...
-                </p>
-                <p
-                    v-else-if="!projectRoot"
-                    class="p-2 text-sm text-gray-500 dark:text-gray-400"
-                >
-                    select a project folder to see files.
-                </p>
-                <p v-if="loadingError" class="p-2 text-sm text-red-500">
-                    {{ loadingError }}
-                </p>
-            </div>
-
-            <div
-                v-if="projectRoot"
-                class="flex flex-row items-center justify-between mt-2"
-            >
-                <label
-                    class="flex items-center text-sm text-gray-700 dark:text-gray-300 mr-1"
-                    title="uses .gitignore file if present in the project folder"
-                >
-                    <input
-                        type="checkbox"
-                        :checked="useGitignore"
-                        @change="
-                            $emit('toggle-gitignore', $event.target.checked)
-                        "
-                        class="form-checkbox h-4 w-4 text-light-accent dark:text-dark-accent rounded border-gray-300 dark:border-gray-600 focus:ring-light-accent dark:focus:ring-dark-accent mr-2"
-                    />
-                    use .gitignore rules
-                </label>
-                <label
-                    class="flex items-center text-sm text-gray-700 dark:text-gray-300 ml-1"
-                    title="uses ignore.glob file if present in the project folder"
-                >
-                    <input
-                        type="checkbox"
-                        :checked="useCustomIgnore"
-                        @change="
-                            $emit('toggle-custom-ignore', $event.target.checked)
-                        "
-                        class="form-checkbox h-4 w-4 text-light-accent dark:text-dark-accent rounded border-gray-300 dark:border-gray-600 focus:ring-light-accent dark:focus:ring-dark-accent mr-2"
-                    />
-                    use custom rules
-                    <button
-                        @click="openCustomRulesModal"
-                        title="edit custom ignore rules"
-                        class="ml-2 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-sm"
-                    >
-                        ⚙️
-                    </button>
-                </label>
-            </div>
         </div>
-    </aside>
+    </div>
 </template>
 
 <script setup>
 import { defineProps, defineEmits, ref } from "vue";
 import FileTree from "./FileTree.vue"; // import the existing filetree
 import CustomRulesModal from "./CustomRulesModal.vue";
+import BaseButton from "./BaseButton.vue";
 import {
     GetCustomIgnoreRules,
     SetCustomIgnoreRules,
@@ -248,6 +228,17 @@ function resetFileSelections() {
         message: "resetting file selections to default",
         type: "info",
     });
+}
+
+function handleToggleExclude(node) {
+    console.log(
+        `DEBUG: LeftSidebar received toggle-exclude for node: ${node.name}, path: ${node.relPath}`
+    );
+    emit("toggle-exclude", node);
+}
+
+function handleEditCustomRules() {
+    openCustomRulesModal();
 }
 </script>
 

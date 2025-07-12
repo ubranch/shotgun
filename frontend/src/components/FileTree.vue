@@ -94,6 +94,7 @@ function toggleExpand(node) {
 
 function handleCheckboxChange(node) {
     // emit an event with the node to toggle its exclusion status in the parent component
+    console.log(`DEBUG: handleCheckboxChange called for node: ${node.name}, path: ${node.relPath}`);
     emit("toggle-exclude", node);
 }
 
@@ -119,11 +120,13 @@ function handleAreaClick(event, node) {
         // the other folder-specific elements already have their own @click handlers
     } else {
         // for files, whitespace toggles inclusion/exclusion
+        console.log(`DEBUG: handleAreaClick calling handleCheckboxChange for file: ${node.name}`);
         handleCheckboxChange(node);
     }
 }
 
 function emitToggleExclude(node) {
+    console.log(`DEBUG: emitToggleExclude bubbling up event for node: ${node.name}`);
     emit("toggle-exclude", node); // bubble up the event
 }
 

@@ -11,7 +11,7 @@
 
         <div class="flex-grow flex flex-row space-x-4 overflow-hidden">
             <div
-                class="w-1/2 flex flex-col space-y-2 overflow-y-hidden px-2 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-dark-surface"
+                class="w-2/5 flex flex-col space-y-2 overflow-y-hidden px-2 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-dark-surface"
             >
                 <div class="flex flex-col flex-grow-[3]">
                     <label
@@ -72,28 +72,44 @@
             </div>
 
             <div
-                class="w-1/2 flex flex-col overflow-y-auto p-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-dark-surface"
+                class="w-3/5 flex flex-col overflow-y-auto p-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-dark-surface"
             >
                 <div class="flex justify-between items-center mb-2">
                     <div class="flex items-center space-x-2">
                         <div class="flex lg:flex-row flex-col space-x-2">
                             <!-- refresh button -->
-                            <button
+                            <BaseButton
                                 @click="refreshPrompt"
                                 :disabled="isLoadingFinalPrompt"
                                 :class="[
-                                'p-2 px-3 rounded-md text-sm flex items-center',
-                                refreshing ? 'bg-green-600 dark:bg-green-700 text-white' : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                    'p-2 px-3 rounded-md text-sm flex items-center',
+                                    refreshing
+                                        ? 'bg-green-600 dark:bg-green-700 text-white'
+                                        : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600',
                                 ]"
                                 title="regenerate prompt"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" :class="{'animate-spin': refreshing}">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                            </button>
+                                <template #icon>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="h-4 w-4"
+                                        :class="{ 'animate-spin': refreshing }"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                        />
+                                    </svg>
+                                </template>
+                            </BaseButton>
 
                             <!-- mode buttons -->
-                            <button
+                            <BaseButton
                                 v-for="(template, key) in promptTemplates"
                                 :key="key"
                                 @click="selectedPromptTemplateKey = key"
@@ -101,14 +117,20 @@
                                     'p-2 px-3 rounded-md text-sm flex items-center',
                                     selectedPromptTemplateKey === key
                                         ? 'bg-light-accent text-white dark:bg-dark-accent'
-                                        : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                        : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600',
                                 ]"
                                 :disabled="isLoadingFinalPrompt"
                                 :title="template.name"
                             >
-                                <span class="">{{ getTemplateIcon(key) }}</span>
-                                <span class="font-bold">{{ getShortName(key) }}</span>
-                            </button>
+                                <template #icon>
+                                    <span class="">{{
+                                        getTemplateIcon(key)
+                                    }}</span>
+                                </template>
+                                <span class="font-bold">{{
+                                    getShortName(key)
+                                }}</span>
+                            </BaseButton>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
@@ -127,27 +149,62 @@
                         </span>
                         <span
                             v-else
-                            :class="['text-base font-bold', charCountColorClass]"
+                            :class="[
+                                'text-sm font-bold px-2 py-1 rounded-full',
+                                charCountColorClass === 'text-green-600'
+                                    ? 'bg-green-100 dark:bg-green-900/30'
+                                    : charCountColorClass === 'text-yellow-500'
+                                      ? 'bg-yellow-100 dark:bg-yellow-900/30'
+                                      : 'bg-red-100 dark:bg-red-900/30',
+                            ]"
                             :title="tooltipText"
                         >
                             {{ geminiTokenCount.toLocaleString() }} tokens
                         </span>
-                        <button
+                        <BaseButton
                             @click="copyFinalPromptToClipboard"
                             :disabled="
                                 !props.finalPrompt || isLoadingFinalPrompt
                             "
                             class="px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
-                            :class="{'bg-green-600 dark:bg-green-700': copySuccess}"
+                            :class="{
+                                'bg-green-600 dark:bg-green-700': copySuccess,
+                            }"
                         >
-                            <svg v-if="!copySuccess" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                            </svg>
-                            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
+                            <template #icon>
+                                <svg
+                                    v-if="!copySuccess"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                                    />
+                                </svg>
+                                <svg
+                                    v-else
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M5 13l4 4L19 7"
+                                    />
+                                </svg>
+                            </template>
                             {{ copyButtonText }}
-                        </button>
+                        </BaseButton>
                     </div>
                 </div>
 
@@ -188,12 +245,13 @@ import {
     LogError as LogErrorRuntime,
 } from "../../../wailsjs/runtime/runtime";
 import CustomRulesModal from "../CustomRulesModal.vue";
+import BaseButton from "../BaseButton.vue";
 
-import devTemplateContentFromFile from "../../../../design/prompts/prompt_makeDiffGitFormat.md?raw";
-import architectTemplateContentFromFile from "../../../../design/prompts/prompt_makePlan.md?raw";
-import findBugTemplateContentFromFile from "../../../../design/prompts/prompt_analyzeBug.md?raw";
-import projectManagerTemplateContentFromFile from "../../../../design/prompts/prompt_projectManager.md?raw";
-import promptEnhancerTemplateContentFromFile from "../../../../design/prompts/prompt_enhancer.md?raw";
+import devTemplateContentFromFile from "../../../../design/prompts/prompt_makeDiffGitFormat_v2.md?raw";
+import architectTemplateContentFromFile from "../../../../design/prompts/prompt_makePlan_v2.md?raw";
+import findBugTemplateContentFromFile from "../../../../design/prompts/prompt_analyzeBug_v2.md?raw";
+import projectManagerTemplateContentFromFile from "../../../../design/prompts/prompt_projectManager_v2.md?raw";
+import promptEnhancerTemplateContentFromFile from "../../../../design/prompts/prompt_enhancer_v2.md?raw";
 
 const props = defineProps({
     fileListContext: {
@@ -230,13 +288,19 @@ const promptTemplates = {
         name: "prompt engineer of your task",
         content: promptEnhancerTemplateContentFromFile,
     },
-    architect: { name: "strategic planner and designer", content: architectTemplateContentFromFile },
+    architect: {
+        name: "strategic planner and designer",
+        content: architectTemplateContentFromFile,
+    },
     dev: { name: "builder of your plan", content: devTemplateContentFromFile },
-    findBug: { name: "checker of the known & new bugs", content: findBugTemplateContentFromFile },
+    findBug: {
+        name: "checker of the known & new bugs",
+        content: findBugTemplateContentFromFile,
+    },
     projectManager: {
         name: "project scanner & analyzer of implementation",
         content: projectManagerTemplateContentFromFile,
-    }
+    },
 };
 
 // helper functions for template icons and short names
@@ -246,7 +310,7 @@ function getTemplateIcon(key) {
         architect: "",
         findBug: "",
         projectManager: "",
-        promptEnhancer: ""
+        promptEnhancer: "",
     };
     return icons[key] || "";
 }
@@ -257,7 +321,7 @@ function getShortName(key) {
         promptEnhancer: "PROMPT",
         architect: "PLAN",
         findBug: "BUG",
-        projectManager: "REFLECT"
+        projectManager: "REFLECT",
     };
     return shortNames[key] || key;
 }
@@ -382,18 +446,18 @@ function debouncedUpdateFinalPrompt() {
 
 // refresh prompt functionality
 function refreshPrompt() {
-  if (isLoadingFinalPrompt.value) return;
+    if (isLoadingFinalPrompt.value) return;
 
-  // visual feedback
-  refreshing.value = true;
+    // visual feedback
+    refreshing.value = true;
 
-  // force prompt regeneration
-  updateFinalPrompt();
+    // force prompt regeneration
+    updateFinalPrompt();
 
-  // reset refreshing state after a short delay
-  setTimeout(() => {
-    refreshing.value = false;
-  }, 500);
+    // reset refreshing state after a short delay
+    setTimeout(() => {
+        refreshing.value = false;
+    }, 500);
 }
 
 watch(

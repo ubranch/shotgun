@@ -7,18 +7,16 @@
 <script setup>
 import { ref, provide, onMounted, watch } from "vue";
 
-// initialize to true for dark mode
+// initialize theme state
 const isDark = ref(true);
 
 // provide theme context to child components
 provide("isDark", isDark);
 
 // provide toggle function to child components
-// modified to be a no-op that keeps dark mode
 const toggleTheme = () => {
-    // always maintain dark mode
-    isDark.value = true;
-    localStorage.setItem("theme", "dark");
+    isDark.value = !isDark.value;
+    localStorage.setItem("theme", isDark.value ? "dark" : "light");
     applyTheme();
 };
 
@@ -26,17 +24,37 @@ provide("toggleTheme", toggleTheme);
 
 // apply theme to document
 const applyTheme = () => {
-    // always add dark class
-    document.documentElement.classList.add("dark");
+    if (isDark.value) {
+        document.documentElement.classList.add("dark");
+        document.documentElement.classList.remove("light");
+    } else {
+        document.documentElement.classList.add("light");
+        document.documentElement.classList.remove("dark");
+    }
 };
 
-// initialize theme - always use dark mode
+// initialize theme on mount
 onMounted(() => {
-    // force dark mode regardless of saved preference
-    isDark.value = true;
-    localStorage.setItem("theme", "dark");
+    // check for saved theme preference or use system preference
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+        isDark.value = savedTheme === "dark";
+    } else {
+        // use system preference as fallback
+        isDark.value = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+
+    // apply the theme
     applyTheme();
 
-    // no need to listen for system theme changes as we always use dark mode
+    // listen for system theme changes
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener("change", (e) => {
+        // only update if no saved preference exists
+        if (!localStorage.getItem("theme")) {
+            isDark.value = e.matches;
+            applyTheme();
+        }
+    });
 });
 </script>

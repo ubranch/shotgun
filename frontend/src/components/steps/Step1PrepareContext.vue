@@ -150,7 +150,7 @@
                             {{ contextStats.lines }} lines ({{ contextStats.sizeKb }} kb)
                         </p>
                     </div>
-                    <button
+                    <BaseButton
                         v-if="generatedContext"
                         @click="copyGeneratedContextToClipboard"
                         class="px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
@@ -158,38 +158,16 @@
                             'bg-green-600 dark:bg-green-700': copySuccess,
                         }"
                     >
-                        <svg
-                            v-if="!copySuccess"
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
-                            />
-                        </svg>
-                        <svg
-                            v-else
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M5 13l4 4L19 7"
-                            />
-                        </svg>
+                        <template #icon>
+                            <svg v-if="!copySuccess" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </template>
                         {{ copyButtonText }}
-                    </button>
+                    </BaseButton>
                     <!-- removed change project button per request -->
                 </div>
                 <textarea
@@ -217,6 +195,7 @@ import { defineProps, defineEmits, ref, computed, onMounted, onBeforeUnmount } f
 import { ClipboardSetText as WailsClipboardSetText } from "../../../wailsjs/runtime/runtime";
 import { SelectDirectory } from "../../../wailsjs/go/main/App";
 import { OnFileDrop, EventsOn } from "../../../wailsjs/runtime/runtime";
+import BaseButton from '../BaseButton.vue';
 
 const props = defineProps({
     generatedContext: {
@@ -283,6 +262,7 @@ const contextStats = computed(() => {
     const lines = props.generatedContext.split('\n').length;
     const sizeKb = (props.generatedContext.length / 1024).toFixed(1);
 
+    console.log(`DEBUG: computed contextStats - ${lines} lines, ${sizeKb} kb`);
     return { lines, sizeKb };
 });
 
