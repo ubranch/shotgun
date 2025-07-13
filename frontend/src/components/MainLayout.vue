@@ -976,21 +976,28 @@ function handleGlobalShotgunContextProgress(event) {
     }
 }
 
-function resetApplication() {
+async function resetApplication() {
     addLog("resetting application...", "info", "bottom");
 
-    // call the go backend to reset server-side state
-    ResetApplication()
-        .then(() => {
-            addLog("backend reset complete, reloading page...", "info", "bottom");
-            // reload the page to reset all frontend state
-            window.location.reload();
-        })
-        .catch(err => {
-            addLog(`error resetting backend: ${err}. reloading page anyway...`, "error", "bottom");
-            // reload even if backend reset fails
-            window.location.reload();
-        });
+    // race backend reset with a timeout to avoid hanging
+    const timeoutMs = 2000; // 2 seconds fallback
+
+    const resetBackend = (async () => {
+        try {
+            await ResetApplication();
+            addLog("backend reset complete.", "info", "bottom");
+        } catch (err) {
+            addLog(`error resetting backend: ${err}`, "error", "bottom");
+        }
+    })();
+
+    const timeout = new Promise((resolve) => setTimeout(resolve, timeoutMs));
+
+    // wait for whichever finishes first
+    await Promise.race([resetBackend, timeout]);
+
+    // ensure page reload happens even if backend hangs
+    window.location.reload();
 }
 
 onMounted(() => {

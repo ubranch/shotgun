@@ -25,11 +25,14 @@
                         <div
                             v-if="step.id !== steps.length"
                             class="mx-2 text-muted-foreground"
-                        >&nbsp;&nbsp;→</div>
+                        >
+                            &nbsp;&nbsp;→
+                        </div>
                     </li>
                     <li class="flex items-center">
+                        <div class="mx-2 text-muted-foreground">or&nbsp;&nbsp;</div>
                         <BaseButton
-                            @click="$emit('reset')"
+                            @click="reset"
                             variant="danger"
                             size="sm"
                         >
@@ -62,6 +65,10 @@ function navigateToStep(stepId) {
     if (canNavigateTo(stepId)) {
         emit("navigate", stepId);
     }
+}
+
+function reset() {
+    emit("reset");
 }
 
 function canNavigateTo(stepId) {

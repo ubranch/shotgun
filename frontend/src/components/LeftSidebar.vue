@@ -38,10 +38,10 @@
                             deselect all
                         </BaseButton>
                         <BaseButton
-                            @click="handleEditCustomRules"
+                            @click="resetFileSelections"
                             class="text-xs px-2 py-1"
                         >
-                            edit rules
+                            reset
                         </BaseButton>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                     <div v-else-if="loadingError" class="p-3 text-destructive">
                         error loading files: {{ loadingError }}
                     </div>
-                    <div v-else class="p-3">Loading files...</div>
+                    <div v-else class="p-3">loading files...</div>
                 </div>
 
                 <div class="mt-2 flex justify-around gap-4">

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	_ "embed"
 	"encoding/json"
@@ -13,19 +14,18 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"bytes"
 	"unicode/utf8"
 
 	"github.com/adrg/xdg"
 	"github.com/fsnotify/fsnotify"
 	"github.com/google/generative-ai-go/genai"
+	"github.com/karrick/godirwalk"
 	gitignore "github.com/sabhiram/go-gitignore"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"google.golang.org/api/option"
-	"github.com/karrick/godirwalk"
 )
 
-const maxOutputSizeBytes = 50_000_000 // 50mb
+const maxOutputSizeBytes = 50_000_000  // 50mb
 const maxFileReadSizeBytes = 2_000_000 // 2mb
 var ErrContextTooLong = errors.New("context is too long")
 
@@ -1138,7 +1138,7 @@ func (a *App) ExecuteGeminiRequest(prompt string, modelName string) (string, err
 	}
 
 	model := client.GenerativeModel(modelName)
-	model.SetTemperature(0.1)  // Set low temperature as per requirements
+	model.SetTemperature(0.1) // Set low temperature as per requirements
 
 	// log request configuration and a preview of the request body (max 500 chars) for easier debugging
 	bodyPreview := prompt
@@ -1268,5 +1268,7 @@ func (a *App) ResetApplication() error {
 	runtime.WindowSetTitle(a.ctx, "shotgun")
 
 	runtime.LogInfo(a.ctx, "application state reset complete")
+	// clear defaultRootDir so frontend reload does not auto-reopen the previous folder
+	a.defaultRootDir = ""
 	return nil
 }
