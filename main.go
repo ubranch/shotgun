@@ -91,6 +91,8 @@ func main() {
 		Linux: &linux.Options{
 			Icon: iconPNG,
 		},
+		WindowStartState: options.Normal,
+		Frameless:        true,
 	})
 
 	if err != nil {
