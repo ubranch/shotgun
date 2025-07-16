@@ -1,6 +1,6 @@
 <template>
     <div class="bg-card top-0 z-10 center relative">
-        <div class="flex items-center justify-between px-4 py-2">
+        <div class="flex items-center justify-between px-5 py-3 pt-4">
             <div class="flex items-center">
                 <ol class="flex space-x-2 items-center">
                     <li
@@ -29,16 +29,7 @@
                             &nbsp;&nbsp;→
                         </div>
                     </li>
-                    <li class="flex items-center">
-                        <div class="mx-2 text-muted-foreground">or&nbsp;&nbsp;</div>
-                        <BaseButton
-                            @click="reset"
-                            variant="danger"
-                            size="sm"
-                        >
-                            reset
-                        </BaseButton>
-                    </li>
+                    <!-- reset button moved to sidebar -->
                 </ol>
             </div>
         </div>

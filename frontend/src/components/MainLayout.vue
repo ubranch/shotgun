@@ -32,8 +32,10 @@
                 @select-all-files="selectAllFiles"
                 @deselect-all-files="deselectAllFiles"
                 @reset-file-selections="resetFileSelections"
+                @reset="resetApplication"
                 @select-directory="selectProjectFolderHandler"
                 @add-log="({ message, type }) => addLog(message, type)"
+                @sidebar-toggle="handleSidebarToggle"
             />
             <CentralPanel
                 :current-step="currentStep"
@@ -50,6 +52,7 @@
                 :split-line-limit="splitLineLimitValue"
                 :shotgun-git-diff="shotgunGitDiff"
                 :split-line-limit-value="splitLineLimitValue"
+                :is-sidebar-collapsed="isSidebarCollapsed"
                 @step-action="handleStepAction"
                 @update-composed-prompt="handleComposedPromptUpdate"
                 @update:user-task="handleUserTaskUpdate"
@@ -226,6 +229,7 @@ const isLoadingSplitDiffs = ref(false);
 const splitDiffs = ref([]);
 const shotgunGitDiff = ref("");
 const splitLineLimitValue = ref(0); // add new state variable
+const isSidebarCollapsed = ref(false); // track sidebar collapsed state
 let debounceTimer = null;
 
 // watcher related
@@ -1231,6 +1235,10 @@ function handleShotgunGitDiffUpdate(val) {
 
 function handleSplitLineLimitUpdate(val) {
     splitLineLimitValue.value = val;
+}
+
+function handleSidebarToggle(collapsed) {
+    isSidebarCollapsed.value = collapsed;
 }
 
 // programmatically open a folder path without showing the select-dialog.

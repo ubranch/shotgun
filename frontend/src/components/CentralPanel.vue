@@ -53,20 +53,22 @@ import Step4ApplyPatch from "./steps/Step4ApplyPatch.vue";
 const props = defineProps({
     currentStep: { type: Number, required: true },
     shotgunPromptContext: { type: String, default: "" },
-    isGeneratingContext: { type: Boolean, default: false },
-    projectRoot: { type: String, default: "" },
     generationProgress: {
         type: Object,
         default: () => ({ current: 0, total: 0 }),
     },
+    isGeneratingContext: { type: Boolean, default: false },
+    projectRoot: { type: String, default: "" },
     platform: { type: String, default: "unknown" },
     userTask: { type: String, default: "" },
     rulesContent: { type: String, default: "" },
-    finalPrompt: { type: String, default: "" },
     splitDiffs: { type: Array, default: () => [] },
     isLoadingSplitDiffs: { type: Boolean, default: false },
+    finalPrompt: { type: String, default: "" },
+    splitLineLimit: { type: Number, default: 500 },
     shotgunGitDiff: { type: String, default: "" },
-    splitLineLimitValue: { type: Number, default: 0 },
+    splitLineLimitValue: { type: Number, default: 500 },
+    isSidebarCollapsed: { type: Boolean, default: false }
 });
 
 const initialGitDiff = computed(() => {

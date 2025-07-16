@@ -9,91 +9,148 @@
             @cancel="handleCancelCustomRules"
         />
         <div
-            class="w-64 md:w-72 lg:w-[450px] bg-sidebar p-4 border-r border-sidebar-border flex flex-col flex-shrink-0 h-full"
+            class="sidebar-container flex item-top h-full"
+            :class="{ collapsed: isSidebarCollapsed }"
         >
-            <!-- project selection and file tree -->
-            <div class="flex flex-col flex-grow h-full">
-                <!-- select project directory button at the very top -->
-                <BaseButton
-                    v-if="projectRoot"
-                    @click="$emit('select-directory')"
-                    class="mb-4 w-full px-3 py-2 bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold rounded-md hover:bg-sidebar-primary/90 focus:outline-none"
-                >
-                    open another project
-                </BaseButton>
+            <div
+                class="sidebar-content w-64 md:w-72 lg:w-[450px] bg-sidebar p-4 border-r border-sidebar-border flex flex-col flex-shrink-0 h-full"
+            >
+                <!-- project selection and file tree -->
+                <div class="flex flex-col flex-grow h-full">
+                    <!-- project actions: open project & reset -->
+                    <div
+                        v-if="projectRoot"
+                        class="mb-4 flex items-center gap-2"
+                    >
+                        <BaseButton
+                            @click="$emit('select-directory')"
+                            class="flex-1 px-3 py-2 bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold rounded-md hover:bg-sidebar-primary/90 focus:outline-none"
+                        >
+                            open another project
+                        </BaseButton>
 
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-medium">files</h3>
-                    <div class="space-x-1">
                         <BaseButton
-                            @click="selectAllFiles"
-                            class="text-xs px-2 py-1 bg-sidebar-primary text-sidebar-primary-foreground rounded hover:bg-sidebar-primary/90"
+                            @click="handleReset"
+                            size="md"
+                            :title="'reset application'"
+                            class="aspect-square"
                         >
-                            select all
+                            <!-- simple refresh icon -->
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw"
+                            >
+                                <path
+                                    d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                                />
+                                <path d="M3 3v5h5" />
+                            </svg>
                         </BaseButton>
-                        <BaseButton
-                            @click="deselectAllFiles"
-                            class="text-xs px-2 py-1"
+                    </div>
+
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-medium">files</h3>
+                        <div class="space-x-1">
+                            <BaseButton
+                                @click="selectAllFiles"
+                                class="text-xs px-2 py-1 bg-sidebar-primary text-sidebar-primary-foreground rounded hover:bg-sidebar-primary/90"
+                            >
+                                select all
+                            </BaseButton>
+                            <BaseButton
+                                @click="deselectAllFiles"
+                                class="text-xs px-2 py-1"
+                            >
+                                deselect all
+                            </BaseButton>
+                            <BaseButton
+                                @click="resetFileSelections"
+                                class="text-xs px-2 py-1"
+                            >
+                                reset
+                            </BaseButton>
+                        </div>
+                    </div>
+
+                    <!-- file tree -->
+                    <div
+                        class="border border-border rounded min-h-0 bg-card text-sm overflow-auto flex-grow h-0"
+                    >
+                        <FileTree
+                            v-if="fileTreeNodes && fileTreeNodes.length > 0"
+                            :nodes="fileTreeNodes"
+                            :loading-error="loadingError"
+                            @toggle-exclude="
+                                (path) => $emit('toggle-exclude', path)
+                            "
+                            @add-log="(log) => $emit('add-log', log)"
+                        />
+                        <div v-else-if="!projectRoot" class="p-3">
+                            select a project folder to view files.
+                        </div>
+                        <div
+                            v-else-if="loadingError"
+                            class="p-3 text-destructive"
                         >
-                            deselect all
-                        </BaseButton>
-                        <BaseButton
-                            @click="resetFileSelections"
-                            class="text-xs px-2 py-1"
-                        >
-                            reset
-                        </BaseButton>
+                            error loading files: {{ loadingError }}
+                        </div>
+                        <div v-else class="p-3">loading files...</div>
+                    </div>
+
+                    <div class="mt-2 flex justify-around gap-4">
+                        <label class="flex items-center text-sm">
+                            <input
+                                type="checkbox"
+                                :checked="useGitignore"
+                                @change="
+                                    $emit(
+                                        'toggle-gitignore',
+                                        $event.target.checked
+                                    )
+                                "
+                                class="form-checkbox h-4 w-4 text-sidebar-primary rounded border-border focus:ring-sidebar-primary mr-2"
+                            />
+                            use .gitignore rules
+                        </label>
+                        <label class="flex items-center text-sm">
+                            <input
+                                type="checkbox"
+                                :checked="useCustomIgnore"
+                                @change="
+                                    $emit(
+                                        'toggle-custom-ignore',
+                                        $event.target.checked
+                                    )
+                                "
+                                class="form-checkbox h-4 w-4 text-sidebar-primary rounded border-border focus:ring-sidebar-primary mr-2"
+                            />
+                            use custom rules
+                        </label>
                     </div>
                 </div>
+            </div>
 
-                <!-- file tree -->
-                <div
-                    class="border border-border rounded min-h-0 bg-card text-sm overflow-auto flex-grow h-0"
-                >
-                    <FileTree
-                        v-if="fileTreeNodes && fileTreeNodes.length > 0"
-                        :nodes="fileTreeNodes"
-                        :loading-error="loadingError"
-                        @toggle-exclude="
-                            (path) => $emit('toggle-exclude', path)
-                        "
-                        @add-log="(log) => $emit('add-log', log)"
-                    />
-                    <div v-else-if="!projectRoot" class="p-3">
-                        select a project folder to view files.
-                    </div>
-                    <div v-else-if="loadingError" class="p-3 text-destructive">
-                        error loading files: {{ loadingError }}
-                    </div>
-                    <div v-else class="p-3">loading files...</div>
-                </div>
-
-                <div class="mt-2 flex justify-around gap-4">
-                    <label class="flex items-center text-sm">
-                        <input
-                            type="checkbox"
-                            :checked="useGitignore"
-                            @change="
-                                $emit('toggle-gitignore', $event.target.checked)
-                            "
-                            class="form-checkbox h-4 w-4 text-sidebar-primary rounded border-border focus:ring-sidebar-primary mr-2"
-                        />
-                        use .gitignore rules
-                    </label>
-                    <label class="flex items-center text-sm">
-                        <input
-                            type="checkbox"
-                            :checked="useCustomIgnore"
-                            @change="
-                                $emit(
-                                    'toggle-custom-ignore',
-                                    $event.target.checked
-                                )
-                            "
-                            class="form-checkbox h-4 w-4 text-sidebar-primary rounded border-border focus:ring-sidebar-primary mr-2"
-                        />
-                        use custom rules
-                    </label>
+            <!-- collapse toggle button - moved to the right edge -->
+            <div
+                class="absolute bottom-[422px] -right-4 z-50 collapse-toggle flex items-center justify-center cursor-pointer bg-sidebar-primary hover:bg-sidebar-primary/90"
+                @click="toggleSidebar"
+            >
+                <div class="flex items-center justify-center h-8 w-8">
+                    <i
+                        class="arrow-icon"
+                        :class="{
+                            'arrow-left': !isSidebarCollapsed,
+                            'arrow-right': isSidebarCollapsed,
+                        }"
+                    ></i>
                 </div>
             </div>
         </div>
@@ -140,10 +197,18 @@ const emit = defineEmits([
     "deselect-all-files",
     "reset-file-selections",
     "select-directory",
+    "sidebar-toggle",
+    "reset",
 ]);
 
 const isCustomRulesModalVisible = ref(false);
 const currentCustomRulesForModal = ref("");
+const isSidebarCollapsed = ref(false);
+
+function toggleSidebar() {
+    isSidebarCollapsed.value = !isSidebarCollapsed.value;
+    emit("sidebar-toggle", isSidebarCollapsed.value);
+}
 
 async function openCustomRulesModal() {
     try {
@@ -240,8 +305,52 @@ function handleToggleExclude(node) {
 function handleEditCustomRules() {
     openCustomRulesModal();
 }
+
+function handleReset() {
+    emit("reset");
+    emit("add-log", {
+        message: "resetting application state",
+        type: "info",
+    });
+}
 </script>
 
 <style scoped>
-/* add your styles here */
+.sidebar-container {
+    position: relative;
+}
+
+.sidebar-container.collapsed .sidebar-content {
+    width: 0 !important;
+    padding: 0;
+    overflow: hidden;
+}
+
+.collapse-toggle {
+    width: 16px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-right: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    color: var(--sidebar-primary-foreground);
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    margin-top: 16px;
+    height: 40px;
+}
+
+.arrow-icon {
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+}
+
+.arrow-left {
+    border-right: 6px solid currentColor;
+}
+
+.arrow-right {
+    border-left: 6px solid currentColor;
+}
 </style>

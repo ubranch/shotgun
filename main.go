@@ -92,7 +92,7 @@ func main() {
 			Icon: iconPNG,
 		},
 		WindowStartState: options.Normal,
-		Frameless:        true,
+		Frameless:        false,
 	})
 
 	if err != nil {

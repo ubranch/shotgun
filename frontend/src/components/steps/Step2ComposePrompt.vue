@@ -76,7 +76,7 @@
             >
                 <div class="flex justify-between items-center mb-2">
                     <div class="flex items-center space-x-2">
-                        <div class="flex lg:flex-row flex-col space-x-2">
+                        <div class="flex flex-row space-x-2">
                             <!-- refresh button -->
                             <BaseButton
                                 @click="refreshPrompt"
@@ -108,29 +108,56 @@
                                 </template>
                             </BaseButton>
 
-                            <!-- mode buttons -->
-                            <BaseButton
-                                v-for="(template, key) in promptTemplates"
-                                :key="key"
-                                @click="selectedPromptTemplateKey = key"
-                                :class="[
-                                    'p-2 px-3 rounded-md text-sm flex items-center',
-                                    selectedPromptTemplateKey === key
-                                        ? 'bg-light-accent text-white dark:bg-dark-accent'
-                                        : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600',
-                                ]"
-                                :disabled="isLoadingFinalPrompt"
-                                :title="template.name"
-                            >
-                                <template #icon>
-                                    <span class="">{{
-                                        getTemplateIcon(key)
+                            <!-- mode selector: buttons for large screens, dropdown for small screens -->
+                            <template v-if="!isSmallScreen">
+                                <BaseButton
+                                    v-for="(template, key) in promptTemplates"
+                                    :key="key"
+                                    @click="selectedPromptTemplateKey = key"
+                                    :class="[
+                                        'p-2 px-3 rounded-md text-sm flex items-center',
+                                        selectedPromptTemplateKey === key
+                                            ? 'bg-light-accent text-white dark:bg-dark-accent'
+                                            : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600',
+                                    ]"
+                                    :disabled="isLoadingFinalPrompt"
+                                    :title="template.name"
+                                >
+                                    <span class="font-bold">{{
+                                        getShortName(key)
                                     }}</span>
-                                </template>
-                                <span class="font-bold">{{
-                                    getShortName(key)
-                                }}</span>
-                            </BaseButton>
+                                </BaseButton>
+                            </template>
+                            <template v-else>
+                                <div class="relative inline-block w-full">
+                                    <select
+                                        v-model="selectedPromptTemplateKey"
+                                        :disabled="isLoadingFinalPrompt"
+                                        class="appearance-none pr-8 p-2 px-3 rounded-md text-sm bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 w-full"
+                                    >
+                                        <option
+                                            v-for="(template, key) in promptTemplates"
+                                            :key="key"
+                                            :value="key"
+                                        >
+                                            {{ getShortName(key) }}
+                                        </option>
+                                    </select>
+                                    <!-- chevron arrow icon -->
+                                    <svg
+                                        class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none h-4 w-4 text-gray-500 dark:text-gray-400"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.92l3.71-3.69a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.08z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                </div>
+                            </template>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
@@ -159,7 +186,7 @@
                             ]"
                             :title="tooltipText"
                         >
-                            {{ geminiTokenCount.toLocaleString() }} tokens
+                            {{ geminiTokenCount.toLocaleString() }}
                         </span>
                         <BaseButton
                             @click="copyFinalPromptToClipboard"
@@ -234,7 +261,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed } from "vue";
+import { ref, watch, onMounted, computed, onUnmounted } from "vue";
 import {
     GetCustomPromptRules,
     SetCustomPromptRules,
@@ -374,6 +401,21 @@ const tooltipText = computed(() => {
 });
 
 const DEFAULT_RULES = `no additional rules`;
+
+// responsive: detect narrow screens (< 900px)
+const isSmallScreen = ref(window.innerWidth < 1200);
+
+function updateScreenSize() {
+    isSmallScreen.value = window.innerWidth < 1200;
+}
+
+onMounted(() => {
+    window.addEventListener("resize", updateScreenSize);
+});
+
+onUnmounted(() => {
+    window.removeEventListener("resize", updateScreenSize);
+});
 
 onMounted(async () => {
     try {
