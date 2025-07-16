@@ -56,8 +56,8 @@
                         </BaseButton>
                     </div>
 
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-medium">files</h3>
+                    <div class="flex flex-row justify-between items-center mb-2">
+                        <h3 class="font-medium lg:display hidden">files</h3>
                         <div class="space-x-1">
                             <BaseButton
                                 @click="selectAllFiles"
