@@ -54,7 +54,7 @@
                     ></textarea>
                 </div>
 
-                <div class="flex flex-col flex-grow-[1]">
+                <!-- <div class="flex flex-col flex-grow-[1]">
                     <label
                         for="file-list-context"
                         class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1"
@@ -68,7 +68,7 @@
                         class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface font-mono text-sm text-gray-900 dark:text-gray-100 flex-grow min-h-[50px]"
                         placeholder="file list from step 1 (prepare context) will appear here..."
                     ></textarea>
-                </div>
+                </div> -->
             </div>
 
             <div

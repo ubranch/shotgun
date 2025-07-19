@@ -49,9 +49,9 @@ const variantClasses = computed(() => {
         case "success":
             return "border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-800/50 hover:border-green-600 dark:hover:border-green-400 focus-visible:ring-green-500";
         case "danger":
-            return "border-destructive bg-destructive/10 text-destructive hover:bg-destructive/20 hover:border-destructive/80 focus-visible:ring-destructive";
+            return "border-red-500/10 bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-800/50 focus-visible:ring-red-500";
         case "warning":
-            return "border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-800/50 hover:border-amber-600 dark:hover:border-amber-400 focus-visible:ring-amber-500";
+            return "border-amber-500/10 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-800/50 focus-visible:ring-amber-500";
         default:
             return "border-border bg-background hover:bg-accent hover:border-primary/50 text-foreground hover:text-primary focus-visible:ring-primary";
     }

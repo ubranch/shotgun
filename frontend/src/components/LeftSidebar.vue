@@ -23,40 +23,25 @@
                         class="mb-4 flex items-center gap-2"
                     >
                         <BaseButton
+                            @click="handleReset"
+                            :title="'reset application'"
+                            variant="danger"
+                            class="aspect-square"
+                        >
+                            <!-- simple refresh icon -->
+                            reset
+                        </BaseButton>
+                        <BaseButton
                             @click="$emit('select-directory')"
                             class="flex-1 px-3 py-2 bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold rounded-md hover:bg-sidebar-primary/90 focus:outline-none"
                         >
                             open another project
                         </BaseButton>
-
-                        <BaseButton
-                            @click="handleReset"
-                            size="md"
-                            :title="'reset application'"
-                            class="aspect-square"
-                        >
-                            <!-- simple refresh icon -->
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="3"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw"
-                            >
-                                <path
-                                    d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
-                                />
-                                <path d="M3 3v5h5" />
-                            </svg>
-                        </BaseButton>
                     </div>
 
-                    <div class="flex flex-row justify-between items-center mb-2">
+                    <div
+                        class="flex flex-row justify-between items-center mb-2"
+                    >
                         <h3 class="font-medium lg:display hidden">files</h3>
                         <div class="space-x-1">
                             <BaseButton
@@ -73,9 +58,10 @@
                             </BaseButton>
                             <BaseButton
                                 @click="resetFileSelections"
+                                variant="warning"
                                 class="text-xs px-2 py-1"
                             >
-                                reset
+                                default
                             </BaseButton>
                         </div>
                     </div>
