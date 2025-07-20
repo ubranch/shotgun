@@ -30,16 +30,15 @@
                 <div class="items-center px-4 py-3">
                     <BaseButton
                         @click="handleSave"
-                        variant="primary"
-                        class="px-4 py-2 mr-2"
+                        class="px-4 py-2 mr-2 bg-sidebar-primary text-sidebar-primary-foreground text-base font-semibold rounded-md hover:bg-sidebar-primary/90 focus:outline-none"
                     >
-                        save
+                        <span class="text-base"> save </span>
                     </BaseButton>
                     <BaseButton
                         @click="handleCancel"
                         class="px-4 py-2"
                     >
-                        cancel
+                        <span class="text-base"> cancel </span>
                     </BaseButton>
                 </div>
             </div>

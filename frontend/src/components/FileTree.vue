@@ -11,7 +11,7 @@
                 style="position: relative; cursor: pointer"
                 @click="handleAreaClick($event, node)"
             >
-                <span class="arrow-indicator pl-1">
+                <!-- <span class="arrow-indicator pl-1">
                     <span v-if="node.isDir && !node.expanded" @click.stop="toggleExpand(node)">
                         <div class="codicon codicon-chevron-down codicon-bold codicon-custom"></div>
                     </span>
@@ -19,7 +19,7 @@
                         <div class="codicon codicon-chevron-up codicon-bold codicon-custom"></div>
                     </span>
                     <span v-else class="placeholder-arrow"></span>
-                </span>
+                </span> -->
 
                 <span class="node-content-wrapper pl-3">
                     <span

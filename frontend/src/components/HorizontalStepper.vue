@@ -8,25 +8,33 @@
                         :key="step.id"
                         class="flex items-center"
                     >
-                        <button
+                        <BaseButton
                             @click="navigateToStep(step.id)"
                             :disabled="!canNavigateTo(step.id)"
+                            class="text-xs px-2 py-1 flex items-center gap-2 group"
                             :class="[
-                                'px-3 py-1 rounded-md text-sm transition-colors',
                                 currentStep === step.id
-                                    ? 'bg-primary text-primary-foreground'
-                                    : step.visited
-                                      ? 'bg-accent text-accent-foreground hover:bg-accent/80'
-                                      : 'bg-muted text-muted-foreground',
+                                    ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                                    : ''
                             ]"
                         >
-                            {{ step.id }}. {{ step.title }}
-                        </button>
+                            <span class="flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold"
+                                  :class="[
+                                      currentStep === step.id
+                                          ? 'bg-accent text-accent-foreground group-hover:text-sidebar-primary-foreground group-hover:bg-sidebar-primary'
+                                          : 'bg-sidebar-primary text-sidebar-primary-foreground'
+                                  ]">
+                                {{ step.id }}
+                            </span>
+                            <span class="text-base">{{ step.title }}</span>
+                        </BaseButton>
                         <div
                             v-if="step.id !== steps.length"
-                            class="mx-2 text-muted-foreground"
+                            class="mx-3 flex items-center"
                         >
-                            &nbsp;&nbsp;→
+                            <svg class="w-4 h-4 text-sidebar-primary/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
                         </div>
                     </li>
                     <!-- reset button moved to sidebar -->

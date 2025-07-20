@@ -1,113 +1,74 @@
 <template>
     <div class="p-4 h-full flex flex-col">
-        <CustomRulesModal
-            :is-visible="isPromptRulesModalVisible"
-            :initial-rules="currentPromptRulesForModal"
-            title="edit custom prompt rules"
-            ruleType="prompt"
-            @save="handleSavePromptRules"
-            @cancel="handleCancelPromptRules"
-        />
+        <!-- error display for context generation failures -->
+        <div
+            v-if="isErrorContext"
+            class="mb-4 p-4 border border-red-300 dark:border-red-700 rounded-lg bg-red-50 dark:bg-red-900 dark:bg-opacity-20 shadow-sm"
+        >
+            <h4 class="text-lg font-semibold mb-2 text-red-600 dark:text-red-400">
+                context generation error
+            </h4>
+            <pre
+                class="text-sm whitespace-pre-wrap bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 p-3 border border-red-200 dark:border-red-700 rounded-md overflow-auto max-h-[150px]"
+            >{{ errorMessage }}</pre>
+            <p class="mt-3 text-sm text-red-600 dark:text-red-400">
+                go back to step 1 to reduce the project scope by excluding more files or using a smaller project
+            </p>
+        </div>
 
-        <div class="flex-grow flex flex-row space-x-4 overflow-hidden">
+        <!-- custom rules modal removed per user request -->
+        <div class="flex-grow flex flex-row space-x-0 overflow-hidden">
+            <!--
+                group-[.sidebar-open]/layout:max-[900px]:hidden:
+                hides the user query panel when the sidebar is open and screen width is ≤ 900px
+            -->
             <div
-                class="w-2/5 flex flex-col space-y-2 overflow-y-hidden px-2 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-dark-surface"
+                class="w-3/5 group-[.sidebar-open]/layout:w-2/5 flex flex-col space-y-2 overflow-y-hidden px-2 py-2 border border-accent rounded-md bg-white dark:bg-dark-surface mr-2 group-[.sidebar-open]/layout:max-[900px]:hidden"
             >
                 <div class="flex flex-col flex-grow-[3]">
-                    <label
+                    <!-- <label
                         for="user-task-ai"
                         class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1"
                         >your query for ai:</label
-                    >
+                    > -->
                     <textarea
                         id="user-task-ai"
                         v-model="localUserTask"
                         spellcheck="false"
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 flex-grow min-h-[100px]"
+                        class="w-full p-2 border border-accent rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 flex-grow min-h-[100px]"
                         placeholder="describe what the ai should do..."
                     ></textarea>
                 </div>
 
-                <div class="flex flex-col flex-grow-[2]">
-                    <label
-                        for="rules-content"
-                        class="text-base font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center"
-                    >
-                        custom rules:
-                        <button
-                            @click="openPromptRulesModal"
-                            title="edit custom prompt rules"
-                            class="ml-2 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-sm"
-                        >
-                            ⚙️
-                        </button>
-                    </label>
-                    <textarea
-                        id="rules-content"
-                        :value="rulesContent"
-                        @input="
-                            (e) => emit('update:rulesContent', e.target.value)
-                        "
-                        spellcheck="false"
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface text-sm font-mono text-gray-900 dark:text-gray-100 flex-grow min-h-[80px]"
-                        placeholder="rules for ai..."
-                    ></textarea>
-                </div>
-
+                <!-- custom rules textarea commented out per user request -->
                 <!-- <div class="flex flex-col flex-grow-[1]">
                     <label
                         for="file-list-context"
-                        class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1"
-                        >files to include:</label
+                        class="text-base font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center"
                     >
+                        file list context:
+                    </label>
                     <textarea
                         id="file-list-context"
                         :value="props.fileListContext"
                         readonly
                         spellcheck="false"
-                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface font-mono text-sm text-gray-900 dark:text-gray-100 flex-grow min-h-[50px]"
+                        class="w-full p-2 border border-accent rounded-md shadow-sm bg-gray-100 dark:bg-dark-surface font-mono text-sm text-gray-900 dark:text-gray-100 flex-grow min-h-[50px]"
                         placeholder="file list from step 1 (prepare context) will appear here..."
                     ></textarea>
                 </div> -->
             </div>
 
+            <!--
+                group-[.sidebar-open]/layout:max-[900px]:w-full:
+                expands the final prompt panel to full width when the sidebar is open and screen width is ≤ 900px
+            -->
             <div
-                class="w-3/5 flex flex-col overflow-y-auto p-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-dark-surface"
+                class="w-3/5 flex flex-col overflow-y-auto p-2 border border-accent rounded-md bg-white dark:bg-dark-surface group-[.sidebar-open]/layout:max-[900px]:w-full"
             >
                 <div class="flex justify-between items-center mb-2">
                     <div class="flex items-center space-x-2">
                         <div class="flex flex-row space-x-2">
-                            <!-- refresh button -->
-                            <BaseButton
-                                @click="refreshPrompt"
-                                :disabled="isLoadingFinalPrompt"
-                                :class="[
-                                    'p-2 px-3 rounded-md text-sm flex items-center',
-                                    refreshing
-                                        ? 'bg-green-600 dark:bg-green-700 text-white'
-                                        : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600',
-                                ]"
-                                title="regenerate prompt"
-                            >
-                                <template #icon>
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="h-4 w-4"
-                                        :class="{ 'animate-spin': refreshing }"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                                        />
-                                    </svg>
-                                </template>
-                            </BaseButton>
-
                             <!-- mode selector: buttons for large screens, dropdown for small screens -->
                             <template v-if="!isSmallScreen">
                                 <BaseButton
@@ -115,10 +76,10 @@
                                     :key="key"
                                     @click="selectedPromptTemplateKey = key"
                                     :class="[
-                                        'p-2 px-3 rounded-md text-sm flex items-center',
+                                        'p-2 px-3 rounded-md text-sm flex items-center font-semibold hover:bg-sidebar-primary/90 focus:outline-none',
                                         selectedPromptTemplateKey === key
-                                            ? 'bg-light-accent text-white dark:bg-dark-accent'
-                                            : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600',
+                                            ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                                            : 'text-gray-200 hover:text-white',
                                     ]"
                                     :disabled="isLoadingFinalPrompt"
                                     :title="template.name"
@@ -133,10 +94,12 @@
                                     <select
                                         v-model="selectedPromptTemplateKey"
                                         :disabled="isLoadingFinalPrompt"
-                                        class="appearance-none pr-8 p-2 px-3 rounded-md text-sm bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 w-full"
+                                        class="appearance-none pr-8 p-2 rounded-md text-sm flex items-center border-2 font-semibold focus:outline-none border-border bg-background focus-visible:ring-primary text-gray-200 w-full"
                                     >
                                         <option
-                                            v-for="(template, key) in promptTemplates"
+                                            v-for="(
+                                                template, key
+                                            ) in promptTemplates"
                                             :key="key"
                                             :value="key"
                                         >
@@ -177,7 +140,7 @@
                         <span
                             v-else
                             :class="[
-                                'text-sm font-bold px-2 py-1 rounded-full',
+                                'text-sm font-bold px-2 py-1 ml-2 rounded-xl',
                                 charCountColorClass === 'text-green-600'
                                     ? 'bg-green-100 dark:bg-green-900/30'
                                     : charCountColorClass === 'text-yellow-500'
@@ -188,12 +151,26 @@
                         >
                             {{ geminiTokenCount.toLocaleString() }}
                         </span>
+                        <!-- refresh button -->
+                        <BaseButton
+                            @click="refreshPrompt"
+                            :disabled="isLoadingFinalPrompt"
+                            :class="[
+                                'p-2 px-3 rounded-md text-sm flex items-center font-semibold hover:bg-sidebar-primary/90 focus:outline-none',
+                                refreshing
+                                    ? 'bg-sidebar-primary text-white'
+                                    : 'text-gray-200 hover:text-white',
+                            ]"
+                            title="regenerate prompt"
+                        >
+                            <span class="text-base">update</span>
+                        </BaseButton>
                         <BaseButton
                             @click="copyFinalPromptToClipboard"
                             :disabled="
                                 !props.finalPrompt || isLoadingFinalPrompt
                             "
-                            class="px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
+                            class="px-3 py-2 bg-sidebar-primary text-sidebar-primary-foreground text-base font-semibold rounded-md hover:bg-sidebar-primary/90 focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
                             :class="{
                                 'bg-green-600 dark:bg-green-700': copySuccess,
                             }"
@@ -230,7 +207,7 @@
                                     />
                                 </svg>
                             </template>
-                            {{ copyButtonText }}
+                            <span class="text-base">{{ copyButtonText }}</span>
                         </BaseButton>
                     </div>
                 </div>
@@ -252,7 +229,7 @@
                     :value="props.finalPrompt"
                     @input="(e) => emit('update:finalPrompt', e.target.value)"
                     spellcheck="false"
-                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm font-mono text-sm flex-grow bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 min-h-[300px]"
+                    class="w-full p-2 border border-accent rounded-md shadow-sm font-mono text-sm flex-grow bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 min-h-[300px]"
                     placeholder="the final prompt will be generated here..."
                 ></textarea>
             </div>
@@ -262,16 +239,11 @@
 
 <script setup>
 import { ref, watch, onMounted, computed, onUnmounted } from "vue";
-import {
-    GetCustomPromptRules,
-    SetCustomPromptRules,
-    CountGeminiTokens,
-} from "../../../wailsjs/go/main/App";
+import { CountGeminiTokens } from "../../../wailsjs/go/main/App";
 import {
     LogInfo as LogInfoRuntime,
     LogError as LogErrorRuntime,
 } from "../../../wailsjs/runtime/runtime";
-import CustomRulesModal from "../CustomRulesModal.vue";
 import BaseButton from "../BaseButton.vue";
 
 import devTemplateContentFromFile from "../../../../design/prompts/prompt_makeDiffGitFormat_v2.md?raw";
@@ -369,13 +341,44 @@ const refreshing = ref(false);
 let finalPromptDebounceTimer = null;
 let userTaskInputDebounceTimer = null;
 
-// modal state for prompt rules
-const isPromptRulesModalVisible = ref(false);
-const currentPromptRulesForModal = ref("");
+// modal state for prompt rules removed
+// const isPromptRulesModalVisible = ref(false);
+// const currentPromptRulesForModal = ref("");
 
 const isFirstMount = ref(true);
 
 const localUserTask = ref(props.userTask);
+
+// Error detection (same logic as Step 1)
+const isErrorContext = computed(() => {
+    if (!props.fileListContext) return false;
+    // consider only the first non-blank line to decide if the backend sent an error
+    const firstLine = props.fileListContext
+        .trimStart()
+        .split("\n", 1)[0]
+        .toLowerCase();
+    return firstLine.startsWith("error:");
+});
+
+const errorMessage = computed(() => {
+    if (!isErrorContext.value || !props.fileListContext) return "";
+
+    // check if starts with "Error:" (case insensitive)
+    const lowerCaseContext = props.fileListContext.toLowerCase();
+    if (lowerCaseContext.startsWith("error:")) {
+        return props.fileListContext
+            .substring(props.fileListContext.indexOf(":") + 1)
+            .trim();
+    }
+
+    // if it contains "error:" elsewhere, try to extract the message
+    if (lowerCaseContext.includes("error:")) {
+        const errorIndex = lowerCaseContext.indexOf("error:");
+        return props.fileListContext.substring(errorIndex).trim();
+    }
+
+    return props.fileListContext.trim();
+});
 
 // character count and related computed properties
 const charCount = computed(() => {
@@ -420,22 +423,22 @@ onUnmounted(() => {
 onMounted(async () => {
     try {
         localUserTask.value = props.userTask;
-        // load rules from the backend only on the first mount
-        if (isFirstMount.value) {
-            const fetchedRules = await GetCustomPromptRules();
-            if (!props.rulesContent) {
-                emit("update:rulesContent", fetchedRules);
-            }
-            isFirstMount.value = false;
-        }
+        // removed: load rules from the backend only on the first mount
+        // if (isFirstMount.value) {
+        //     const fetchedRules = await GetCustomPromptRules();
+        //     if (!props.rulesContent) {
+        //         emit("update:rulesContent", fetchedRules);
+        //     }
+        //     isFirstMount.value = false;
+        // }
     } catch (error) {
         console.error("failed to load custom prompt rules:", error);
         LogErrorRuntime(
             `failed to load custom prompt rules: ${error.message || error}`
         );
-        if (isFirstMount.value && !props.rulesContent) {
-            emit("update:rulesContent", DEFAULT_RULES);
-        }
+        // if (isFirstMount.value && !props.rulesContent) {
+        //     emit("update:rulesContent", DEFAULT_RULES);
+        // }
         isFirstMount.value = false;
     }
 
@@ -483,7 +486,7 @@ function debouncedUpdateFinalPrompt() {
     clearTimeout(finalPromptDebounceTimer);
     finalPromptDebounceTimer = setTimeout(() => {
         updateFinalPrompt();
-    }, 750);
+    }, 300);
 }
 
 // refresh prompt functionality
@@ -562,7 +565,7 @@ const countTokensForPrompt = (prompt) => {
         } finally {
             isCountingTokens.value = false;
         }
-    }, 500);
+    }, 200);
 };
 
 watch(
@@ -599,35 +602,7 @@ async function copyFinalPromptToClipboard() {
     }
 }
 
-async function openPromptRulesModal() {
-    try {
-        currentPromptRulesForModal.value = await GetCustomPromptRules();
-        isPromptRulesModalVisible.value = true;
-    } catch (error) {
-        console.error("error fetching prompt rules for modal:", error);
-        LogErrorRuntime(
-            `error fetching prompt rules for modal: ${error.message || error}`
-        );
-        currentPromptRulesForModal.value = props.rulesContent || DEFAULT_RULES;
-        isPromptRulesModalVisible.value = true;
-    }
-}
-
-async function handleSavePromptRules(newRules) {
-    try {
-        await SetCustomPromptRules(newRules);
-        emit("update:rulesContent", newRules);
-        isPromptRulesModalVisible.value = false;
-        LogInfoRuntime("custom prompt rules saved successfully.");
-    } catch (error) {
-        console.error("error saving prompt rules:", error);
-        LogErrorRuntime(`error saving prompt rules: ${error.message || error}`);
-    }
-}
-
-function handleCancelPromptRules() {
-    isPromptRulesModalVisible.value = false;
-}
+// removed: openPromptRulesModal, handleSavePromptRules, handleCancelPromptRules
 
 defineExpose({});
 </script>

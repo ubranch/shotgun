@@ -46,13 +46,13 @@
             :class="{
                 'border-light-accent dark:border-dark-accent bg-light-accent/5 dark:bg-dark-accent/10 animate-pulse-bg dragging':
                     isDragging,
-                'border-gray-300 dark:border-gray-700': !isDragging,
+                'border-accent': !isDragging,
             }"
             @click="handleSelectDirectory"
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-16 w-16 mb-4 text-gray-400 dark:text-gray-600"
+                class="h-16 w-16 mb-4 text-accent-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -71,11 +71,11 @@
                 />
             </svg>
             <p
-                class="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2"
+                class="text-lg font-medium text-accent-foreground mb-2"
             >
                 drag folder here
             </p>
-            <p class="text-sm text-gray-500 dark:text-gray-500">
+            <p class="text-sm text-accent-foreground">
                 or click to browse
             </p>
         </div>
@@ -91,7 +91,7 @@
                         generating project context...
                     </p>
                     <div
-                        class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700"
+                        class="w-full bg-accent rounded-full h-2.5 dark:bg-gray-700"
                     >
                         <div
                             class="bg-light-accent dark:bg-dark-accent h-2.5 rounded-full"
@@ -112,7 +112,7 @@
         </div>
 
         <!-- content area (textarea + copy button or error message or placeholder) -->
-        <div v-else-if="projectRoot" class="mt-0 flex-grow flex flex-col px-2 py-2 dark:bg-dark-surface border border-gray-200 dark:border-gray-700 rounded-md">
+        <div v-else-if="projectRoot" class="mt-0 flex-grow flex flex-col px-2 py-2 dark:bg-dark-surface border border-accent rounded-md">
             <div
                 v-if="isErrorContext"
                 class="flex-grow flex flex-col justify-center items-center"
@@ -153,7 +153,7 @@
                     <BaseButton
                         v-if="generatedContext"
                         @click="copyGeneratedContextToClipboard"
-                        class="px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
+                        class="px-3 py-2 bg-sidebar-primary text-sidebar-primary-foreground text-base font-semibold rounded-md hover:bg-sidebar-primary/90 focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
                         :class="{
                             'bg-green-600 dark:bg-green-700': copySuccess,
                         }"
@@ -166,7 +166,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
                         </template>
-                        {{ copyButtonText }}
+                        <span class="text-base">{{ copyButtonText }}</span>
                     </BaseButton>
                     <!-- removed change project button per request -->
                 </div>
@@ -174,7 +174,7 @@
                     :value="generatedContext"
                     rows="10"
                     readonly
-                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-dark-surface font-mono text-sm text-gray-900 dark:text-gray-100 flex-grow"
+                    class="w-full p-2 border border-accent rounded-md shadow-sm bg-gray-50 dark:bg-dark-surface font-mono text-sm text-gray-900 dark:text-gray-100 flex-grow"
                     placeholder="context will appear here. if empty, ensure files are selected and not all excluded."
                     style="min-height: 150px"
                 ></textarea>

@@ -3,17 +3,25 @@
         <CustomRulesModal
             :is-visible="isCustomRulesModalVisible"
             :initial-rules="currentCustomRulesForModal"
-            title="Edit Custom Ignore Rules"
+            title="edit custom ignore rules"
             ruleType="ignore"
             @save="handleSaveCustomRules"
             @cancel="handleCancelCustomRules"
+        />
+        <CustomRulesModal
+            :is-visible="isPromptRulesModalVisible"
+            :initial-rules="currentPromptRulesForModal_prompt"
+            title="edit custom prompt rules"
+            ruleType="prompt"
+            @save="handleSavePromptRules_prompt"
+            @cancel="handleCancelPromptRules_prompt"
         />
         <div
             class="sidebar-container flex item-top h-full"
             :class="{ collapsed: isSidebarCollapsed }"
         >
             <div
-                class="sidebar-content w-64 md:w-72 lg:w-[450px] bg-sidebar p-4 border-r border-sidebar-border flex flex-col flex-shrink-0 h-full"
+                class="sidebar-content w-64 lg:w-[450px] bg-sidebar p-4 border-r border-sidebar-border flex flex-col flex-shrink-0 h-full max-[900px]:w-[415px]"
             >
                 <!-- project selection and file tree -->
                 <div class="flex flex-col flex-grow h-full">
@@ -26,42 +34,48 @@
                             @click="handleReset"
                             :title="'reset application'"
                             variant="danger"
-                            class="aspect-square"
+                            class="aspect-square text-base"
                         >
                             <!-- simple refresh icon -->
-                            reset
+                            <span class="text-base"> reset </span>
                         </BaseButton>
                         <BaseButton
                             @click="$emit('select-directory')"
-                            class="flex-1 px-3 py-2 bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold rounded-md hover:bg-sidebar-primary/90 focus:outline-none"
+                            class="flex-1 px-3 py-2 bg-sidebar-primary text-sidebar-primary-foreground text-base font-semibold rounded-md hover:bg-sidebar-primary/90 focus:outline-none"
                         >
-                            open another project
+                            <span class="text-base"> open another project </span>
+                        </BaseButton>
+                        <BaseButton
+                            @click="openPromptRulesModal_prompt"
+                            title="edit custom prompt rules"
+                            class="px-2 py-1"
+                        >
+                            <span class="text-base"> rules </span>
                         </BaseButton>
                     </div>
 
                     <div
                         class="flex flex-row justify-between items-center mb-2"
                     >
-                        <h3 class="font-medium lg:display hidden">files</h3>
                         <div class="space-x-1">
                             <BaseButton
                                 @click="selectAllFiles"
                                 class="text-xs px-2 py-1 bg-sidebar-primary text-sidebar-primary-foreground rounded hover:bg-sidebar-primary/90"
                             >
-                                select all
+                                <span class="text-base"> select all </span>
                             </BaseButton>
                             <BaseButton
                                 @click="deselectAllFiles"
                                 class="text-xs px-2 py-1"
                             >
-                                deselect all
+                                <span class="text-base"> deselect all </span>
                             </BaseButton>
                             <BaseButton
                                 @click="resetFileSelections"
                                 variant="warning"
                                 class="text-xs px-2 py-1"
                             >
-                                default
+                                <span class="text-base"> default </span>
                             </BaseButton>
                         </div>
                     </div>
@@ -104,7 +118,7 @@
                                 "
                                 class="form-checkbox h-4 w-4 text-sidebar-primary rounded border-border focus:ring-sidebar-primary mr-2"
                             />
-                            use .gitignore rules
+                            <span class="text-base"> use .gitignore rules </span>
                         </label>
                         <label class="flex items-center text-sm">
                             <input
@@ -118,7 +132,7 @@
                                 "
                                 class="form-checkbox h-4 w-4 text-sidebar-primary rounded border-border focus:ring-sidebar-primary mr-2"
                             />
-                            use custom rules
+                            <span class="text-base"> use custom rules </span>
                         </label>
                     </div>
                 </div>
@@ -126,7 +140,7 @@
 
             <!-- collapse toggle button - moved to the right edge -->
             <div
-                class="absolute bottom-[422px] -right-4 z-50 collapse-toggle flex items-center justify-center cursor-pointer bg-sidebar-primary hover:bg-sidebar-primary/90"
+                class="absolute bottom-[422px] -right-4 z-10 collapse-toggle flex items-center justify-center cursor-pointer bg-sidebar-primary hover:bg-sidebar-primary/90"
                 @click="toggleSidebar"
             >
                 <div class="flex items-center justify-center h-8 w-8">
@@ -151,6 +165,8 @@ import BaseButton from "./BaseButton.vue";
 import {
     GetCustomIgnoreRules,
     SetCustomIgnoreRules,
+    GetCustomPromptRules,
+    SetCustomPromptRules,
 } from "../../wailsjs/go/main/App";
 import {
     LogError as LogErrorRuntime,
@@ -185,11 +201,16 @@ const emit = defineEmits([
     "select-directory",
     "sidebar-toggle",
     "reset",
+    "update:rulesContent",
 ]);
 
 const isCustomRulesModalVisible = ref(false);
 const currentCustomRulesForModal = ref("");
 const isSidebarCollapsed = ref(false);
+
+// state for prompt rules modal
+const isPromptRulesModalVisible = ref(false);
+const currentPromptRulesForModal_prompt = ref("");
 
 function toggleSidebar() {
     isSidebarCollapsed.value = !isSidebarCollapsed.value;
@@ -241,6 +262,41 @@ async function handleSaveCustomRules(newRules) {
 
 function handleCancelCustomRules() {
     isCustomRulesModalVisible.value = false;
+}
+
+async function openPromptRulesModal_prompt() {
+    try {
+        currentPromptRulesForModal_prompt.value = await GetCustomPromptRules();
+        isPromptRulesModalVisible.value = true;
+    } catch (error) {
+        console.error("error fetching prompt rules for modal:", error);
+        LogErrorRuntime(
+            `error fetching prompt rules for modal: ${error.message || error}`
+        );
+        emit("add-log", {
+            message: `failed to load prompt rules: ${error.message || error}`,
+            type: "error",
+        });
+        currentPromptRulesForModal_prompt.value = "# error loading rules.";
+        isPromptRulesModalVisible.value = true;
+    }
+}
+
+async function handleSavePromptRules_prompt(newRules) {
+    try {
+        await SetCustomPromptRules(newRules);
+        isPromptRulesModalVisible.value = false;
+        LogInfoRuntime("custom prompt rules saved successfully.");
+        emit("update:rulesContent", newRules);
+    } catch (error) {
+        console.error("error saving prompt rules:", error);
+        LogErrorRuntime(`error saving prompt rules: ${error.message || error}`);
+        // optionally, emit a log to the user
+    }
+}
+
+function handleCancelPromptRules_prompt() {
+    isPromptRulesModalVisible.value = false;
 }
 
 function canNavigateToStep(stepId) {

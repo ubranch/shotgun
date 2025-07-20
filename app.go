@@ -184,7 +184,7 @@ func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 		IsCustomIgnored: a.currentCustomIgnorePatterns != nil && a.currentCustomIgnorePatterns.MatchesPath("."),
 	}
 
-	children, err := buildTreeRecursive(context.TODO(), dirPath, dirPath, gitIgn, a.currentCustomIgnorePatterns, 0)
+	children, err := buildTreeRecursive(context.TODO(), dirPath, dirPath, gitIgn, a.currentCustomIgnorePatterns, 0, false, false)
 	if err != nil {
 		return []*FileNode{rootNode}, fmt.Errorf("error building children tree for %s: %w", dirPath, err)
 	}
@@ -193,7 +193,7 @@ func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 	return []*FileNode{rootNode}, nil
 }
 
-func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIgn *gitignore.GitIgnore, customIgn *gitignore.GitIgnore, depth int) ([]*FileNode, error) {
+func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIgn *gitignore.GitIgnore, customIgn *gitignore.GitIgnore, depth int, inheritedGitIgnored, inheritedCustomIgnored bool) ([]*FileNode, error) {
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
@@ -212,20 +212,24 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 		// for gitignore matching, paths should generally be relative to the .gitignore file (rootpath)
 		// and use os-specific separators. go-gitignore handles this.
 
-		isGitignored := false
-		isCustomIgnored := false
-		pathToMatch := relPath
-		if entry.IsDir() {
-			if !strings.HasSuffix(pathToMatch, string(os.PathSeparator)) {
-				pathToMatch += string(os.PathSeparator)
+		isGitignored := inheritedGitIgnored
+		isCustomIgnored := inheritedCustomIgnored
+		
+		// Only check ignore patterns if not already inherited from parent
+		if !inheritedGitIgnored || !inheritedCustomIgnored {
+			pathToMatch := relPath
+			if entry.IsDir() {
+				if !strings.HasSuffix(pathToMatch, string(os.PathSeparator)) {
+					pathToMatch += string(os.PathSeparator)
+				}
 			}
-		}
 
-		if gitIgn != nil {
-			isGitignored = gitIgn.MatchesPath(pathToMatch)
-		}
-		if customIgn != nil {
-			isCustomIgnored = customIgn.MatchesPath(pathToMatch)
+			if !inheritedGitIgnored && gitIgn != nil {
+				isGitignored = gitIgn.MatchesPath(pathToMatch)
+			}
+			if !inheritedCustomIgnored && customIgn != nil {
+				isCustomIgnored = customIgn.MatchesPath(pathToMatch)
+			}
 		}
 
 		node := &FileNode{
@@ -239,18 +243,16 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 
 		if entry.IsDir() {
 			// if it's a directory, recursively call buildtree
-			// only recurse if not ignored
-			if !isGitignored && !isCustomIgnored {
-				children, err := buildTreeRecursive(ctx, nodePath, rootPath, gitIgn, customIgn, depth+1)
-				if err != nil {
-					if errors.Is(err, context.Canceled) {
-						return nil, err // propagate cancellation
-					}
-					runtime.LogWarningf(context.Background(), "error building subtree for %s: %v", nodePath, err) // fallback for now
-					// decide: skip this dir or return error up. for now, skip with log.
-				} else {
-					node.Children = children
+			// always recurse, but pass down ignore status to children
+			children, err := buildTreeRecursive(ctx, nodePath, rootPath, gitIgn, customIgn, depth+1, isGitignored, isCustomIgnored)
+			if err != nil {
+				if errors.Is(err, context.Canceled) {
+					return nil, err // propagate cancellation
 				}
+				runtime.LogWarningf(context.Background(), "error building subtree for %s: %v", nodePath, err) // fallback for now
+				// decide: skip this dir or return error up. for now, skip with log.
+			} else {
+				node.Children = children
 			}
 		}
 		nodes = append(nodes, node)

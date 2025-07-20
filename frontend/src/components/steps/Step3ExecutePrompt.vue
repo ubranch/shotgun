@@ -7,20 +7,19 @@
         <div class="flex flex-row items-center mb-4 space-x-4">
             <BaseButton
                 @click="executeRequest"
-                class="px-6 py-2 bg-light-accent dark:bg-dark-accent text-white font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent focus:ring-opacity-50 disabled:bg-gray-400 dark:disabled:bg-gray-700"
+                class="text-xs px-2 py-1"
                 :disabled="isRequestActive || !isReadyToExecute"
             >
-                execute request
+                <span class="text-base">execute request</span>
             </BaseButton>
-            <select
-                v-model="selectedModel"
-                class="p-2 px-2 border text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
-                title="gemini model"
+            <BaseButton
+                @click="toggleModel"
+                class="text-xs px-2 py-1"
                 :disabled="isRequestActive || !isReadyToExecute"
+                title="click to switch between gemini models"
             >
-                <option value="gemini-2.5-pro" selected>gemini-2.5-pro</option>
-                <option value="gemini-2.5-flash">gemini-2.5-flash</option>
-            </select>
+                <span class="text-base">{{ selectedModel }}</span>
+            </BaseButton>
             <!-- token count pill (styled like step 2) -->
             <span v-if="isTokenChecking" class="text-sm text-gray-500 ml-2"
                 >counting...</span
@@ -47,20 +46,20 @@
             </span>
             <div
                 v-if="requestError"
-                class="ml-2 max-w-[300px] truncate text-sm rounded-full bg-red-600 dark:bg-red-700 text-white px-3 py-1 font-mono"
+                class="ml-2 max-w-[300px] truncate text-sm rounded-xl bg-red-600 dark:bg-red-700 text-white px-3 py-1 font-mono"
                 title="{{ requestError }}"
             >
                 {{ requestError }}
             </div>
             <div
                 v-if="isPromptTooLarge"
-                class="ml-2 max-w-[300px] truncate text-sm rounded-full bg-red-600 dark:bg-red-700 text-white px-3 py-1 font-mono"
+                class="ml-2 max-w-[300px] truncate text-sm rounded-xl bg-red-600 dark:bg-red-700 text-white px-3 py-1 font-mono"
             >
                 prompt exceeds free api limit of 250,000 tokens
             </div>
             <div
                 v-if="isPromptTooLarge"
-                class="ml-2 max-w-[300px] truncate text-sm rounded-full bg-gray-600 dark:bg-grey-700 text-white px-3 py-1 font-mono"
+                class="ml-2 max-w-[300px] truncate text-sm rounded-xl bg-gray-600 dark:bg-grey-700 text-white px-3 py-1 font-mono"
             >
                 use google ai studio instead
             </div>
@@ -75,10 +74,11 @@
             <div class="w-[4rem] justify-center" v-else></div>
             <BaseButton
                 @click="stopRequest"
-                class="px-6 py-2 bg-red-600 dark:bg-red-700 text-white font-semibold rounded-md hover:bg-red-700 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:bg-gray-400 dark:disabled:bg-gray-700"
+                class="text-xs px-2 py-1"
+                variant="danger"
                 v-if="isRequestActive"
             >
-                stop request
+                <span class="text-base">stop request</span>
             </BaseButton>
         </div>
 
@@ -93,7 +93,7 @@
             </li>
         </p>
 
-        <hr class="my-4 border-gray-300 dark:border-gray-700" />
+        <hr class="my-4 border-accent" />
         <div class="flex justify-between items-center mb-2">
             <div class="text-gray-600 dark:text-gray-400">
                 <strong>prepare the diff to apply</strong>
@@ -105,7 +105,7 @@
                 <BaseButton
                     v-if="localShotgunGitDiffInput.trim()"
                     @click="copyDiffToClipboard"
-                    class="ml-2 px-3 py-2 bg-light-accent dark:bg-dark-accent text-white text-sm font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
+                    class="text-xs px-2 py-1"
                     :class="{ 'bg-green-600 dark:bg-green-700': copySuccess }"
                 >
                     <template #icon>
@@ -140,12 +140,13 @@
                             />
                         </svg>
                     </template>
-                    {{ copySuccess ? "copied!" : "copy" }}
+                    <span class="text-base">{{ copySuccess ? "copied!" : "copy" }}</span>
                 </BaseButton>
                 <BaseButton
                     v-if="localShotgunGitDiffInput.trim()"
                     @click="clearTextarea"
-                    class="px-3 py-2 bg-gray-500 dark:bg-gray-600 text-white text-sm font-semibold rounded-md hover:bg-gray-600 dark:hover:bg-gray-500 focus:outline-none disabled:bg-gray-300 dark:disabled:bg-gray-700 flex items-center gap-1"
+                    class="text-xs px-2 py-1"
+                    variant="danger"
                     :class="{ 'bg-red-600 dark:bg-red-700': clearSuccess }"
                 >
                     <template #icon>
@@ -180,7 +181,7 @@
                             />
                         </svg>
                     </template>
-                    {{ clearSuccess ? "cleared!" : "clear" }}
+                    <span class="text-base">{{ clearSuccess ? "cleared!" : "clear" }}</span>
                 </BaseButton>
             </div>
         </div>
@@ -191,7 +192,7 @@
                 v-model="localShotgunGitDiffInput"
                 rows="15"
                 spellcheck="false"
-                class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm font-mono bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
+                class="w-full p-2 border border-accent rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm font-mono bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
                 placeholder="paste the git diff output here, e.g., diff --git a/file.txt b/file.txt..."
             ></textarea>
         </div>
@@ -216,7 +217,7 @@
                     v-model.number="localSplitLineLimit"
                     min="50"
                     step="50"
-                    class="w-1/8 p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
+                    class="w-1/8 p-2 border border-accent rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
                 />
                 <div class="flex items-center gap-2">
                     <span
@@ -233,13 +234,13 @@
             :disabled="
                 !localShotgunGitDiffInput.trim() || localSplitLineLimit <= 0
             "
-            class="px-6 py-2 bg-light-accent dark:bg-dark-accent text-white font-semibold rounded-md hover:bg-light-accent-hover dark:hover:bg-dark-accent-hover focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent focus:ring-opacity-50 self-start disabled:bg-gray-400 dark:disabled:bg-gray-700"
+            class="text-xs px-2 py-1 self-start"
         >
-            {{
+            <span class="text-base">{{
                 localSplitLineLimit === shotgunGitDiffInputLines
                     ? "proceed to apply"
                     : "split diff & proceed to apply"
-            }}
+            }}</span>
         </BaseButton>
     </div>
 </template>
@@ -334,6 +335,12 @@ const isReadyToExecute = computed(() => {
 
 // model selection state
 const selectedModel = ref("gemini-2.5-pro");
+
+function toggleModel() {
+    selectedModel.value = selectedModel.value === "gemini-2.5-pro" 
+        ? "gemini-2.5-flash" 
+        : "gemini-2.5-pro";
+}
 
 const formattedTime = computed(() => {
     const seconds = Math.floor(elapsedTime.value / 1000);

@@ -15,7 +15,12 @@
                     .join('')}`"
             />
         </div>
-        <div class="flex flex-1 overflow-hidden">
+        <!--
+            group/layout: enables tailwind group variants for responsive child styling
+            sidebar-open: applied when the sidebar is open (isSidebarCollapsed is false),
+            allowing child components to react via group-[.sidebar-open]/layout:... classes
+        -->
+        <div class="flex flex-1 overflow-hidden group/layout" :class="{ 'sidebar-open': !isSidebarCollapsed }">
             <LeftSidebar
                 :current-step="currentStep"
                 :steps="steps"
@@ -29,6 +34,7 @@
                 @toggle-custom-ignore="toggleCustomIgnoreHandler"
                 @toggle-exclude="toggleExcludeNode"
                 @custom-rules-updated="handleCustomRulesUpdated"
+                @update:rules-content="handleRulesContentUpdate"
                 @select-all-files="selectAllFiles"
                 @deselect-all-files="deselectAllFiles"
                 @reset-file-selections="resetFileSelections"
@@ -70,6 +76,7 @@ import {
     ref,
     reactive,
     watch,
+    computed,
     onMounted,
     onBeforeUnmount,
     nextTick,
@@ -230,7 +237,28 @@ const splitDiffs = ref([]);
 const shotgunGitDiff = ref("");
 const splitLineLimitValue = ref(0); // add new state variable
 const isSidebarCollapsed = ref(false); // track sidebar collapsed state
+const isNavigating = ref(false); // track navigation state to prevent context generation during transitions
 let debounceTimer = null;
+
+// Create a computed property that tracks only relevant file tree changes
+// This excludes the 'expanded' property to prevent context regeneration on folder open/close
+const fileTreeForContextGeneration = computed(() => {
+    const extractRelevantProps = (nodes) => {
+        if (!nodes || !Array.isArray(nodes)) return [];
+        return nodes.map(node => ({
+            name: node.name,
+            path: node.path,
+            relPath: node.relPath,
+            isDir: node.isDir,
+            excluded: node.excluded,
+            isGitignored: node.isGitignored,
+            isCustomIgnored: node.isCustomIgnored,
+            // Recursively extract children but exclude 'expanded' property
+            children: node.children ? extractRelevantProps(node.children) : undefined
+        }));
+    };
+    return extractRelevantProps(fileTree.value);
+});
 
 // watcher related
 const projectFilesChangedPendingReload = ref(false);
@@ -485,6 +513,7 @@ function toggleCustomIgnoreHandler(value) {
 }
 
 function selectAllFiles() {
+    console.log("DEBUG: selectAllFiles called");
     if (!fileTree.value || fileTree.value.length === 0) return;
 
     function selectNodesRecursive(nodes) {
@@ -613,6 +642,16 @@ function debouncedTriggerShotgunContextGeneration() {
         return;
     }
 
+    if (isNavigating.value) {
+        addLog(
+            "debounced trigger skipped: navigation in progress.",
+            "debug",
+            "bottom"
+        );
+        isGeneratingContext.value = false;
+        return;
+    }
+
     if (!isGeneratingContext.value)
         nextTick(() => (isGeneratingContext.value = true));
 
@@ -628,6 +667,16 @@ function debouncedTriggerShotgunContextGeneration() {
         if (isFileTreeLoading.value) {
             addLog(
                 "debounced execution skipped: file tree became loading.",
+                "debug",
+                "bottom"
+            );
+            isGeneratingContext.value = false;
+            return;
+        }
+
+        if (isNavigating.value) {
+            addLog(
+                "debounced execution skipped: navigation in progress.",
                 "debug",
                 "bottom"
             );
@@ -701,12 +750,15 @@ function debouncedTriggerShotgunContextGeneration() {
             .finally(() => {
                 // isgeneratingcontext.value = false;
             });
-    }, 750);
+    }, 150);
 }
 
 function navigateToStep(stepId) {
     const targetStep = steps.value.find((s) => s.id === stepId);
     if (!targetStep) return;
+
+    // set navigation state to prevent context generation during transition
+    isNavigating.value = true;
 
     // mark the target step as visited so it remains clickable even if later marked incomplete
     targetStep.visited = true;
@@ -719,6 +771,8 @@ function navigateToStep(stepId) {
     // if trying to stay on the same step, simply return
     if (stepId === currentStep.value) {
         currentStep.value = stepId;
+        // clear navigation state after brief delay
+        setTimeout(() => { isNavigating.value = false; }, 50);
         return;
     }
 
@@ -734,6 +788,8 @@ function navigateToStep(stepId) {
         }
 
         currentStep.value = stepId;
+        // clear navigation state after brief delay
+        setTimeout(() => { isNavigating.value = false; }, 50);
         return;
     }
 
@@ -750,6 +806,8 @@ function navigateToStep(stepId) {
     if (targetStep.completed || targetStep.visited) {
         currentStep.value = stepId;
         restoreCompletedFlags(stepId);
+        // clear navigation state after brief delay
+        setTimeout(() => { isNavigating.value = false; }, 50);
         return;
     }
 
@@ -758,6 +816,8 @@ function navigateToStep(stepId) {
     if (firstUncompletedStep && stepId === firstUncompletedStep.id) {
         currentStep.value = stepId;
         restoreCompletedFlags(stepId);
+        // clear navigation state after brief delay
+        setTimeout(() => { isNavigating.value = false; }, 50);
     } else {
         const requiredStepId = firstUncompletedStep
             ? firstUncompletedStep.id
@@ -1131,7 +1191,7 @@ onBeforeUnmount(async () => {
 });
 
 watch(
-    [fileTree, useGitignore, useCustomIgnore],
+    [fileTreeForContextGeneration, useGitignore, useCustomIgnore],
     (
         [newFileTree, newUseGitignore, newUseCustomIgnore],
         [oldFileTree, oldUseGitignore, oldUseCustomIgnore]
@@ -1145,6 +1205,16 @@ watch(
             return;
         }
 
+        if (isNavigating.value) {
+            addLog(
+                "watcher triggered during navigation, generation deferred.",
+                "debug",
+                "bottom"
+            );
+            return;
+        }
+
+        console.log("DEBUG: fileTreeForContextGeneration watcher triggered");
         addLog(
             "watcher detected changes in filetree, usegitignore, or usecustomignore. re-evaluating context.",
             "debug",
@@ -1155,8 +1225,8 @@ watch(
         // Force context regeneration when file tree changes
         shotgunPromptContext.value = ""; // Clear existing context to force regeneration
         debouncedTriggerShotgunContextGeneration();
-    },
-    { deep: true }
+    }
+    // Note: removed { deep: true } since we're now watching a computed property that only includes relevant changes
 );
 
 watch(
