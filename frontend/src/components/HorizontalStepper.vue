@@ -30,14 +30,13 @@
                         </BaseButton>
                         <div
                             v-if="step.id !== steps.length"
-                            class="mx-3 flex items-center"
+                            class="mx-2 flex items-center"
                         >
                             <svg class="w-4 h-4 text-sidebar-primary/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
                         </div>
                     </li>
-                    <!-- reset button moved to sidebar -->
                 </ol>
             </div>
         </div>

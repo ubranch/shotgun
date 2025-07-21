@@ -68,7 +68,7 @@
                                 @click="deselectAllFiles"
                                 class="text-xs px-2 py-1"
                             >
-                                <span class="text-base"> deselect all </span>
+                                <span class="text-base"> deselect </span>
                             </BaseButton>
                             <BaseButton
                                 @click="resetFileSelections"
