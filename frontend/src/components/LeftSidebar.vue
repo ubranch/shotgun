@@ -77,6 +77,14 @@
                             >
                                 <span class="text-base"> default </span>
                             </BaseButton>
+                            <BaseButton
+                                @click="handleRefreshProject"
+                                :disabled="isRefreshing"
+                                class="text-xs px-2 py-1 bg-sidebar-primary text-sidebar-primary-foreground rounded hover:bg-sidebar-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="refresh project files"
+                            >
+                                <span class="text-base"> refresh </span>
+                            </BaseButton>
                         </div>
                     </div>
 
@@ -186,6 +194,7 @@ const props = defineProps({
     useGitignore: { type: Boolean, default: true },
     useCustomIgnore: { type: Boolean, default: false },
     loadingError: { type: String, default: "" },
+    isRefreshing: { type: Boolean, default: false },
 });
 
 const emit = defineEmits([
@@ -202,6 +211,7 @@ const emit = defineEmits([
     "sidebar-toggle",
     "reset",
     "update:rulesContent",
+    "refresh-project",
 ]);
 
 const isCustomRulesModalVisible = ref(false);
@@ -352,6 +362,14 @@ function handleReset() {
     emit("reset");
     emit("add-log", {
         message: "resetting application state",
+        type: "info",
+    });
+}
+
+function handleRefreshProject() {
+    emit("refresh-project");
+    emit("add-log", {
+        message: "refreshing project files",
         type: "info",
     });
 }

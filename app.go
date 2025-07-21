@@ -242,17 +242,23 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 		}
 
 		if entry.IsDir() {
-			// if it's a directory, recursively call buildtree
-			// always recurse, but pass down ignore status to children
-			children, err := buildTreeRecursive(ctx, nodePath, rootPath, gitIgn, customIgn, depth+1, isGitignored, isCustomIgnored)
-			if err != nil {
-				if errors.Is(err, context.Canceled) {
-					return nil, err // propagate cancellation
+			// skip reading contents of ignored directories to improve performance
+			if !isGitignored && !isCustomIgnored {
+				// if it's a directory, recursively call buildtree
+				// always recurse, but pass down ignore status to children
+				children, err := buildTreeRecursive(ctx, nodePath, rootPath, gitIgn, customIgn, depth+1, isGitignored, isCustomIgnored)
+				if err != nil {
+					if errors.Is(err, context.Canceled) {
+						return nil, err // propagate cancellation
+					}
+					runtime.LogWarningf(context.Background(), "error building subtree for %s: %v", nodePath, err) // fallback for now
+					// decide: skip this dir or return error up. for now, skip with log.
+				} else {
+					node.Children = children
 				}
-				runtime.LogWarningf(context.Background(), "error building subtree for %s: %v", nodePath, err) // fallback for now
-				// decide: skip this dir or return error up. for now, skip with log.
 			} else {
-				node.Children = children
+				// directory is ignored, so don't read its contents for performance
+				node.Children = []*FileNode{} // empty children array
 			}
 		}
 		nodes = append(nodes, node)

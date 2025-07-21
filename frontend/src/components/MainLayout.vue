@@ -29,6 +29,7 @@
                 :use-gitignore="useGitignore"
                 :use-custom-ignore="useCustomIgnore"
                 :loading-error="loadingError"
+                :is-refreshing="isFileTreeLoading"
                 @navigate="navigateToStep"
                 @toggle-gitignore="toggleGitignoreHandler"
                 @toggle-custom-ignore="toggleCustomIgnoreHandler"
@@ -42,6 +43,7 @@
                 @select-directory="selectProjectFolderHandler"
                 @add-log="({ message, type }) => addLog(message, type)"
                 @sidebar-toggle="handleSidebarToggle"
+                @refresh-project="handleRefreshProject"
             />
             <CentralPanel
                 :current-step="currentStep"
@@ -1309,6 +1311,20 @@ function handleSplitLineLimitUpdate(val) {
 
 function handleSidebarToggle(collapsed) {
     isSidebarCollapsed.value = collapsed;
+}
+
+function handleRefreshProject() {
+    if (projectRoot.value && !isFileTreeLoading.value && !isGeneratingContext.value) {
+        addLog("manually refreshing project files", "info");
+        // temporarily disable pending reload to prevent double processing
+        const wasPending = projectFilesChangedPendingReload.value;
+        projectFilesChangedPendingReload.value = false;
+        loadFileTree(projectRoot.value);
+        // restore pending state if it was set
+        if (wasPending) {
+            projectFilesChangedPendingReload.value = true;
+        }
+    }
 }
 
 // programmatically open a folder path without showing the select-dialog.
