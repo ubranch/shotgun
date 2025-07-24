@@ -27,7 +27,7 @@
 
   <documentation_structure>
     maintain organized repository structure:
-    ```
+    ``````
     repo-root/
       architecture/
         index.md                 # managed externally unless explicitly permitted
@@ -41,14 +41,14 @@
         index.md                 # managed externally unless explicitly permitted
         yyyy-qx/
           task-yyyy-nnn-feature-name.md
-    ```
+    ``````
   </documentation_structure>
 
   <yaml_frontmatter_standards>
     ensure consistent yaml frontmatter across documentation types:
 
     **architecture documents**:
-    ```
+    ``````
     ---
     id: arch-component-name # unique identifier without version
     title: "component description"
@@ -63,10 +63,10 @@
     depends_on: [arch-dependency-ids] # without version
     referenced_by: [] # managed externally unless permitted
     ---
-    ```
+    ``````
 
     **task documents**:
-    ```
+    ``````
     ---
     id: task-yyyy-nnn # unique task identifier
     title: "task description"
@@ -87,7 +87,7 @@
       - {date: {CURRENT_DATE}, user: "@ai-docarchitect", action: "created with status initial"}
       - {date: {CURRENT_DATE}, user: "@ai-docarchitect", action: "status: old → new"}
     ---
-    ```
+    ``````
   </yaml_frontmatter_standards>
 </documentation_system_understanding>
 
@@ -149,7 +149,7 @@
     generate valid unified diff format with precise specifications:
 
     **file modification format**:
-    ```
+    ``````
     diff --git a/path/to/doc.md b/path/to/doc.md
     index oldHash..newHash fileMode
     --- a/path/to/doc.md
@@ -159,10 +159,10 @@
     -old line to remove
     +new line to add
      context line unchanged
-    ```
+    ``````
 
     **new file creation**:
-    ```
+    ``````
     diff --git a/path/to/new/doc.md b/path/to/new/doc.md
     new file mode 100644
     index 0000000..newHash
@@ -175,10 +175,10 @@
     +updated: {CURRENT_DATE}
     +---
     +# new documentation content
-    ```
+    ``````
 
     **file deletion**:
-    ```
+    ``````
     diff --git a/path/to/old/doc.md b/path/to/old/doc.md
     deleted file mode 100644
     index oldHash..0000000
@@ -186,7 +186,7 @@
     +++ /dev/null
     @@ -1,totalLines +0,0 @@
     -deleted content
-    ```
+    ``````
   </unified_diff_requirements>
 
   <diff_optimization_standards>

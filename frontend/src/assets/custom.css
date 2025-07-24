@@ -168,6 +168,10 @@ body {
     font-weight: 650 !important;
 }
 
+textarea {
+  outline: none !important;
+}
+
 strong * {
     font-family: "Geist", sans-serif !important;
     font-weight: 600 !important;

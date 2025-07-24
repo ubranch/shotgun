@@ -52,7 +52,7 @@ you must strictly adhere to `guiding principles`, `user rules`, and the `documen
     *   *tasks* — "what has already been changed" and "what we will change" (for this prompt, the focus is on "what has already been changed" and bringing statuses up to date).
 
 ### 2. repository structure (target)
-```
+``````
 repo-root/
   architecture/
     index.md                 # root overview
@@ -68,12 +68,12 @@ repo-root/
     2025-q2/
       task-2025-001-print-receipt-pdf.md
       # ...
-```
+``````
 *important: the llm must only create/modify `.md` files in `architecture/` and `tasks/`. the files `architecture/index.md`, `tasks/index.md`, and `architecture/dependency-graph.json` are by default considered managed by external scripts or manually. the llm **must not** modify them, **unless** there is an explicit instruction in `user task` or `user rules` for their modification. in such a case, the llm must follow these instructions.*
 
 ### 3. architecture documents (`arch-*.md`)
 **yaml frontmatter:**
-```yaml
+``````yaml
 ---
 id: arch-ui-print-receipt # unique identifier without version
 title: "ui. print receipt button"
@@ -88,9 +88,9 @@ tags: [ui, pdf]
 depends_on: [arch-service-pdf] # list of ids of other arch documents (without version)
 referenced_by: [] # do not fill. this field is managed by an external script, unless otherwise specified in user rules.
 ---
-```
+``````
 **markdown sections:**
-```markdown
+``````markdown
 ## context
 brief description of the purpose and role of this architectural component in the system.
 
@@ -105,11 +105,11 @@ main usage scenarios, interactions with other components (`depends_on`), key alg
 — what is planned to be changed (if applicable, otherwise can be omitted or left empty).
 ### historical
 — brief chronology of significant version changes (e.g., "v1: initial design").
-```
+``````
 
 ### 4. task documents (`task-*.md`)
 **yaml frontmatter:**
-```yaml
+``````yaml
 ---
 id: task-2025-001 # unique task id
 title: "print pdf receipts"
@@ -134,9 +134,9 @@ audit_log:
   # for new task files, the first entry must be: {date: {CURRENT_DATE}, user: "@ai-docarchitect", action: "created with status <initial_status>"}.
   # example: {date: {CURRENT_DATE}, user: "@ai-docarchitect", action: "priority: low → high"}
 ---
-```
+``````
 **markdown sections:**
-```markdown
+``````markdown
 ## description
 brief description of the task from a business or technical necessity perspective. if the task reflects work already done, describe what was done.
 
@@ -148,7 +148,7 @@ conditions under which the task is considered fully completed (e.g., code writte
 
 ## notes
 any important details, discussions, links to prs (if applicable), conclusions.
-```
+``````
 
 ### 5. quality policy (for llm)
 *   **focus on actualization**: the main goal is to bring the documentation into compliance with the *existing* code provided in `{FILE_STRUCTURE}`.
@@ -216,7 +216,7 @@ your **only** output will be a single, valid `git diff` formatted text, specific
 *   for each modified, newly created, or deleted documentation file, include a diff block. multiple file diffs are concatenated directly.
 
 ### file diff block structure:
-```diff
+``````diff
 diff --git a/path/to/doc/file.md b/path/to/doc/file.md
 index <hash_old>..<hash_new> <mode>
 --- a/path/to/doc/file.md
@@ -226,7 +226,7 @@ index <hash_old>..<hash_new> <mode>
 -old line to be removed
 +new line to be added
  another context line (unchanged)
-```
+``````
 
 *   **`diff --git a/path b/path` line:**
     *   paths are project-root-relative (e.g., `architecture/app/ui/arch-ui-something-v1.md`).
@@ -246,7 +246,7 @@ index <hash_old>..<hash_new> <mode>
 
 ### specific cases:
 *   **newly created documentation files:**
-    ```diff
+    ``````diff
     diff --git a/architecture/path/to/new_arch-doc-v1.md b/architecture/path/to/new_arch-doc-v1.md
     new file mode 100644
     index 0000000..abcdef0
@@ -262,10 +262,10 @@ index <hash_old>..<hash_new> <mode>
     +---
     +## context
     +...
-    ```
+    ``````
 
 *   **deleted documentation files:**
-    ```diff
+    ``````diff
     diff --git a/tasks/some-quarter/task-id-old.md b/tasks/some-quarter/task-id-old.md
     deleted file mode 100644
     index abcdef0..0000000
@@ -273,7 +273,7 @@ index <hash_old>..<hash_new> <mode>
     +++ /dev/null
     @@ -1,lines_in_old_file +0,0 @@
     -... old content ...
-    ```
+    ``````
 
 *   **untouched documentation files:** do not include any diff output for documentation files that have no changes.
 *   **source code files & other restricted files:** do not include any diff output for files outside the specified documentation directories, or for files like `index.md` / `dependency-graph.json` unless modification is explicitly permitted by `user task` or `user rules`.

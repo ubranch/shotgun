@@ -5,14 +5,18 @@
             v-if="isErrorContext"
             class="mb-4 p-4 border border-red-300 dark:border-red-700 rounded-lg bg-red-50 dark:bg-red-900 dark:bg-opacity-20 shadow-sm"
         >
-            <h4 class="text-lg font-semibold mb-2 text-red-600 dark:text-red-400">
+            <h4
+                class="text-lg font-semibold mb-2 text-red-600 dark:text-red-400"
+            >
                 context generation error
             </h4>
             <pre
                 class="text-sm whitespace-pre-wrap bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 p-3 border border-red-200 dark:border-red-700 rounded-md overflow-auto max-h-[150px]"
-            >{{ errorMessage }}</pre>
+                >{{ errorMessage }}</pre
+            >
             <p class="mt-3 text-sm text-red-600 dark:text-red-400">
-                go back to step 1 to reduce the project scope by excluding more files or using a smaller project
+                go back to step 1 to reduce the project scope by excluding more
+                files or using a smaller project
             </p>
         </div>
 
@@ -123,7 +127,7 @@
                             </template>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-3">
+                    <!-- <div class="flex flex-row space-x-2">
                         <span
                             v-if="isCountingTokens"
                             class="text-sm text-gray-500"
@@ -151,6 +155,8 @@
                         >
                             {{ geminiTokenCount.toLocaleString() }}
                         </span>
+                    </div> -->
+                    <div class="flex items-center space-x-3">
                         <!-- refresh button -->
                         <BaseButton
                             @click="refreshPrompt"

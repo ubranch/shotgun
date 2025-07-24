@@ -28,7 +28,7 @@
                     <!-- project actions: open project & reset -->
                     <div
                         v-if="projectRoot"
-                        class="mb-4 flex items-center gap-2"
+                        class="mb-4 flex items-center gap-4 justify-between"
                     >
                         <BaseButton
                             @click="handleReset"
@@ -57,7 +57,6 @@
                     <div
                         class="flex flex-row justify-between items-center mb-2"
                     >
-                        <div class="space-x-1">
                             <BaseButton
                                 @click="selectAllFiles"
                                 class="text-xs px-2 py-1 bg-sidebar-primary text-sidebar-primary-foreground rounded hover:bg-sidebar-primary/90"
@@ -72,20 +71,18 @@
                             </BaseButton>
                             <BaseButton
                                 @click="resetFileSelections"
-                                variant="warning"
-                                class="text-xs px-2 py-1"
+                                variant=""
+                                class="text-xs px-2 py-1 bg-sidebar-primary text-sidebar-primary-foreground rounded hover:bg-sidebar-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <span class="text-base"> default </span>
                             </BaseButton>
                             <BaseButton
                                 @click="handleRefreshProject"
                                 :disabled="isRefreshing"
-                                class="text-xs px-2 py-1 bg-sidebar-primary text-sidebar-primary-foreground rounded hover:bg-sidebar-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="refresh project files"
                             >
                                 <span class="text-base"> refresh </span>
                             </BaseButton>
-                        </div>
                     </div>
 
                     <!-- file tree -->
