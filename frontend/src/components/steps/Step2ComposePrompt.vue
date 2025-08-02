@@ -457,7 +457,8 @@ onMounted(async () => {
 
 async function updateFinalPrompt() {
     isLoadingFinalPrompt.value = true;
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // removed artificial delay for better responsiveness
+    // await new Promise((resolve) => setTimeout(resolve, 100));
 
     const currentTemplateContent =
         promptTemplates[selectedPromptTemplateKey.value].content;
@@ -480,10 +481,12 @@ async function updateFinalPrompt() {
     const currentDate = `${yyyy}-${mm}-${dd}`;
     populatedPrompt = populatedPrompt.replaceAll("{CURRENT_DATE}", currentDate);
 
-    emit("update:finalPrompt", populatedPrompt);
-
-    // trigger token counting immediately for the freshly generated prompt
-    countTokensForPrompt(populatedPrompt);
+    // only update if the prompt has actually changed
+    if (populatedPrompt !== props.finalPrompt) {
+        emit("update:finalPrompt", populatedPrompt);
+        // trigger token counting only when prompt actually changes
+        countTokensForPrompt(populatedPrompt);
+    }
 
     isLoadingFinalPrompt.value = false;
 }
@@ -492,7 +495,7 @@ function debouncedUpdateFinalPrompt() {
     clearTimeout(finalPromptDebounceTimer);
     finalPromptDebounceTimer = setTimeout(() => {
         updateFinalPrompt();
-    }, 300);
+    }, 800); // increased from 300ms to 800ms for better performance
 }
 
 // refresh prompt functionality
@@ -526,7 +529,7 @@ watch(localUserTask, (currentValue) => {
         if (currentValue !== props.userTask) {
             emit("update:userTask", currentValue);
         }
-    }, 300);
+    }, 600); // increased from 300ms to 600ms to reduce update frequency
 });
 
 watch(
@@ -542,14 +545,7 @@ watch(
     { deep: true }
 );
 
-watch(selectedPromptTemplateKey, () => {
-    LogInfoRuntime(
-        `prompt template changed to: ${
-            promptTemplates[selectedPromptTemplateKey.value].name
-        }. updating final prompt.`
-    );
-    debouncedUpdateFinalPrompt();
-});
+// removed redundant watcher - selectedPromptTemplateKey is already watched in the main watcher above
 
 const countTokensForPrompt = (prompt) => {
     clearTimeout(tokenDebounceTimer);
@@ -571,7 +567,7 @@ const countTokensForPrompt = (prompt) => {
         } finally {
             isCountingTokens.value = false;
         }
-    }, 200);
+    }, 500); // increased from 200ms to 500ms to reduce token counting frequency
 };
 
 watch(
