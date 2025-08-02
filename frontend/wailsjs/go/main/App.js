@@ -18,6 +18,10 @@ export function GetCustomPromptRules() {
   return window['go']['main']['App']['GetCustomPromptRules']();
 }
 
+export function GetGeminiAPIKey() {
+  return window['go']['main']['App']['GetGeminiAPIKey']();
+}
+
 export function ListFiles(arg1) {
   return window['go']['main']['App']['ListFiles'](arg1);
 }
@@ -40,6 +44,10 @@ export function SetCustomIgnoreRules(arg1) {
 
 export function SetCustomPromptRules(arg1) {
   return window['go']['main']['App']['SetCustomPromptRules'](arg1);
+}
+
+export function SetGeminiAPIKey(arg1) {
+  return window['go']['main']['App']['SetGeminiAPIKey'](arg1);
 }
 
 export function SetUseCustomIgnore(arg1) {

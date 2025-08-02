@@ -12,6 +12,9 @@
             >
                 <span class="text-base">execute request</span>
             </BaseButton>
+            <BaseButton @click="showApiKeyModal = true" class="text-xs px-2 py-1">
+                <span class="text-base">set api key</span>
+            </BaseButton>
             <BaseButton
                 @click="toggleModel"
                 class="text-xs px-2 py-1"
@@ -82,6 +85,13 @@
             </BaseButton>
         </div>
 
+        <ApiKeyModal
+            :show="showApiKeyModal"
+            :initial-api-key="geminiApiKey"
+            @close="showApiKeyModal = false"
+            @save="handleSaveApiKey"
+        />
+
         <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
             <li>
                 open any agentic code tool and ask 'apply diff' + copy-paste the
@@ -101,7 +111,7 @@
                 this tool will split the diff into smaller parts to make it
                 easier to apply.
             </div>
-            <div class="flex gap-2">
+            <div class="flex items-center gap-2">
                 <BaseButton
                     v-if="localShotgunGitDiffInput.trim()"
                     @click="copyDiffToClipboard"
@@ -264,8 +274,11 @@ import {
     ExecuteGeminiRequest,
     StopGeminiRequest,
     CountGeminiTokens,
+    GetGeminiAPIKey,
+    SetGeminiAPIKey,
 } from "../../../wailsjs/go/main/App";
 import BaseButton from "../BaseButton.vue";
+import ApiKeyModal from "../ApiKeyModal.vue";
 
 const emit = defineEmits([
     "action",
@@ -287,6 +300,10 @@ const props = defineProps({
         default: "",
     },
 });
+
+// api key state
+const geminiApiKey = ref("");
+const showApiKeyModal = ref(false);
 
 // timer state
 const isRequestActive = ref(false);
@@ -336,10 +353,30 @@ const isReadyToExecute = computed(() => {
 // model selection state
 const selectedModel = ref("gemini-2.5-pro");
 
+async function handleSaveApiKey(apiKey) {
+    geminiApiKey.value = apiKey;
+    try {
+        await SetGeminiAPIKey(geminiApiKey.value);
+        LogInfoRuntime("gemini api key saved successfully");
+    } catch (error) {
+        LogErrorRuntime("failed to save gemini api key: " + error);
+    }
+    showApiKeyModal.value = false;
+}
+
+async function loadApiKey() {
+    try {
+        geminiApiKey.value = await GetGeminiAPIKey();
+    } catch (error) {
+        LogErrorRuntime("failed to load gemini api key: " + error);
+    }
+}
+
 function toggleModel() {
-    selectedModel.value = selectedModel.value === "gemini-2.5-pro" 
-        ? "gemini-2.5-flash" 
-        : "gemini-2.5-pro";
+    selectedModel.value =
+        selectedModel.value === "gemini-2.5-pro"
+            ? "gemini-2.5-flash"
+            : "gemini-2.5-pro";
 }
 
 const formattedTime = computed(() => {
@@ -424,6 +461,7 @@ const localSplitLineLimit = ref(
 );
 
 onMounted(() => {
+    loadApiKey();
     localShotgunGitDiffInput.value = props.initialGitDiff;
 
     if (props.initialSplitLineLimit > 0) {

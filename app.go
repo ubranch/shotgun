@@ -40,6 +40,7 @@ const defaultCustomPromptRulesContent = "no additional rules"
 type AppSettings struct {
 	CustomIgnoreRules string `json:"customIgnoreRules"`
 	CustomPromptRules string `json:"customPromptRules"`
+	GeminiAPIKey      string `json:"geminiApiKey"`
 }
 
 type App struct {
@@ -541,7 +542,7 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 
 				// skip oversized files early to reduce memory churn
 				if fi, statErr := entry.Info(); statErr == nil && fi.Size() > maxFileReadSizeBytes {
-					fileContents.WriteString(fmt.Sprintf("<file path=\"%s\">\n", relPathForwardSlash))
+					fileContents.WriteString(fmt.Sprintf("<file path=\"%%s\">\n", relPathForwardSlash))
 					fileContents.WriteString("[file omitted: too large]")
 					fileContents.WriteString("\n</file>\n")
 
@@ -556,10 +557,10 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 				content, err := os.ReadFile(path)
 				if err != nil {
 					runtime.LogWarningf(a.ctx, "buildshotguntreerecursive: error reading file %s: %v", path, err)
-					content = []byte(fmt.Sprintf("error reading file: %v", err))
+					content = []byte(fmt.Sprintf("error reading file: %%v", err))
 				}
 
-				fileContents.WriteString(fmt.Sprintf("<file path=\"%s\">\n", relPathForwardSlash))
+				fileContents.WriteString(fmt.Sprintf("<file path=\"%%s\">\n", relPathForwardSlash))
 				if isTextContent(content) {
 					fileContents.WriteString(string(content))
 				} else {
@@ -593,6 +594,7 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 	// depending on how it's structured. given each <file> block ends with \n, this should be fine.
 	return output.String() + "\n" + strings.TrimRight(fileContents.String(), "\n"), nil
 }
+
 
 // --- watchman implementation ---
 
@@ -985,7 +987,7 @@ func (a *App) loadSettings() {
 			userRules := loadedSettings.CustomIgnoreRules
 
 			// a simple model: combine and let the gitignore logic handle duplicates. last pattern wins.
-			a.settings.CustomIgnoreRules = baseRules + "\n\n#--- user rules ---\n" + userRules
+			a.settings.CustomIgnoreRules = baseRules + "\n\n#--- user rules ---" + userRules
 
 			// handle custompromptrules separately as it's a replacement, not an addition.
 			if strings.TrimSpace(loadedSettings.CustomPromptRules) != "" {
@@ -1099,9 +1101,29 @@ func (a *App) SetUseCustomIgnore(enabled bool) error {
 	return nil
 }
 
-// CountGeminiTokens counts the tokens in the provided text using Google's Gemini API
+// getgeminiapikey returns the saved Gemini API key.
+func (a *App) GetGeminiAPIKey() string {
+	return a.settings.GeminiAPIKey
+}
+
+// setgeminiapikey saves the Gemini API key.
+func (a *App) SetGeminiAPIKey(apiKey string) error {
+	a.settings.GeminiAPIKey = apiKey
+	return a.saveSettings()
+}
+
+// getapikey retrieves the gemini api key, prioritizing the saved key from settings
+// and falling back to the environment variable.
+func (a *App) getAPIKey() string {
+	if a.settings.GeminiAPIKey != "" {
+		return a.settings.GeminiAPIKey
+	}
+	return os.Getenv("GOOGLE_API_KEY")
+}
+
+// countgeminitokens counts the tokens in the provided text using Google's Gemini API
 func (a *App) CountGeminiTokens(text string) (int, error) {
-	apiKey := os.Getenv("GOOGLE_API_KEY")
+	apiKey := a.getAPIKey()
 	if apiKey == "" {
 		return 0, fmt.Errorf("google_api_key environment variable not set")
 	}
@@ -1122,9 +1144,9 @@ func (a *App) CountGeminiTokens(text string) (int, error) {
 	return int(resp.TotalTokens), nil
 }
 
-// ExecuteGeminiRequest sends a prompt to Google Gemini API
+// executegeminirequest sends a prompt to Google Gemini API
 func (a *App) ExecuteGeminiRequest(prompt string, modelName string) (string, error) {
-	apiKey := os.Getenv("GOOGLE_API_KEY")
+	apiKey := a.getAPIKey()
 	if apiKey == "" {
 		return "", errors.New("google api key not set. please set the GOOGLE_API_KEY environment variable")
 	}
@@ -1149,7 +1171,7 @@ func (a *App) ExecuteGeminiRequest(prompt string, modelName string) (string, err
 	}
 
 	model := client.GenerativeModel(modelName)
-	model.SetTemperature(0.1) // Set low temperature as per requirements
+	model.SetTemperature(0.1) // set low temperature as per requirements
 
 	// log request configuration and a preview of the request body (max 500 chars) for easier debugging
 	bodyPreview := prompt
@@ -1205,7 +1227,7 @@ func (a *App) ExecuteGeminiRequest(prompt string, modelName string) (string, err
 	return respText, nil
 }
 
-// StopGeminiRequest cancels any ongoing Gemini API request
+// stopgeminirequest cancels any ongoing Gemini API request
 func (a *App) StopGeminiRequest() error {
 	if a.geminiRequestCancel != nil {
 		a.geminiRequestCancel()
@@ -1215,6 +1237,7 @@ func (a *App) StopGeminiRequest() error {
 	}
 	return errors.New("no active gemini request to cancel")
 }
+
 
 // istextcontent heuristically determines whether the provided byte slice represents textual data.
 // it checks for the presence of null bytes, utf-8 validity, and a ratio of non-printable control

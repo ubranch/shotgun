@@ -11,6 +11,8 @@ export function GetCustomIgnoreRules():Promise<string>;
 
 export function GetCustomPromptRules():Promise<string>;
 
+export function GetGeminiAPIKey():Promise<string>;
+
 export function ListFiles(arg1:string):Promise<Array<main.FileNode>>;
 
 export function RequestShotgunContextGeneration(arg1:string,arg2:Array<string>):Promise<void>;
@@ -22,6 +24,8 @@ export function SelectDirectory():Promise<string>;
 export function SetCustomIgnoreRules(arg1:string):Promise<void>;
 
 export function SetCustomPromptRules(arg1:string):Promise<void>;
+
+export function SetGeminiAPIKey(arg1:string):Promise<void>;
 
 export function SetUseCustomIgnore(arg1:boolean):Promise<void>;
 
