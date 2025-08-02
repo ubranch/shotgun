@@ -32,6 +32,9 @@ var ErrContextTooLong = errors.New("context is too long")
 //go:embed ignore.glob
 var defaultCustomIgnoreRulesContent string
 
+//go:embed design/prompts/prompt_none.md
+var promptNone string
+
 const defaultCustomPromptRulesContent = "no additional rules"
 
 type AppSettings struct {

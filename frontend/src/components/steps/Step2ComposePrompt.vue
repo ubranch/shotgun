@@ -88,9 +88,9 @@
                                     :disabled="isLoadingFinalPrompt"
                                     :title="template.name"
                                 >
-                                    <span class="font-bold">{{
-                                        getShortName(key)
-                                    }}</span>
+                                    <span class="font-bold">
+                                        {{ getShortName(key) }}
+                                    </span>
                                 </BaseButton>
                             </template>
                             <template v-else>
@@ -257,6 +257,7 @@ import architectTemplateContentFromFile from "../../../../design/prompts/prompt_
 import findBugTemplateContentFromFile from "../../../../design/prompts/prompt_analyzeBug_v2.md?raw";
 import projectManagerTemplateContentFromFile from "../../../../design/prompts/prompt_projectManager_v2.md?raw";
 import promptEnhancerTemplateContentFromFile from "../../../../design/prompts/prompt_enhancer_v2.md?raw";
+import noneTemplateContentFromFile from "../../../../design/prompts/prompt_none.md?raw";
 
 const props = defineProps({
     fileListContext: {
@@ -289,6 +290,7 @@ const emit = defineEmits([
 ]);
 
 const promptTemplates = {
+    none: { name: "no template", content: noneTemplateContentFromFile },
     promptEnhancer: {
         name: "prompt engineer of your task",
         content: promptEnhancerTemplateContentFromFile,
@@ -322,8 +324,9 @@ function getTemplateIcon(key) {
 
 function getShortName(key) {
     const shortNames = {
+        none: "NONE",
         dev: "BUILD",
-        promptEnhancer: "PROMPT",
+        promptEnhancer: "QUERY",
         architect: "PLAN",
         findBug: "BUG",
         projectManager: "REFLECT",
