@@ -252,11 +252,11 @@ import {
 } from "../../../wailsjs/runtime/runtime";
 import BaseButton from "../BaseButton.vue";
 
-import devTemplateContentFromFile from "../../../../design/prompts/prompt_makeDiffGitFormat_v2.md?raw";
-import architectTemplateContentFromFile from "../../../../design/prompts/prompt_makePlan_v2.md?raw";
-import findBugTemplateContentFromFile from "../../../../design/prompts/prompt_analyzeBug_v2.md?raw";
-import projectManagerTemplateContentFromFile from "../../../../design/prompts/prompt_projectManager_v2.md?raw";
-import promptEnhancerTemplateContentFromFile from "../../../../design/prompts/prompt_enhancer_v2.md?raw";
+import devTemplateContentFromFile from "../../../../design/prompts/prompt_makeDiffGitFormat.md?raw";
+import architectTemplateContentFromFile from "../../../../design/prompts/prompt_makePlan.md?raw";
+import findBugTemplateContentFromFile from "../../../../design/prompts/prompt_analyzeBug.md?raw";
+import projectManagerTemplateContentFromFile from "../../../../design/prompts/prompt_projectManager.md?raw";
+import promptEnhancerTemplateContentFromFile from "../../../../design/prompts/prompt_enhancer.md?raw";
 import noneTemplateContentFromFile from "../../../../design/prompts/prompt_none.md?raw";
 
 const props = defineProps({
