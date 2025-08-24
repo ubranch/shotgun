@@ -18,7 +18,6 @@
         />
         <div
             class="sidebar-container flex item-top h-full"
-            :class="{ collapsed: isSidebarCollapsed }"
         >
             <div
                 class="sidebar-content w-64 lg:w-[450px] bg-sidebar p-4 border-r border-sidebar-border flex flex-col flex-shrink-0 h-full max-[900px]:w-[415px]"
@@ -143,21 +142,6 @@
                 </div>
             </div>
 
-            <!-- collapse toggle button - moved to the right edge -->
-            <div
-                class="absolute bottom-[422px] -right-4 z-10 collapse-toggle flex items-center justify-center cursor-pointer bg-sidebar-primary hover:bg-sidebar-primary/90"
-                @click="toggleSidebar"
-            >
-                <div class="flex items-center justify-center h-8 w-8">
-                    <i
-                        class="arrow-icon"
-                        :class="{
-                            'arrow-left': !isSidebarCollapsed,
-                            'arrow-right': isSidebarCollapsed,
-                        }"
-                    ></i>
-                </div>
-            </div>
         </div>
     </div>
 </template>
@@ -205,7 +189,6 @@ const emit = defineEmits([
     "deselect-all-files",
     "reset-file-selections",
     "select-directory",
-    "sidebar-toggle",
     "reset",
     "update:rulesContent",
     "refresh-project",
@@ -213,16 +196,11 @@ const emit = defineEmits([
 
 const isCustomRulesModalVisible = ref(false);
 const currentCustomRulesForModal = ref("");
-const isSidebarCollapsed = ref(false);
 
 // state for prompt rules modal
 const isPromptRulesModalVisible = ref(false);
 const currentPromptRulesForModal_prompt = ref("");
 
-function toggleSidebar() {
-    isSidebarCollapsed.value = !isSidebarCollapsed.value;
-    emit("sidebar-toggle", isSidebarCollapsed.value);
-}
 
 async function openCustomRulesModal() {
     try {
@@ -377,37 +355,4 @@ function handleRefreshProject() {
     position: relative;
 }
 
-.sidebar-container.collapsed .sidebar-content {
-    width: 0 !important;
-    padding: 0;
-    overflow: hidden;
-}
-
-.collapse-toggle {
-    width: 16px;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    border-right: 1px solid var(--border);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    color: var(--sidebar-primary-foreground);
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    margin-top: 16px;
-    height: 40px;
-}
-
-.arrow-icon {
-    width: 0;
-    height: 0;
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-}
-
-.arrow-left {
-    border-right: 6px solid currentColor;
-}
-
-.arrow-right {
-    border-left: 6px solid currentColor;
-}
 </style>

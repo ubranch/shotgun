@@ -87,7 +87,7 @@
         >
             <div class="text-center">
                 <div class="w-64 mx-auto">
-                    <p class="text-gray-600 dark:text-gray-400 mb-1 text-sm">
+                    <p class="text-gray-600 dark:text-gray-300 mb-1 text-sm">
                         generating project context...
                     </p>
                     <div
@@ -98,7 +98,7 @@
                             :style="{ width: progressBarWidth }"
                         ></div>
                     </div>
-                    <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">
+                    <p class="text-gray-500 dark:text-gray-300 mt-1 text-sm">
                         {{ generationProgress.current }} /
                         {{
                             generationProgress.total > 0
@@ -129,7 +129,7 @@
                         class="text-sm whitespace-pre-wrap text-left w-full bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 p-4 border border-red-200 dark:border-red-700 rounded-md overflow-auto max-h-[50vh]"
                         >{{ errorMessage }}</pre
                     >
-                    <p class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                    <p class="mt-4 text-sm text-gray-600 dark:text-gray-300">
                         try reducing the project scope by excluding more files
                         or using a smaller project
                     </p>
@@ -146,7 +146,7 @@
                         >
                             generated project context:
                         </h3>
-                        <p v-if="generatedContext" class="text-xs text-gray-500 dark:text-gray-400">
+                        <p v-if="generatedContext" class="text-xs text-gray-500 dark:text-gray-300">
                             {{ contextStats.lines }} lines ({{ contextStats.sizeKb }} kb)
                         </p>
                     </div>
@@ -181,7 +181,7 @@
             </div>
             <p
                 v-else
-                class="text-sm text-gray-500 dark:text-gray-400 mt-2 flex-grow flex justify-center items-center"
+                class="text-sm text-gray-500 dark:text-gray-300 mt-2 flex-grow flex justify-center items-center"
             >
                 project context will be generated automatically. if empty after
                 generation, ensure files are selected and not all excluded.

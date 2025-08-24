@@ -68,7 +68,6 @@ const props = defineProps({
     splitLineLimit: { type: Number, default: 500 },
     shotgunGitDiff: { type: String, default: "" },
     splitLineLimitValue: { type: Number, default: 500 },
-    isSidebarCollapsed: { type: Boolean, default: false }
 });
 
 const initialGitDiff = computed(() => {

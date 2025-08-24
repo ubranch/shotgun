@@ -44,3 +44,28 @@ html {
 select {
   appearance: none!important;
 }
+
+/* lower all rem-based sizes by 10% */
+@layer base {
+  html { font-size: 95%; }
+}
+
+/* placeholder color override */
+@layer base {
+  ::placeholder {
+    color: rgb(209, 213, 219); /* gray-300 equivalent #d1d5db */
+  }
+  
+  ::-webkit-input-placeholder {
+    color: rgb(209, 213, 219); /* gray-300 equivalent #d1d5db */
+  }
+  
+  ::-moz-placeholder {
+    color: rgb(209, 213, 219); /* gray-300 equivalent #d1d5db */
+    opacity: 1;
+  }
+  
+  :-ms-input-placeholder {
+    color: rgb(209, 213, 219); /* gray-300 equivalent #d1d5db */
+  }
+}

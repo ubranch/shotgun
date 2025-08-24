@@ -8,7 +8,7 @@
             v-if="isLoading"
             class="flex-grow flex justify-center items-center"
         >
-            <p class="text-gray-600 dark:text-gray-400">
+            <p class="text-gray-600 dark:text-gray-300">
                 loading split diffs...
             </p>
         </div>
@@ -17,7 +17,7 @@
             v-else-if="splitDiffs && splitDiffs.length > 0"
             class="flex-grow overflow-y-auto space-y-6"
         >
-            <p class="text-gray-600 dark:text-gray-400 mb-2 text-sm">
+            <p class="text-gray-600 dark:text-gray-300 mb-2 text-sm">
                 the original diff has been split into
                 {{ splitDiffs.length }} smaller diffs. copy each part and apply
                 it using your preferred tool. with an llm, just tell it to
@@ -43,7 +43,7 @@
                     <div class="flex items-center space-x-2">
                         <!-- soon: add a feature to apply the diff automatically -->
                         <!-- <button
-                          class="px-3 py-1 bg-gray-100 text-gray-300 text-sm font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
+                          class="px-3 py-1 bg-gray-100 text-gray-300 text-sm font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
                           disabled
                         >
                           apply diff
@@ -88,7 +88,7 @@
                         </BaseButton>
                     </div>
                 </div>
-                <div class="text-gray-600 dark:text-gray-400 text-sm mb-2">
+                <div class="text-gray-600 dark:text-gray-300 text-sm mb-2">
                     <!-- the lines metric will be orange if it's greater than props.splitlinelimit + 5%, red if it's greater than props.splitlinelimit + 20%, green if it's less than props.splitlinelimit + 5% -->
                     <!-- calculate this in the vue script below, to simplify the code -->
                     <div
@@ -128,7 +128,7 @@
         </div>
 
         <div v-else class="flex-grow flex justify-center items-center">
-            <p class="text-gray-500 dark:text-gray-400">
+            <p class="text-gray-500 dark:text-gray-300">
                 no split diffs to display. go to step 3 to split a diff.
             </p>
         </div>

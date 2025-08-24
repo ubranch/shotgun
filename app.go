@@ -1113,11 +1113,16 @@ func (a *App) SetGeminiAPIKey(apiKey string) error {
 }
 
 // getapikey retrieves the gemini api key, prioritizing the saved key from settings
-// and falling back to the environment variable.
+// and falling back to environment variables (GEMINI_API_KEY then GOOGLE_API_KEY).
 func (a *App) getAPIKey() string {
 	if a.settings.GeminiAPIKey != "" {
 		return a.settings.GeminiAPIKey
 	}
+	// check GEMINI_API_KEY environment variable first
+	if geminiKey := os.Getenv("GEMINI_API_KEY"); geminiKey != "" {
+		return geminiKey
+	}
+	// fallback to GOOGLE_API_KEY environment variable
 	return os.Getenv("GOOGLE_API_KEY")
 }
 
@@ -1125,7 +1130,7 @@ func (a *App) getAPIKey() string {
 func (a *App) CountGeminiTokens(text string) (int, error) {
 	apiKey := a.getAPIKey()
 	if apiKey == "" {
-		return 0, fmt.Errorf("google_api_key environment variable not set")
+		return 0, fmt.Errorf("api key not set. please set GEMINI_API_KEY or GOOGLE_API_KEY environment variable, or configure it in settings")
 	}
 
 	client, err := genai.NewClient(context.Background(), option.WithAPIKey(apiKey))
@@ -1148,7 +1153,7 @@ func (a *App) CountGeminiTokens(text string) (int, error) {
 func (a *App) ExecuteGeminiRequest(prompt string, modelName string) (string, error) {
 	apiKey := a.getAPIKey()
 	if apiKey == "" {
-		return "", errors.New("google api key not set. please set the GOOGLE_API_KEY environment variable")
+		return "", errors.New("api key not set. please set GEMINI_API_KEY or GOOGLE_API_KEY environment variable, or configure it in settings")
 	}
 
 	// create a context with cancellation capability

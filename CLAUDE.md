@@ -170,7 +170,7 @@ wails build     # build production executable
 ```
 
 ### environment setup
-- set `GOOGLE_API_KEY` environment variable for Gemini token counting
+- set `GEMINI_API_KEY` or `GOOGLE_API_KEY` environment variable for Gemini token counting
 - requires go 1.24.0+ and node.js with pnpm
 
 ## architecture overview

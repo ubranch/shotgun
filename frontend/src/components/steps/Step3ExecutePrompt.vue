@@ -92,7 +92,7 @@
             @save="handleSaveApiKey"
         />
 
-        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+        <p class="text-gray-600 dark:text-gray-300 mb-4 text-sm">
             <li>
                 open any agentic code tool and ask 'apply diff' + copy-paste the
                 diff.
@@ -105,7 +105,7 @@
 
         <hr class="my-4 border-accent" />
         <div class="flex justify-between items-center mb-2">
-            <div class="text-gray-600 dark:text-gray-400">
+            <div class="text-gray-600 dark:text-gray-300">
                 <strong>prepare the diff to apply</strong>
                 <br />
                 this tool will split the diff into smaller parts to make it
@@ -200,7 +200,7 @@
             <textarea
                 id="shotgun-git-diff-input"
                 v-model="localShotgunGitDiffInput"
-                rows="15"
+                rows="10"
                 spellcheck="false"
                 class="w-full p-2 border border-accent rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm font-mono bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100"
                 placeholder="paste the git diff output here, e.g., diff --git a/file.txt b/file.txt..."
@@ -213,7 +213,7 @@
                 class="block text-base font-bold text-gray-700 dark:text-gray-300 mb-1"
                 >approx. lines per split</label
             >
-            <p class="text-gray-600 dark:text-gray-400 mb-2 text-sm">
+            <p class="text-gray-600 dark:text-gray-300 mb-2 text-sm">
                 this will attempt to split the diff into the specified number of
                 lines, while keeping the original structure and the chunks.
                 <br />

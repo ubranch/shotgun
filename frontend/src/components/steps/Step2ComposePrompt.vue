@@ -21,13 +21,10 @@
         </div>
 
         <!-- custom rules modal removed per user request -->
-        <div class="flex-grow flex flex-row space-x-0 overflow-hidden">
-            <!--
-                group-[.sidebar-open]/layout:max-[900px]:hidden:
-                hides the user query panel when the sidebar is open and screen width is ≤ 900px
-            -->
+        <div class="flex-grow flex flex-col space-y-4 overflow-hidden">
+            <!-- user query input section - positioned at top in vertical layout -->
             <div
-                class="w-3/5 group-[.sidebar-open]/layout:w-2/5 flex flex-col space-y-2 overflow-y-hidden px-2 py-2 border border-accent rounded-md bg-white dark:bg-dark-surface mr-2 group-[.sidebar-open]/layout:max-[900px]:hidden"
+                class="w-full h-48 flex flex-col space-y-2 overflow-y-hidden px-2 py-2 border border-accent rounded-md bg-white dark:bg-dark-surface"
             >
                 <div class="flex flex-col flex-grow-[3]">
                     <!-- <label
@@ -39,7 +36,7 @@
                         id="user-task-ai"
                         v-model="localUserTask"
                         spellcheck="false"
-                        class="w-full p-2 border border-accent rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 flex-grow min-h-[100px]"
+                        class="w-full p-2 border border-accent rounded-md shadow-sm focus:ring-light-accent dark:focus:ring-dark-accent focus:border-light-accent dark:focus:border-dark-accent text-sm bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 flex-grow resize-none"
                         placeholder="describe what the ai should do..."
                     ></textarea>
                 </div>
@@ -63,12 +60,9 @@
                 </div> -->
             </div>
 
-            <!--
-                group-[.sidebar-open]/layout:max-[900px]:w-full:
-                expands the final prompt panel to full width when the sidebar is open and screen width is ≤ 900px
-            -->
+            <!-- generated prompt display section - positioned at bottom and takes remaining space -->
             <div
-                class="w-3/5 flex flex-col overflow-y-auto p-2 border border-accent rounded-md bg-white dark:bg-dark-surface group-[.sidebar-open]/layout:max-[900px]:w-full"
+                class="w-full flex-1 flex flex-col overflow-y-auto p-2 border border-accent rounded-md bg-white dark:bg-dark-surface"
             >
                 <div class="flex justify-between items-center mb-2">
                     <div class="flex items-center space-x-2">
@@ -112,7 +106,7 @@
                                     </select>
                                     <!-- chevron arrow icon -->
                                     <svg
-                                        class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none h-4 w-4 text-gray-500 dark:text-gray-400"
+                                        class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none h-4 w-4 text-gray-500 dark:text-gray-300"
                                         xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 20 20"
                                         fill="currentColor"
@@ -225,7 +219,7 @@
                     <div
                         class="animate-spin rounded-full h-8 w-8 border-b-2 border-light-accent dark:border-dark-accent"
                     ></div>
-                    <p class="text-gray-500 dark:text-gray-400 ml-2">
+                    <p class="text-gray-500 dark:text-gray-300 ml-2">
                         updating prompt...
                     </p>
                 </div>
@@ -235,7 +229,7 @@
                     :value="props.finalPrompt"
                     @input="(e) => emit('update:finalPrompt', e.target.value)"
                     spellcheck="false"
-                    class="w-full p-2 border border-accent rounded-md shadow-sm font-mono text-sm flex-grow bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 min-h-[300px]"
+                    class="w-full p-2 border border-accent rounded-md shadow-sm font-mono text-sm flex-grow bg-white dark:bg-dark-surface text-gray-900 dark:text-gray-100 resize-none"
                     placeholder="the final prompt will be generated here..."
                 ></textarea>
             </div>
@@ -290,7 +284,7 @@ const emit = defineEmits([
 ]);
 
 const promptTemplates = {
-    none: { name: "no template", content: noneTemplateContentFromFile },
+    none: { name: "custom query", content: noneTemplateContentFromFile },
     promptEnhancer: {
         name: "prompt engineer of your task",
         content: promptEnhancerTemplateContentFromFile,
@@ -324,7 +318,7 @@ function getTemplateIcon(key) {
 
 function getShortName(key) {
     const shortNames = {
-        none: "NONE",
+        none: "N",
         dev: "BUILD",
         promptEnhancer: "QUERY",
         architect: "PLAN",

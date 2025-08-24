@@ -15,12 +15,8 @@
                     .join('')}`"
             />
         </div>
-        <!--
-            group/layout: enables tailwind group variants for responsive child styling
-            sidebar-open: applied when the sidebar is open (isSidebarCollapsed is false),
-            allowing child components to react via group-[.sidebar-open]/layout:... classes
-        -->
-        <div class="flex flex-1 overflow-hidden group/layout" :class="{ 'sidebar-open': !isSidebarCollapsed }">
+        <!-- group/layout: enables tailwind group variants for responsive child styling -->
+        <div class="flex flex-1 overflow-hidden group/layout">
             <LeftSidebar
                 :current-step="currentStep"
                 :steps="steps"
@@ -42,7 +38,6 @@
                 @reset="resetApplication"
                 @select-directory="selectProjectFolderHandler"
                 @add-log="({ message, type }) => addLog(message, type)"
-                @sidebar-toggle="handleSidebarToggle"
                 @refresh-project="handleRefreshProject"
             />
             <CentralPanel
@@ -60,7 +55,6 @@
                 :split-line-limit="splitLineLimitValue"
                 :shotgun-git-diff="shotgunGitDiff"
                 :split-line-limit-value="splitLineLimitValue"
-                :is-sidebar-collapsed="isSidebarCollapsed"
                 @step-action="handleStepAction"
                 @update-composed-prompt="handleComposedPromptUpdate"
                 @update:user-task="handleUserTaskUpdate"
@@ -97,6 +91,7 @@ import {
     SetUseCustomIgnore,
     SplitShotgunDiff,
     ResetApplication,
+    GetCustomPromptRules,
 } from "../../wailsjs/go/main/App";
 import { EventsOn, Environment } from "../../wailsjs/runtime/runtime";
 
@@ -238,7 +233,6 @@ const isLoadingSplitDiffs = ref(false);
 const splitDiffs = ref([]);
 const shotgunGitDiff = ref("");
 const splitLineLimitValue = ref(0); // add new state variable
-const isSidebarCollapsed = ref(false); // track sidebar collapsed state
 const isNavigating = ref(false); // track navigation state to prevent context generation during transitions
 let debounceTimer = null;
 
@@ -1094,6 +1088,18 @@ onMounted(() => {
         }
     })();
 
+    // initialize custom prompt rules
+    (async () => {
+        try {
+            const fetchedRules = await GetCustomPromptRules();
+            rulesContent.value = fetchedRules;
+            addLog(`custom prompt rules loaded: ${fetchedRules.length} characters`, "debug");
+        } catch (err) {
+            addLog(`error loading custom prompt rules: ${err}`, "error");
+            // rulesContent.value remains empty as fallback
+        }
+    })();
+
     unlistenProjectFilesChanged = EventsOn(
         "projectFilesChanged",
         (changedRootDir) => {
@@ -1309,9 +1315,6 @@ function handleSplitLineLimitUpdate(val) {
     splitLineLimitValue.value = val;
 }
 
-function handleSidebarToggle(collapsed) {
-    isSidebarCollapsed.value = collapsed;
-}
 
 function handleRefreshProject() {
     if (projectRoot.value && !isFileTreeLoading.value && !isGeneratingContext.value) {
