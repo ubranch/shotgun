@@ -26,6 +26,8 @@
 *.webm
 *.flv
 
+.venv/
+venv/
 node_modules/
 vendor/
 .idea/

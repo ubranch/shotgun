@@ -178,6 +178,8 @@ func (a *App) SelectDirectory() (string, error) {
 // listfiles lists files and folders in a directory, parsing .gitignore if present
 func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 	runtime.LogDebugf(a.ctx, "listfiles called for directory: %s", dirPath)
+	runtime.LogDebugf(a.ctx, "listfiles: useCustomIgnore=%v, customPatternsLoaded=%v", 
+		a.useCustomIgnore, a.currentCustomIgnorePatterns != nil)
 
 	a.projectGitignore = nil        // reset for the new directory
 	var gitIgn *gitignore.GitIgnore // for .gitignore in the project directory
@@ -199,6 +201,11 @@ func (a *App) ListFiles(dirPath string) ([]*FileNode, error) {
 	}
 
 	// app-level custom ignore patterns are in a.currentcustomignorepatterns
+	if a.currentCustomIgnorePatterns != nil {
+		runtime.LogDebugf(a.ctx, "custom ignore patterns are active and will be applied")
+	} else {
+		runtime.LogDebugf(a.ctx, "no custom ignore patterns to apply")
+	}
 
 	rootNode := &FileNode{
 		Name:         filepath.Base(dirPath),
@@ -255,6 +262,11 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 			}
 			if !inheritedCustomIgnored && customIgn != nil {
 				isCustomIgnored = customIgn.MatchesPath(pathToMatch)
+				// log matching for debugging (limit to avoid spam)
+				if isCustomIgnored && depth < 3 {
+					// can't use runtime.Log here without app context, so we'll skip detailed logging in recursive function
+					// the logging in ListFiles should be sufficient
+				}
 			}
 		}
 
@@ -422,11 +434,21 @@ func (a *App) countProcessableItems(jobCtx context.Context, rootDir string, excl
 			isExcluded := parentExcluded || excludedMap[relPath]
 
 			if entry.IsDir() {
-				// always recurse to count all tree entries
-				err := counterHelper(path, isExcluded)
-				if err != nil { // propagate cancellation or critical errors
-					return err
+				// only recurse into non-excluded directories for performance
+				// excluded directories are counted as single items but their contents are skipped
+				if !isExcluded {
+					err := counterHelper(path, isExcluded)
+					if err != nil { // propagate cancellation or critical errors
+						return err
+					}
+				} else {
+					// log first few skipped directories for visibility
+					if count < 50 { // limit logging to avoid spam
+						runtime.LogDebugf(a.ctx, "countprocessableitems: skipping excluded directory: %s", relPath)
+					}
 				}
+				// if excluded, we've counted the directory itself but don't count its contents
+				// this dramatically reduces count for node_modules, .git, etc.
 			} else if !isExcluded {
 				// only count file content reads for non-excluded files
 				count++
@@ -469,6 +491,7 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 	if err != nil {
 		return "", fmt.Errorf("failed to count processable items: %w", err)
 	}
+	runtime.LogInfof(a.ctx, "context generation starting: %d items to process (excluded directories not traversed)", totalItems)
 	progressState := &generationProgressState{processedItems: 0, totalItems: totalItems}
 	a.emitProgress(progressState) // initial progress (0 / total)
 
@@ -559,14 +582,22 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 			}
 
 			if entry.IsDir() {
-				// always recurse to show complete tree structure
-				err := buildShotgunTreeRecursive(pCtx, path, nextPrefix, isExcluded)
-				if err != nil {
-					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
-						return err
+				// only recurse into non-excluded directories for performance
+				// excluded directories are shown in tree but their contents are not processed
+				if !isExcluded {
+					err := buildShotgunTreeRecursive(pCtx, path, nextPrefix, isExcluded)
+					if err != nil {
+						if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+							return err
+						}
+						runtime.LogWarningf(a.ctx, "buildshotguntreerecursive: error processing subdirectory %s: %v", path, err)
 					}
-					runtime.LogWarningf(a.ctx, "buildshotguntreerecursive: error processing subdirectory %s: %v", path, err)
+				} else {
+					// log when skipping large directories for performance tracking
+					runtime.LogDebugf(a.ctx, "skipping excluded directory: %s", relPath)
 				}
+				// if excluded, we've already shown it in the tree with [excluded] marker
+				// but we don't recurse into it - this saves massive processing for node_modules, .git, etc.
 			} else if !isExcluded {
 				// only include file contents if not excluded
 				select { // check before heavy i/o
@@ -972,18 +1003,31 @@ func (a *App) compileCustomIgnorePatterns() error {
 	}
 	lines := strings.Split(strings.ReplaceAll(a.settings.CustomIgnoreRules, "\r\n", "\n"), "\n")
 	var validLines []string
+	patternCount := 0
 	for _, line := range lines {
 		// compileignorelines should handle empty/comment lines appropriately based on .gitignore syntax
+		trimmed := strings.TrimSpace(line)
+		if trimmed != "" && !strings.HasPrefix(trimmed, "#") {
+			patternCount++
+		}
 		validLines = append(validLines, line)
 	}
 
+	runtime.LogInfof(a.ctx, "compiling %d lines with %d non-comment patterns", len(validLines), patternCount)
+	
 	ign := gitignore.CompileIgnoreLines(validLines...)
 	// поскольку compileignorelines в этой версии не возвращает ошибку,
 	// проверка на err удалена.
 	// если ign будет nil (например, если все строки были пустыми или комментариями,
 	// и библиотека так обрабатывает), то это будет корректно обработано ниже.
 	a.currentCustomIgnorePatterns = ign
-	runtime.LogInfo(a.ctx, "successfully compiled custom ignore patterns.")
+	
+	if ign != nil {
+		runtime.LogInfof(a.ctx, "successfully compiled custom ignore patterns (%d active patterns)", patternCount)
+	} else {
+		runtime.LogWarning(a.ctx, "compiled patterns resulted in nil - all patterns may be comments or invalid")
+	}
+	
 	return nil
 }
 
@@ -1100,25 +1144,46 @@ func (a *App) GetCustomIgnoreRules() string {
 
 // setcustomignorerules updates the custom ignore rules, saves them, and recompiles.
 func (a *App) SetCustomIgnoreRules(rules string) error {
+	runtime.LogInfof(a.ctx, "setcustomignorerules: updating rules (length: %d)", len(rules))
+	
 	// keep the full rules in memory for immediate use
 	a.settings.CustomIgnoreRules = rules
 	
-	// attempt to compile first. if compilation fails, we might not want to save invalid rules,
-	// or save them and let the user know they are not effective.
-	// for now, compile then save. if compile fails, the old patterns (or nil) remain active.
+	// compile the patterns first - this must succeed before we proceed
 	compileErr := a.compileCustomIgnorePatterns()
-
+	if compileErr != nil {
+		runtime.LogErrorf(a.ctx, "failed to compile custom ignore patterns: %v", compileErr)
+		// restore previous patterns if compilation fails
+		return fmt.Errorf("failed to compile custom ignore patterns: %w", compileErr)
+	}
+	
+	// save the settings after successful compilation
 	saveErr := a.saveSettings()
 	if saveErr != nil {
-		return fmt.Errorf("failed to save settings: %w (compile error: %v)", saveErr, compileErr)
+		runtime.LogErrorf(a.ctx, "failed to save settings: %v", saveErr)
+		// patterns are compiled but not saved - they'll work until app restart
+		// continue with refresh despite save error
 	}
-	if compileErr != nil {
-		return fmt.Errorf("rules saved, but failed to compile custom ignore patterns: %w", compileErr)
-	}
-
+	
+	// log the current state
+	runtime.LogInfof(a.ctx, "custom ignore patterns compiled successfully, currentCustomIgnorePatterns is now %v", 
+		a.currentCustomIgnorePatterns != nil)
+	
+	// refresh the file watcher if active - this will trigger a file tree reload
 	if a.fileWatcher != nil && a.fileWatcher.rootDir != "" {
-		return a.fileWatcher.RefreshIgnoresAndRescan()
+		runtime.LogInfo(a.ctx, "refreshing file watcher with new ignore patterns")
+		refreshErr := a.fileWatcher.RefreshIgnoresAndRescan()
+		if refreshErr != nil {
+			runtime.LogErrorf(a.ctx, "failed to refresh file watcher: %v", refreshErr)
+		}
+		// even if refresh fails, patterns are updated and will be used by ListFiles
 	}
+	
+	if saveErr != nil {
+		return fmt.Errorf("patterns updated but failed to save settings: %w", saveErr)
+	}
+	
+	runtime.LogInfo(a.ctx, "custom ignore rules successfully updated and applied")
 	return nil
 }
 

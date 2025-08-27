@@ -1288,14 +1288,11 @@ function checkAndProcessPendingFileTreeReload() {
 }
 
 function handleCustomRulesUpdated() {
-    addLog("custom ignore rules updated by user. reloading file tree.", "info");
-    if (projectRoot.value) {
-        // this will call listfiles in go, which will use the new custom rules from app.settings.
-        // the new tree will have updated iscustomignored flags.
-        // the watch on filetree (and its subsequent call to debouncedtriggershotguncontextgeneration)
-        // will then handle regenerating the context.
-        loadFileTree(projectRoot.value);
-    }
+    addLog("custom ignore rules updated by user. waiting for backend to refresh...", "info");
+    // the backend's RefreshIgnoresAndRescan will emit a projectFilesChanged event
+    // which will trigger the file tree reload automatically via the existing event handler.
+    // this prevents duplicate reloads and ensures proper synchronization.
+    // no need to call loadFileTree directly here.
 }
 
 function handleUserTaskUpdate(val) {
