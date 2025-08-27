@@ -124,20 +124,30 @@
                             />
                             <span class="text-base"> use .gitignore rules </span>
                         </label>
-                        <label class="flex items-center text-sm">
-                            <input
-                                type="checkbox"
-                                :checked="useCustomIgnore"
-                                @change="
-                                    $emit(
-                                        'toggle-custom-ignore',
-                                        $event.target.checked
-                                    )
-                                "
-                                class="form-checkbox h-4 w-4 text-sidebar-primary rounded border-border focus:ring-sidebar-primary mr-2"
-                            />
-                            <span class="text-base"> use custom rules </span>
-                        </label>
+                        <div class="flex items-center gap-2">
+                            <label class="flex items-center text-sm">
+                                <input
+                                    type="checkbox"
+                                    :checked="useCustomIgnore"
+                                    @change="
+                                        $emit(
+                                            'toggle-custom-ignore',
+                                            $event.target.checked
+                                        )
+                                    "
+                                    class="form-checkbox h-4 w-4 text-sidebar-primary rounded border-border focus:ring-sidebar-primary mr-2"
+                                />
+                                <span class="text-base"> use custom ignore </span>
+                            </label>
+                            <BaseButton
+                                @click="openCustomRulesModal"
+                                title="edit custom ignore rules"
+                                class="px-2 py-1 text-xs"
+                                variant="secondary"
+                            >
+                                <span class="text-base"> edit </span>
+                            </BaseButton>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -223,8 +233,10 @@ async function openCustomRulesModal() {
 }
 
 async function handleSaveCustomRules(newRules) {
+    console.log("saving custom rules, length:", newRules.length);
     try {
         await SetCustomIgnoreRules(newRules);
+        console.log("custom rules saved successfully");
         isCustomRulesModalVisible.value = false;
         LogInfoRuntime(
             "custom ignore rules saved successfully via leftsidebar."
@@ -241,7 +253,8 @@ async function handleSaveCustomRules(newRules) {
             message: `failed to save custom rules: ${error.message || error}`,
             type: "error",
         });
-        // keep modal open for user to retry or copy content, or show an error in the modal itself.
+        // show error but still close modal to prevent stuck state
+        isCustomRulesModalVisible.value = false;
     }
 }
 

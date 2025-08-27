@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
@@ -28,6 +27,29 @@ import (
 const maxOutputSizeBytes = 50_000_000  // 50mb
 const maxFileReadSizeBytes = 2_000_000 // 2mb
 var ErrContextTooLong = errors.New("context is too long")
+
+// directories that should never appear in the generated context tree
+var alwaysExcludedDirs = map[string]bool{
+	".git": true,
+	"node_modules": true,
+	".svn": true,
+	".hg": true,
+	".bzr": true,
+	"vendor": true,
+	".idea": true,
+	".vscode": true,
+	"__pycache__": true,
+	".pytest_cache": true,
+	".mypy_cache": true,
+	"target": true,  // rust/java
+	"dist": true,
+	"build": true,
+	".next": true,
+	".nuxt": true,
+	".cache": true,
+	"coverage": true,
+	".nyc_output": true,
+}
 
 //go:embed ignore.glob
 var defaultCustomIgnoreRulesContent string
@@ -218,7 +240,7 @@ func buildTreeRecursive(ctx context.Context, currentPath, rootPath string, gitIg
 
 		isGitignored := inheritedGitIgnored
 		isCustomIgnored := inheritedCustomIgnored
-		
+
 		// Only check ignore patterns if not already inherited from parent
 		if !inheritedGitIgnored || !inheritedCustomIgnored {
 			pathToMatch := relPath
@@ -366,12 +388,12 @@ func (a *App) RequestShotgunContextGeneration(rootDir string, excludedPaths []st
 }
 
 // countprocessableitems estimates the total number of operations for progress tracking.
-// operations: 1 for root dir line, 1 for each dir/file entry in tree, 1 for each file content read.
+// optimized version: counts tree entries for all files (including excluded) + file reads for non-excluded only
 func (a *App) countProcessableItems(jobCtx context.Context, rootDir string, excludedMap map[string]bool) (int, error) {
 	count := 1 // for the root directory line itself
 
-	var counterHelper func(currentPath string) error
-	counterHelper = func(currentPath string) error {
+	var counterHelper func(currentPath string, parentExcluded bool) error
+	counterHelper = func(currentPath string, parentExcluded bool) error {
 		select {
 		case <-jobCtx.Done():
 			return jobCtx.Err()
@@ -385,28 +407,35 @@ func (a *App) countProcessableItems(jobCtx context.Context, rootDir string, excl
 		}
 
 		for _, entry := range entries {
+			// skip directories that should never be shown
+			if entry.IsDir() && alwaysExcludedDirs[entry.Name()] {
+				continue
+			}
+			
 			path := filepath.Join(currentPath, entry.Name())
 			relPath, _ := filepath.Rel(rootDir, path)
 
-			if excludedMap[relPath] {
-				continue
-			}
-
+			// count all entries for tree display
 			count++ // for the tree entry (dir or file)
 
+			// determine if this item is excluded
+			isExcluded := parentExcluded || excludedMap[relPath]
+
 			if entry.IsDir() {
-				err := counterHelper(path)
+				// always recurse to count all tree entries
+				err := counterHelper(path, isExcluded)
 				if err != nil { // propagate cancellation or critical errors
 					return err
 				}
-			} else {
-				count++ // for reading the file content
+			} else if !isExcluded {
+				// only count file content reads for non-excluded files
+				count++
 			}
 		}
 		return nil
 	}
 
-	err := counterHelper(rootDir)
+	err := counterHelper(rootDir, false)
 	if err != nil {
 		return 0, err // return error if counting was interrupted (e.g. context cancelled)
 	}
@@ -455,8 +484,9 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 	}
 
 	// buildshotguntreerecursive is a recursive helper for generating the tree string and file contents
-	var buildShotgunTreeRecursive func(pCtx context.Context, currentPath, prefix string) error
-	buildShotgunTreeRecursive = func(pCtx context.Context, currentPath, prefix string) error {
+	// optimized to show all files (including excluded) in tree but only read non-excluded file contents
+	var buildShotgunTreeRecursive func(pCtx context.Context, currentPath, prefix string, parentExcluded bool) error
+	buildShotgunTreeRecursive = func(pCtx context.Context, currentPath, prefix string, parentExcluded bool) error {
 		select {
 		case <-pCtx.Done():
 			return pCtx.Err()
@@ -486,17 +516,13 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 			return strings.ToLower(entryI.Name()) < strings.ToLower(entryJ.Name())
 		})
 
-		// create a temporary slice to hold non-excluded entries for correct prefixing
-		var visibleEntries []fs.DirEntry
-		for _, entry := range entries {
-			path := filepath.Join(currentPath, entry.Name())
-			relPath, _ := filepath.Rel(rootDir, path)
-			if !excludedMap[relPath] {
-				visibleEntries = append(visibleEntries, entry)
+		// include all entries in the tree (even excluded ones) but mark them
+		for i, entry := range entries {
+			// skip directories that should never be shown
+			if entry.IsDir() && alwaysExcludedDirs[entry.Name()] {
+				continue
 			}
-		}
-
-		for i, entry := range visibleEntries {
+			
 			select {
 			case <-pCtx.Done():
 				return pCtx.Err()
@@ -506,7 +532,7 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 			path := filepath.Join(currentPath, entry.Name())
 			relPath, _ := filepath.Rel(rootDir, path)
 
-			isLast := i == len(visibleEntries)-1
+			isLast := i == len(entries)-1
 
 			branch := "├── "
 			nextPrefix := prefix + "│   "
@@ -514,7 +540,16 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 				branch = "└── "
 				nextPrefix = prefix + "    "
 			}
-			output.WriteString(prefix + branch + entry.Name() + "\n")
+
+			// determine if this item is excluded (by parent or by itself)
+			isExcluded := parentExcluded || excludedMap[relPath]
+			
+			// mark excluded files in the tree
+			markerSuffix := ""
+			if isExcluded {
+				markerSuffix = " [excluded]"
+			}
+			output.WriteString(prefix + branch + entry.Name() + markerSuffix + "\n")
 
 			progressState.processedItems++ // for tree entry
 			a.emitProgress(progressState)
@@ -524,14 +559,16 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 			}
 
 			if entry.IsDir() {
-				err := buildShotgunTreeRecursive(pCtx, path, nextPrefix)
+				// always recurse to show complete tree structure
+				err := buildShotgunTreeRecursive(pCtx, path, nextPrefix, isExcluded)
 				if err != nil {
 					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 						return err
 					}
 					runtime.LogWarningf(a.ctx, "buildshotguntreerecursive: error processing subdirectory %s: %v", path, err)
 				}
-			} else {
+			} else if !isExcluded {
+				// only include file contents if not excluded
 				select { // check before heavy i/o
 				case <-pCtx.Done():
 					return pCtx.Err()
@@ -542,7 +579,7 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 
 				// skip oversized files early to reduce memory churn
 				if fi, statErr := entry.Info(); statErr == nil && fi.Size() > maxFileReadSizeBytes {
-					fileContents.WriteString(fmt.Sprintf("<file path=\"%%s\">\n", relPathForwardSlash))
+					fileContents.WriteString(fmt.Sprintf("<file path=\"%s\">\n", relPathForwardSlash))
 					fileContents.WriteString("[file omitted: too large]")
 					fileContents.WriteString("\n</file>\n")
 
@@ -557,10 +594,10 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 				content, err := os.ReadFile(path)
 				if err != nil {
 					runtime.LogWarningf(a.ctx, "buildshotguntreerecursive: error reading file %s: %v", path, err)
-					content = []byte(fmt.Sprintf("error reading file: %%v", err))
+					content = []byte(fmt.Sprintf("error reading file: %v", err))
 				}
 
-				fileContents.WriteString(fmt.Sprintf("<file path=\"%%s\">\n", relPathForwardSlash))
+				fileContents.WriteString(fmt.Sprintf("<file path=\"%s\">\n", relPathForwardSlash))
 				if isTextContent(content) {
 					fileContents.WriteString(string(content))
 				} else {
@@ -579,7 +616,7 @@ func (a *App) generateShotgunOutputWithProgress(jobCtx context.Context, rootDir 
 		return nil
 	}
 
-	err = buildShotgunTreeRecursive(jobCtx, rootDir, "")
+	err = buildShotgunTreeRecursive(jobCtx, rootDir, "", false)
 	if err != nil {
 		return "", fmt.Errorf("failed to build tree for shotgun: %w", err)
 	}
@@ -980,14 +1017,21 @@ func (a *App) loadSettings() {
 			runtime.LogErrorf(a.ctx, "error unmarshalling settings from %s: %v. using default custom ignore rules (embedded).", a.configPath, err)
 			a.settings.CustomIgnoreRules = defaultCustomIgnoreRulesContent // reset to default on unmarshal error
 		} else {
-			runtime.LogInfo(a.ctx, "successfully loaded custom rules from config. they will be combined with the embedded defaults.")
-			// always start with the fresh embedded defaults, then append any user rules that are not already in the default.
-			// this ensures that updates to the embedded ignore.glob are always included.
+			runtime.LogInfo(a.ctx, "successfully loaded custom rules from config.")
+			// check if the loaded rules already contain the base rules (from a previous save)
+			// to avoid infinite appending
 			baseRules := defaultCustomIgnoreRulesContent
 			userRules := loadedSettings.CustomIgnoreRules
-
-			// a simple model: combine and let the gitignore logic handle duplicates. last pattern wins.
-			a.settings.CustomIgnoreRules = baseRules + "\n\n#--- user rules ---" + userRules
+			
+			// if user rules already contain the base rules marker, use them as-is
+			// otherwise, combine base rules with user rules
+			if strings.Contains(userRules, "#--- user rules ---") {
+				// user rules already have the combined format, use as-is
+				a.settings.CustomIgnoreRules = userRules
+			} else {
+				// first time loading or old format, combine them
+				a.settings.CustomIgnoreRules = baseRules + "\n\n#--- user rules ---\n" + userRules
+			}
 
 			// handle custompromptrules separately as it's a replacement, not an addition.
 			if strings.TrimSpace(loadedSettings.CustomPromptRules) != "" {
@@ -1010,7 +1054,23 @@ func (a *App) saveSettings() error {
 		return err
 	}
 
-	data, err := json.MarshalIndent(a.settings, "", "  ")
+	// create a copy of settings for saving, extracting only user rules
+	settingsToSave := AppSettings{
+		CustomPromptRules: a.settings.CustomPromptRules,
+		GeminiAPIKey:      a.settings.GeminiAPIKey,
+		CustomIgnoreRules: a.settings.CustomIgnoreRules, // default to full rules
+	}
+	
+	// extract only user rules for saving (everything after "#--- user rules ---")
+	if strings.Contains(a.settings.CustomIgnoreRules, "#--- user rules ---") {
+		parts := strings.Split(a.settings.CustomIgnoreRules, "#--- user rules ---")
+		if len(parts) >= 2 {
+			// save only the user rules portion, trimmed
+			settingsToSave.CustomIgnoreRules = strings.TrimSpace(parts[1])
+		}
+	}
+
+	data, err := json.MarshalIndent(settingsToSave, "", "  ")
 	if err != nil {
 		runtime.LogErrorf(a.ctx, "error marshalling settings: %v", err)
 		return err
@@ -1040,7 +1100,9 @@ func (a *App) GetCustomIgnoreRules() string {
 
 // setcustomignorerules updates the custom ignore rules, saves them, and recompiles.
 func (a *App) SetCustomIgnoreRules(rules string) error {
+	// keep the full rules in memory for immediate use
 	a.settings.CustomIgnoreRules = rules
+	
 	// attempt to compile first. if compilation fails, we might not want to save invalid rules,
 	// or save them and let the user know they are not effective.
 	// for now, compile then save. if compile fails, the old patterns (or nil) remain active.
