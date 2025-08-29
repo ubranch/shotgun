@@ -3,7 +3,7 @@
         class="flex flex-col h-screen bg-background text-foreground"
     >
         <div
-            class="flex items-center justify-center bg-card border-b border-border"
+            class="flex items-center justify-between bg-card border-b border-border px-4"
         >
             <HorizontalStepper
                 :current-step="currentStep"
@@ -14,6 +14,7 @@
                     .map((s) => s.completed)
                     .join('')}`"
             />
+            <ThemeToggle />
         </div>
         <!-- group/layout: enables tailwind group variants for responsive child styling -->
         <div class="flex flex-1 overflow-hidden group/layout">

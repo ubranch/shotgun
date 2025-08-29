@@ -6,7 +6,7 @@
             :class="{ 'excluded-node': node.excluded }"
         >
             <div
-                class="node-item p-1 border-b border-gray-200 dark:border-gray-700"
+                class="node-item p-1 border-b border-border"
                 :style="{ 'padding-left': depth * 20 + 'px' }"
                 style="position: relative; cursor: pointer"
                 @click="handleAreaClick($event, node)"
@@ -154,7 +154,7 @@ function isEffectivelyExcludedByParent(node) {
     transition: background-color 0.15s ease;
 }
 .node-item:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--accent);
 }
 .toggler {
     cursor: pointer;
@@ -184,7 +184,7 @@ function isEffectivelyExcludedByParent(node) {
     height: 20px;
 }
 .excluded-node > .node-item > span:not(.toggler, .file-icon, .arrow-indicator, .codicon) {
-    color: #999;
+    color: var(--muted-foreground);
 }
 .exclude-checkbox:disabled {
     cursor: not-allowed;

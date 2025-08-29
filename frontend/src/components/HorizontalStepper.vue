@@ -1,6 +1,6 @@
 <template>
-    <div class="bg-card top-0 z-10 center relative">
-        <div class="flex items-center justify-between px-5 py-3 pt-4">
+    <div class="bg-card top-0 z-10 relative">
+        <div class="flex items-center pr-5 py-3 pt-4">
             <div class="flex items-center">
                 <ol class="flex space-x-2 items-center">
                     <li

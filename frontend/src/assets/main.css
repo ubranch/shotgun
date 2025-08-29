@@ -53,19 +53,19 @@ select {
 /* placeholder color override */
 @layer base {
   ::placeholder {
-    color: rgb(209, 213, 219); /* gray-300 equivalent #d1d5db */
+    color: rgb(156, 163, 175); /* gray-400 equivalent for better contrast */
   }
   
   ::-webkit-input-placeholder {
-    color: rgb(209, 213, 219); /* gray-300 equivalent #d1d5db */
+    color: rgb(156, 163, 175); /* gray-400 equivalent for better contrast */
   }
   
   ::-moz-placeholder {
-    color: rgb(209, 213, 219); /* gray-300 equivalent #d1d5db */
+    color: rgb(156, 163, 175); /* gray-400 equivalent for better contrast */
     opacity: 1;
   }
   
   :-ms-input-placeholder {
-    color: rgb(209, 213, 219); /* gray-300 equivalent #d1d5db */
+    color: rgb(156, 163, 175); /* gray-400 equivalent for better contrast */
   }
 }

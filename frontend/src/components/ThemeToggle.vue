@@ -1,7 +1,7 @@
 <template>
     <button
         @click="toggleTheme"
-        class="flex items-center justify-center p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+        class="flex items-center justify-center p-2 rounded-md hover:bg-accent dark:hover:bg-gray-700 transition-colors"
         aria-label="Toggle theme"
     >
         <!-- sun icon (shown in dark mode) -->
@@ -22,7 +22,7 @@
         <svg
             v-else
             xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5 text-gray-700"
+            class="h-5 w-5 text-foreground"
             viewBox="0 0 20 20"
             fill="currentColor"
         >
