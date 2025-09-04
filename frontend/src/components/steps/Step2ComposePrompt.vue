@@ -320,7 +320,7 @@ function getShortName(key) {
         dev: "CODE DIFF",
         architect: "BUILD PLAN",
         findBug: "ANALYZE BUG",
-        projectManager: "REFLECT ON IMPLEMENTATION",
+        projectManager: "REFLECT ON",
     };
     return shortNames[key] || key;
 }

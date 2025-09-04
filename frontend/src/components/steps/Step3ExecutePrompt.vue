@@ -12,7 +12,10 @@
             >
                 <span class="text-base">execute request</span>
             </BaseButton>
-            <BaseButton @click="showApiKeyModal = true" class="text-xs px-2 py-1">
+            <BaseButton
+                @click="showApiKeyModal = true"
+                class="text-xs px-2 py-1"
+            >
                 <span class="text-base">set api key</span>
             </BaseButton>
             <BaseButton
@@ -59,12 +62,6 @@
                 class="ml-2 max-w-[300px] truncate text-sm rounded-xl bg-red-600 dark:bg-red-700 text-white px-3 py-1 font-mono"
             >
                 prompt exceeds free api limit of 250,000 tokens
-            </div>
-            <div
-                v-if="isPromptTooLarge"
-                class="ml-2 max-w-[300px] truncate text-sm rounded-xl bg-gray-600 dark:bg-grey-700 text-white px-3 py-1 font-mono"
-            >
-                use google ai studio instead
             </div>
             <div
                 class="flex items-center w-[4rem] justify-center"
@@ -150,7 +147,9 @@
                             />
                         </svg>
                     </template>
-                    <span class="text-base">{{ copySuccess ? "copied!" : "copy" }}</span>
+                    <span class="text-base">{{
+                        copySuccess ? "copied!" : "copy"
+                    }}</span>
                 </BaseButton>
                 <BaseButton
                     v-if="localShotgunGitDiffInput.trim()"
@@ -191,7 +190,9 @@
                             />
                         </svg>
                     </template>
-                    <span class="text-base">{{ clearSuccess ? "cleared!" : "clear" }}</span>
+                    <span class="text-base">{{
+                        clearSuccess ? "cleared!" : "clear"
+                    }}</span>
                 </BaseButton>
             </div>
         </div>
