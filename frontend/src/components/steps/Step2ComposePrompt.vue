@@ -240,17 +240,14 @@
 <script setup>
 import { ref, watch, onMounted, computed, onUnmounted } from "vue";
 import { CountGeminiTokens } from "../../../wailsjs/go/main/App";
-import {
-    LogInfo as LogInfoRuntime,
-    LogError as LogErrorRuntime,
-} from "../../../wailsjs/runtime/runtime";
+import { LogError as LogErrorRuntime } from "../../../wailsjs/runtime/runtime";
 import BaseButton from "../BaseButton.vue";
 
 import devTemplateContentFromFile from "../../../../design/prompts/prompt_makeDiffGitFormat.md?raw";
 import architectTemplateContentFromFile from "../../../../design/prompts/prompt_makePlan.md?raw";
 import findBugTemplateContentFromFile from "../../../../design/prompts/prompt_analyzeBug.md?raw";
 import projectManagerTemplateContentFromFile from "../../../../design/prompts/prompt_projectManager.md?raw";
-import promptEnhancerTemplateContentFromFile from "../../../../design/prompts/prompt_enhancer.md?raw";
+import promptEnhancerTemplateContentFromFile from "../../../../design/prompts/prompt_promptEnhancer.md?raw";
 import noneTemplateContentFromFile from "../../../../design/prompts/prompt_none.md?raw";
 
 const props = defineProps({
@@ -318,12 +315,12 @@ function getTemplateIcon(key) {
 
 function getShortName(key) {
     const shortNames = {
-        none: "N",
-        dev: "BUILD",
-        promptEnhancer: "QUERY",
-        architect: "PLAN",
-        findBug: "BUG",
-        projectManager: "REFLECT",
+        none: "RAW PROMPT",
+        promptEnhancer: "ENHANCE PROMPT",
+        dev: "CODE DIFF",
+        architect: "BUILD PLAN",
+        findBug: "ANALYZE BUG",
+        projectManager: "REFLECT ON IMPLEMENTATION",
     };
     return shortNames[key] || key;
 }
